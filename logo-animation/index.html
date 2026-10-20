@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-1: #10243a;
+    --bg-2: #060c14;
+    --blue: #2f91d0;
+    --orange: #eea22a;
+    --text: #e8f1f8;
+  }
+  :root[data-theme="light"] {
+    --bg-1: #ffffff;
+    --bg-2: #e9eff5;
+    --text: #1d3b55;
+  }
+  html, body { margin: 0; height: 100%; background: var(--bg-2); overflow: hidden; }
+  svg#stage { display: block; width: 100vw; height: 100vh; }
+  #play {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 14px; cursor: pointer; color: var(--text);
+    font: 500 15px Montserrat, Inter, sans-serif; letter-spacing: .2em; background: transparent; border: 0;
+  }
+  #play span.btn {
+    width: 84px; height: 84px; border-radius: 50%; border: 1.5px solid currentColor;
+    display: grid; place-items: center; transition: transform .2s;
+  }
+  #play:hover span.btn { transform: scale(1.08); }
+  #play[hidden] { display: none; }
+  #replay {
+    position: fixed; bottom: 16px; right: 16px; padding: 8px 14px; border-radius: 20px;
+    border: 1px solid color-mix(in srgb, var(--text) 40%, transparent); background: transparent;
+    color: var(--text); font: 500 13px Montserrat, Inter, sans-serif; cursor: pointer; opacity: .7;
+  }
+  #replay[hidden] { display: none; }
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1080 1080" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="75%">
+      <stop offset="0" stop-color="var(--bg-1)"/>
+      <stop offset="1" stop-color="var(--bg-2)"/>
+    </radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+    <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <linearGradient id="shineGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--blue)" stop-opacity="0"/>
+      <stop offset="1" stop-color="var(--blue)" stop-opacity=".9"/>
+    </linearGradient>
+
+    <!-- Logo geometry (traced from the original, 1080px space) -->
+    <path id="armShape" d="M268 250 Q268 228 283 243 L504 464 L460 508 L330 378 L330 665 A62 62 0 0 1 268 603 Z"/>
+    <path id="ringShape" d="M562 511 L474 599 A93 93 0 1 0 606 599"/>
+    <rect id="diamondShape" x="-43.5" y="-43.5" width="87" height="87" rx="12"/>
+
+    <!-- Reveal masks: a thick stroke travels along each arm's centreline -->
+    <mask id="maskL" maskUnits="userSpaceOnUse" x="0" y="0" width="1080" height="1080">
+      <path id="revealL" d="M299 720 L299 303 L482 486" pathLength="1" fill="none" stroke="#fff"
+            stroke-width="150" stroke-dasharray="1 1" stroke-dashoffset="1"/>
+    </mask>
+    <mask id="maskR" maskUnits="userSpaceOnUse" x="0" y="0" width="1080" height="1080">
+      <path id="revealR" d="M781 720 L781 303 L598 486" pathLength="1" fill="none" stroke="#fff"
+            stroke-width="150" stroke-dasharray="1 1" stroke-dashoffset="1"/>
+    </mask>
+    <!-- Whole-logo silhouette, used to clip the shine sweep -->
+    <mask id="logoMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1080" height="1080">
+      <g fill="#fff">
+        <use href="#armShape"/>
+        <use href="#armShape" transform="translate(1080 0) scale(-1 1)"/>
+        <use href="#diamondShape" transform="translate(540 352) rotate(45)"/>
+      </g>
+      <use href="#ringShape" fill="none" stroke="#fff" stroke-width="63"/>
+    </mask>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+  <g id="dust"></g>
+  <g id="streaks"></g>
+
+  <g id="camera">
+    <g id="logoPos" transform="translate(0 -55)">
+      <g id="logoPulse">
+        <!-- glow layer -->
+        <g id="glowLayer" filter="url(#glow)" opacity="0">
+          <g fill="var(--blue)">
+            <use href="#armShape"/>
+            <use href="#armShape" transform="translate(1080 0) scale(-1 1)"/>
+          </g>
+          <use href="#ringShape" fill="none" stroke="var(--blue)" stroke-width="63"/>
+        </g>
+
+        <circle id="shock1" cx="540" cy="352" r="0" fill="none" stroke="var(--orange)" stroke-width="3" opacity="0"/>
+        <circle id="shock2" cx="540" cy="509" r="0" fill="none" stroke="var(--blue)" stroke-width="2" opacity="0"/>
+
+        <g id="armL" mask="url(#maskL)">
+          <use href="#armShape" fill="var(--blue)"/>
+        </g>
+        <g id="armR" mask="url(#maskR)">
+          <use href="#armShape" fill="var(--blue)" transform="translate(1080 0) scale(-1 1)"/>
+        </g>
+        <path id="ring" d="M562 511 L474 599 A93 93 0 1 0 606 599" pathLength="1" fill="none"
+              stroke="var(--blue)" stroke-width="63" stroke-dasharray="1 1" stroke-dashoffset="1"/>
+
+        <g id="particles"></g>
+
+        <g id="diamond" transform="translate(540 509) scale(0)">
+          <use href="#diamondShape" fill="var(--orange)" filter="url(#softGlow)" opacity=".6"/>
+          <use href="#diamondShape" fill="var(--orange)"/>
+        </g>
+
+        <g mask="url(#logoMask)">
+          <rect id="shine" x="-400" y="150" width="260" height="800" fill="url(#shineGrad)"
+                transform="skewX(-25)" opacity="0"/>
+        </g>
+      </g>
+    </g>
+
+    <g id="titleGroup" opacity="0">
+      <line id="lineL" x1="0" y1="0" x2="0" y2="0" stroke="var(--blue)" stroke-opacity=".8" stroke-width="1.5"/>
+      <line id="lineR" x1="0" y1="0" x2="0" y2="0" stroke="var(--blue)" stroke-opacity=".8" stroke-width="1.5"/>
+      <text id="title" x="540" y="878" text-anchor="middle" fill="var(--text)"
+            font-family="Montserrat, Inter, sans-serif" font-weight="700" font-size="40"></text>
+      <text id="subtitle" x="540" y="926" text-anchor="middle" fill="var(--orange)"
+            font-family="Montserrat, Inter, sans-serif" font-weight="500" font-size="18" opacity="0"></text>
+    </g>
+  </g>
+</svg>
+
+<button id="play" aria-label="Play">
+  <span class="btn"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></span>
+  <span>PLAY · SOUND ON</span>
+</button>
+<button id="replay" hidden>↻ Replay</button>
+
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const RENDER = params.has('render');
+  const TITLE = params.get('text') ?? 'GRAPHIC DESIGNER';
+  const SUBTITLE = params.get('sub') ?? 'BRANDING · VISUAL IDENTITY';
+  if (params.get('theme') === 'light') document.documentElement.dataset.theme = 'light';
+  const DURATION = 6.5;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const $ = id => document.getElementById(id);
+
+  // ---------- helpers ----------
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const prog = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const ease = {
+    inOutCubic: k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2,
+    outCubic: k => 1 - Math.pow(1 - k, 3),
+    inCubic: k => k * k * k,
+    outExpo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
+    inOutExpo: k => k === 0 ? 0 : k === 1 ? 1 : k < .5 ? Math.pow(2, 20 * k - 10) / 2 : (2 - Math.pow(2, -20 * k + 10)) / 2,
+    outBack: k => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); },
+    outElastic: k => k === 0 ? 0 : k === 1 ? 1 : Math.pow(2, -10 * k) * Math.sin((k * 10 - .75) * (2 * Math.PI / 3)) + 1,
+  };
+  function rng(seed) {
+    return () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+
+  // ---------- static scene setup ----------
+  const R = rng(7);
+  const dust = Array.from({ length: 46 }, () => {
+    const c = document.createElementNS(SVGNS, 'circle');
+    const d = { x: R() * 1080, y: R() * 1080, r: .8 + R() * 2.2, vx: (R() - .5) * 14, vy: -6 - R() * 16, a: .08 + R() * .3, ph: R() * 6.28, el: c };
+    c.setAttribute('r', d.r); c.setAttribute('fill', R() < .2 ? 'var(--orange)' : 'var(--blue)');
+    $('dust').appendChild(c); return d;
+  });
+  // 45° light streaks echoing the angle of the M
+  const streaks = Array.from({ length: 9 }, (_, i) => {
+    const l = document.createElementNS(SVGNS, 'line');
+    const s = { off: (R() - .5) * 1300, len: 140 + R() * 260, delay: R() * .55, speed: 2200 + R() * 1200, dir: i % 2 ? 1 : -1, w: .8 + R() * 1.8, el: l };
+    l.setAttribute('stroke', 'url(#lineGrad)'); l.setAttribute('stroke-width', s.w); l.setAttribute('stroke-linecap', 'round');
+    $('streaks').appendChild(l); return s;
+  });
+  function makeBurst(seed, n, cx, cy, speedMin, speedMax, t0) {
+    const r = rng(seed);
+    return Array.from({ length: n }, () => {
+      const el = document.createElementNS(SVGNS, 'rect');
+      const size = 4 + r() * 9, ang = r() * Math.PI * 2, sp = speedMin + r() * (speedMax - speedMin);
+      const col = r(); el.setAttribute('fill', col < .55 ? 'var(--orange)' : col < .9 ? 'var(--blue)' : '#fff');
+      el.setAttribute('width', size); el.setAttribute('height', size); el.setAttribute('rx', size * .18);
+      $('particles').appendChild(el);
+      return { el, size, cx, cy, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, rot: r() * 360, vr: (r() - .5) * 720, life: .7 + r() * .7, t0 };
+    });
+  }
+  const bursts = [
+    ...makeBurst(11, 30, 540, 352, 180, 620, 1.35),
+    ...makeBurst(23, 36, 540, 560, 220, 760, 2.85),
+  ];
+  $('title').textContent = TITLE;
+  $('subtitle').textContent = SUBTITLE;
+  let titleW = 0;
+
+  // ---------- the timeline: draws the frame at time t (seconds) ----------
+  function render(t) {
+    // camera: slow push-in
+    const cam = lerp(1, 1.045, ease.outCubic(prog(t, 0, DURATION)));
+    $('camera').setAttribute('transform', `translate(540 540) scale(${cam}) translate(-540 -540)`);
+
+    // ambient dust
+    for (const d of dust) {
+      const x = (d.x + d.vx * t + 1080) % 1080, y = ((d.y + d.vy * t) % 1080 + 1080) % 1080;
+      d.el.setAttribute('cx', x); d.el.setAttribute('cy', y);
+      d.el.setAttribute('opacity', d.a * prog(t, 0, 1) * (.6 + .4 * Math.sin(d.ph + t * 2)));
+    }
+    // opening streaks (0 – 1.3s)
+    for (const s of streaks) {
+      const k = prog(t, s.delay, s.delay + .75);
+      const vis = k > 0 && k < 1;
+      s.el.setAttribute('opacity', vis ? Math.sin(k * Math.PI) * .8 : 0);
+      if (!vis) continue;
+      const p = lerp(-900, 900, ease.inOutCubic(k));
+      const ux = .7071 * s.dir, uy = .7071;               // travel direction (45°)
+      const x = 540 - uy * s.off + ux * p, y = 540 + ux * s.off + uy * p;
+      s.el.setAttribute('x1', x - ux * s.len); s.el.setAttribute('y1', y - uy * s.len);
+      s.el.setAttribute('x2', x); s.el.setAttribute('y2', y);
+    }
+
+    // ---- diamond: spins in at centre, then shoots up to its place ----
+    let dx = 540, dy = 509, ds = 0, dr = -315;
+    if (t >= .15) {
+      const a = prog(t, .15, .95);
+      ds = 1.6 * ease.outBack(a);
+      dr = lerp(-315, 45, ease.outExpo(a));
+    }
+    if (t >= .95) {
+      const ant = prog(t, .95, 1.1);              // anticipation dip
+      const fly = prog(t, 1.1, 1.35);             // fly up
+      dy = lerp(509, 540, Math.sin(ant * Math.PI) * .25) ;
+      dy = lerp(dy, 352, ease.inCubic(fly));
+      ds = lerp(1.6 + .15 * Math.sin(ant * Math.PI), 1, ease.inCubic(fly));
+      dr = 45 + 90 * ease.inOutCubic(fly);
+    }
+    if (t >= 1.35) {                              // landing squash + settle
+      const k = prog(t, 1.35, 2.1);
+      ds = 1 + .28 * (1 - ease.outElastic(k)) * (k < 1 ? 1 : 0);
+      dx = 540; dy = 352; dr = 135;
+    }
+    const dsx = t >= 1.35 ? ds : ds, dsy = t >= 1.35 ? 2 - ds : ds;
+    $('diamond').setAttribute('transform',
+      `translate(${dx} ${dy}) scale(${dsx} ${dsy}) rotate(${dr})`);
+
+    // shockwave 1 at landing
+    const s1 = prog(t, 1.35, 2.0);
+    $('shock1').setAttribute('r', 20 + 260 * ease.outExpo(s1));
+    $('shock1').setAttribute('opacity', s1 > 0 && s1 < 1 ? (1 - s1) * .9 : 0);
+    $('shock1').setAttribute('stroke-width', 6 * (1 - s1) + .5);
+
+    // ---- arms draw from the bottom up toward the diamond ----
+    const aL = ease.inOutCubic(prog(t, 1.4, 2.15));
+    const aR = ease.inOutCubic(prog(t, 1.5, 2.25));
+    $('revealL').setAttribute('stroke-dashoffset', 1 - aL);
+    $('revealR').setAttribute('stroke-dashoffset', 1 - aR);
+    $('armL').setAttribute('transform', `translate(${-30 * (1 - aL)} ${50 * (1 - aL)})`);
+    $('armR').setAttribute('transform', `translate(${30 * (1 - aR)} ${50 * (1 - aR)})`);
+
+    // ---- ring sweeps around ----
+    const rk = ease.inOutCubic(prog(t, 2.05, 2.85));
+    $('ring').setAttribute('stroke-dashoffset', 1 - rk);
+    $('ring').setAttribute('opacity', rk > 0 ? 1 : 0);
+
+    // ---- final hit: pulse + glow + shockwave ----
+    const h = prog(t, 2.85, 3.5);
+    const pulse = t >= 2.85 ? 1 + .045 * Math.sin(h * Math.PI) * (1 - h) : 1;
+    $('logoPulse').setAttribute('transform', `translate(540 509) scale(${pulse}) translate(-540 -509)`);
+    const glowIn = t >= 2.85 ? .55 * (1 - .6 * ease.outCubic(prog(t, 2.85, 4))) * ease.outCubic(prog(t, 2.85, 2.95)) : 0;
+    $('glowLayer').setAttribute('opacity', glowIn * (1 + .08 * Math.sin(t * 3)));
+    const s2 = prog(t, 2.85, 3.8);
+    $('shock2').setAttribute('r', 120 + 520 * ease.outExpo(s2));
+    $('shock2').setAttribute('opacity', s2 > 0 && s2 < 1 ? (1 - s2) * .7 : 0);
+
+    // particles
+    for (const p of bursts) {
+      const k = (t - p.t0) / p.life;
+      if (k <= 0 || k >= 1) { p.el.setAttribute('opacity', 0); continue; }
+      const tt = t - p.t0, drag = (1 - Math.exp(-3 * tt)) / 3;
+      const x = p.cx + p.vx * drag, y = p.cy + p.vy * drag + 160 * tt * tt;
+      const s = 1 - k;
+      p.el.setAttribute('opacity', Math.min(1, s * 1.6));
+      p.el.setAttribute('transform', `translate(${x} ${y}) rotate(${p.rot + p.vr * tt}) scale(${s}) translate(${-p.size / 2} ${-p.size / 2})`);
+    }
+
+    // shine sweep across the logo
+    const sh = prog(t, 3.05, 3.85);
+    $('shine').setAttribute('x', lerp(-200, 1400, ease.inOutCubic(sh)));
+    $('shine').setAttribute('opacity', sh > 0 && sh < 1 ? 1 : 0);
+
+    // ---- title ----
+    const tk = ease.outExpo(prog(t, 3.3, 4.6));
+    $('titleGroup').setAttribute('opacity', prog(t, 3.3, 3.8));
+    $('title').setAttribute('letter-spacing', lerp(34, 12, tk));
+    $('title').setAttribute('transform', `translate(0 ${18 * (1 - tk)})`);
+    if (!titleW || t < 4.7) titleW = $('title').getComputedTextLength();
+    const lk = ease.outCubic(prog(t, 3.6, 4.6));
+    const half = titleW / 2 + 28, len = 110 * lk;
+    $('lineL').setAttribute('x1', 540 - half - len); $('lineL').setAttribute('x2', 540 - half);
+    $('lineL').setAttribute('y1', 864); $('lineL').setAttribute('y2', 864);
+    $('lineR').setAttribute('x1', 540 + half + len); $('lineR').setAttribute('x2', 540 + half);
+    $('lineR').setAttribute('y1', 864); $('lineR').setAttribute('y2', 864);
+    const sk = ease.outCubic(prog(t, 3.9, 4.8));
+    $('subtitle').setAttribute('opacity', sk);
+    $('subtitle').setAttribute('letter-spacing', lerp(14, 7, sk));
+  }
+
+  // ---------- sound design (Web Audio; works realtime and offline) ----------
+  function scoreAudio(ctx, T0) {
+    const ar = rng(99);
+    const master = ctx.createGain(); master.gain.value = .9;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = .003; comp.release.value = .25;
+    master.connect(comp); comp.connect(ctx.destination);
+
+    // generated reverb
+    const irLen = Math.floor(ctx.sampleRate * 3.2);
+    const ir = ctx.createBuffer(2, irLen, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const d = ir.getChannelData(c);
+      for (let i = 0; i < irLen; i++) d[i] = (ar() * 2 - 1) * Math.pow(1 - i / irLen, 3.2);
+    }
+    const verb = ctx.createConvolver(); verb.buffer = ir;
+    const verbGain = ctx.createGain(); verbGain.gain.value = .42;
+    verb.connect(verbGain); verbGain.connect(master);
+
+    const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
+    { const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = ar() * 2 - 1; }
+
+    function out(node, pan = 0, wet = .3) {
+      const p = ctx.createStereoPanner(); p.pan.value = pan;
+      node.connect(p); p.connect(master);
+      const s = ctx.createGain(); s.gain.value = wet; p.connect(s); s.connect(verb);
+      return p;
+    }
+    function env(g, t, a, peak, d) {
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + a);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
+    }
+    function whoosh(t, dur, f0, f1, peak, pan = 0, q = 1.2, panTo = pan) {
+      t += T0;
+      const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = q;
+      bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur);
+      const g = ctx.createGain(); env(g, t, dur * .6, peak, dur * .4);
+      src.connect(bp); bp.connect(g);
+      const p = out(g, pan, .35);
+      p.pan.setValueAtTime(pan, t); p.pan.linearRampToValueAtTime(panTo, t + dur);
+      src.start(t, ar() * 1.5); src.stop(t + dur + .05);
+    }
+    function sub(t, f0, f1, peak, dur) {
+      t += T0;
+      const o = ctx.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur * .5);
+      const g = ctx.createGain(); env(g, t, .005, peak, dur);
+      o.connect(g); out(g, 0, .05); o.start(t); o.stop(t + dur + .05);
+    }
+    function click(t, peak, f = 3500) {
+      t += T0;
+      const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = f;
+      const g = ctx.createGain(); env(g, t, .001, peak, .06);
+      src.connect(hp); hp.connect(g); out(g, 0, .2); src.start(t); src.stop(t + .1);
+    }
+    function bell(t, f, peak, dur, pan = 0, ratio = 3.5) {
+      t += T0;
+      const car = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain();
+      car.frequency.value = f; mod.frequency.value = f * ratio;
+      mg.gain.setValueAtTime(f * 2.2, t); mg.gain.exponentialRampToValueAtTime(f * .05, t + dur * .6);
+      mod.connect(mg); mg.connect(car.frequency);
+      const g = ctx.createGain(); env(g, t, .004, peak, dur);
+      car.connect(g); out(g, pan, .55);
+      car.start(t); mod.start(t); car.stop(t + dur + .1); mod.stop(t + dur + .1);
+    }
+    function pad(t, freqs, peak, dur) {
+      t += T0;
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = .7;
+      lp.frequency.setValueAtTime(400, t); lp.frequency.exponentialRampToValueAtTime(3200, t + .25);
+      lp.frequency.exponentialRampToValueAtTime(700, t + dur);
+      const g = ctx.createGain(); env(g, t, .02, peak, dur);
+      lp.connect(g); out(g, 0, .6);
+      freqs.forEach((f, i) => [-7, 7].forEach(det => {
+        const o = ctx.createOscillator(); o.type = i === 0 ? 'triangle' : 'sawtooth';
+        o.frequency.value = f; o.detune.value = det;
+        const og = ctx.createGain(); og.gain.value = i === 0 ? .5 : .14;
+        o.connect(og); og.connect(lp); o.start(t); o.stop(t + dur + .1);
+      }));
+    }
+    function sparkle(t, n, span, peak) {
+      for (let i = 0; i < n; i++) {
+        const f = 2400 + ar() * 4200;
+        bell(t + ar() * span, f, peak * (.5 + ar() * .5), .35 + ar() * .4, ar() * 1.6 - .8, 1.41);
+      }
+    }
+    function riser(t, dur, peak) {
+      t += T0;
+      const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+      const hp = ctx.createBiquadFilter(); hp.type = 'bandpass'; hp.Q.value = 2;
+      hp.frequency.setValueAtTime(300, t); hp.frequency.exponentialRampToValueAtTime(5000, t + dur);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + dur); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + .08);
+      src.connect(hp); hp.connect(g); out(g, 0, .4); src.start(t); src.stop(t + dur + .1);
+      const o = ctx.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(440, t + dur);
+      const og = ctx.createGain(); og.gain.setValueAtTime(0.0001, t);
+      og.gain.exponentialRampToValueAtTime(peak * .5, t + dur); og.gain.exponentialRampToValueAtTime(0.0001, t + dur + .05);
+      o.connect(og); out(og, 0, .3); o.start(t); o.stop(t + dur + .1);
+    }
+
+    // --- the score, synced to the timeline above ---
+    whoosh(0.0, 1.0, 400, 2500, .25, -.6, 1, .6);        // opening streaks
+    sub(0.12, 70, 45, .35, 1.2);                          // low swell
+    whoosh(0.15, .7, 1800, 600, .3, 0, 2);                // diamond spin-in
+    bell(0.55, 1318.5, .06, 1.2, 0);                      // shimmer as it settles
+    riser(0.85, .5, .35);                                 // anticipation riser
+    sub(1.35, 160, 42, .9, .7);                           // landing impact
+    click(1.35, .5);
+    bell(1.35, 1046.5, .22, 2.0, 0);                      // orange "ping"
+    bell(1.36, 1568, .09, 1.6, .2, 2.0);
+    whoosh(1.4, .75, 300, 3200, .32, -.8, 1.4, -.1);      // left arm
+    whoosh(1.5, .75, 320, 3400, .32, .8, 1.4, .1);        // right arm
+    whoosh(2.05, .8, 3000, 500, .34, .5, 1.8, -.4);       // ring sweep
+    riser(2.45, .4, .25);
+    sub(2.85, 180, 38, 1, 1.4);                           // final hit
+    click(2.85, .6, 2500);
+    pad(2.85, [130.81, 196, 261.63, 329.63, 392, 587.33], .28, 3.4); // C add9 chord
+    bell(2.86, 2093, .08, 2.4, 0, 2.0);
+    sparkle(3.05, 10, .8, .045);                          // shine sweep
+    whoosh(3.3, .6, 2500, 6000, .12, 0, 3);               // title reveal
+    bell(3.6, 784, .05, 1.2, -.3, 1.0);
+    bell(3.9, 1174.7, .04, 1.4, .3, 1.0);
+  }
+
+  // ---------- offline render of the soundtrack to WAV (used by render.js) ----------
+  async function renderAudioWav() {
+    const sr = 48000, len = Math.ceil(sr * DURATION);
+    const ctx = new OfflineAudioContext(2, len, sr);
+    scoreAudio(ctx, 0);
+    const buf = await ctx.startRendering();
+    const L = buf.getChannelData(0), Rc = buf.getChannelData(1);
+    const bytes = new Uint8Array(44 + len * 4), v = new DataView(bytes.buffer);
+    const w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); v.setUint32(4, 36 + len * 4, true); w(8, 'WAVE'); w(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 2, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 4, true); v.setUint16(32, 4, true); v.setUint16(34, 16, true);
+    w(36, 'data'); v.setUint32(40, len * 4, true);
+    for (let i = 0; i < len; i++) {
+      v.setInt16(44 + i * 4, clamp(L[i], -1, 1) * 32767, true);
+      v.setInt16(46 + i * 4, clamp(Rc[i], -1, 1) * 32767, true);
+    }
+    let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+  }
+
+  // ---------- playback ----------
+  render(0);
+  window.renderFrame = render;
+  window.renderAudioWav = renderAudioWav;
+  window.DURATION = DURATION;
+
+  let actx = null, raf = 0;
+  function play() {
+    $('play').hidden = true; $('replay').hidden = true;
+    actx ??= new AudioContext();
+    actx.resume();
+    const T0 = actx.currentTime + .08;
+    scoreAudio(actx, T0);
+    cancelAnimationFrame(raf);
+    const tick = () => {
+      const t = actx.currentTime - T0;
+      render(Math.max(0, Math.min(DURATION, t)));
+      if (t < DURATION) raf = requestAnimationFrame(tick); else $('replay').hidden = false;
+    };
+    tick();
+  }
+  if (RENDER) { $('play').hidden = true; }
+  else {
+    $('play').addEventListener('click', play);
+    $('replay').addEventListener('click', play);
+  }
+})();
+</script>
+</body>
+</html>
