@@ -24,6 +24,8 @@ ART = ROOT / "art"
 
 AR_DIGITS = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
 
+AUTHOR = "بهاء الدين أبو زبيدة"
+
 # A key line from each chapter, shown on its opening page. Each part must appear verbatim
 # in the chapter text; parts are shown on separate lines.
 QUOTES = {
@@ -194,6 +196,8 @@ body { font-family: 'Amiri', serif; color: var(--ink); font-size: 11.5pt; line-h
 .lettering .en b { font-weight: normal; background: #964652; color: #f4efe7; padding: 0 1.2mm; }
 .cover .sub { position: absolute; bottom: 17mm; left: 18mm; right: 18mm; font-size: 11pt; line-height: 1.8;
               color: #5e5750; }
+.cover .author { position: absolute; top: 66mm; right: 22mm; font-family: 'Aref Ruqaa'; font-size: 15pt;
+                 color: var(--rose); }
 .cover .sub::before { content: ""; display: block; width: 10mm; margin: 0 auto 3mm; border-top: 0.3mm solid var(--rose); }
 
 .back { justify-content: flex-start; }
@@ -205,6 +209,7 @@ body { font-family: 'Amiri', serif; color: var(--ink); font-size: 11.5pt; line-h
 .back .blurb p { margin: 0 0 4mm; }
 .back .blurb .q { font-family: 'Aref Ruqaa'; font-size: 14pt; color: var(--rose); text-align: right; }
 .back .mark { position: absolute; bottom: 52mm; left: 0; right: 0; font-family: 'Reem Kufi'; font-size: 8pt; color: var(--muted); }
+.back .mark .a { display: block; margin-top: 1.5mm; font-family: 'Aref Ruqaa'; font-size: 12pt; color: var(--rose); }
 
 /* ---- front matter */
 .half-title h2 { font-family: 'Aref Ruqaa'; font-weight: 700; font-size: 24pt; margin: 0; color: var(--ink); }
@@ -212,6 +217,7 @@ body { font-family: 'Amiri', serif; color: var(--ink); font-size: 11.5pt; line-h
 .title-page .kicker { font-family: 'Reem Kufi'; font-size: 9.5pt; color: var(--rose); }
 .title-page .lettering { margin: 6mm 0 0; transform: scale(.86); transform-origin: top center; }
 .title-page .sub { font-size: 12.5pt; color: var(--muted); max-width: 92mm; line-height: 1.8; }
+.title-page .author { margin-top: 5mm; font-family: 'Aref Ruqaa'; font-size: 14pt; color: var(--rose); }
 .title-page .strip { position: absolute; bottom: 26mm; left: 0; right: 0; width: 110mm; }
 .colophon { justify-content: flex-end; padding: 0 24mm 30mm; font-size: 8.5pt; line-height: 2; color: var(--muted); }
 .colophon .t { font-family: 'Aref Ruqaa'; font-size: 12pt; color: var(--ink); }
@@ -480,6 +486,7 @@ def cover_front(book):
 <div class="sheet art cover" style="background-image:url(art/cover.jpg)">
   <div class="side"><div class="bar"></div><div class="v">رواية</div></div>
   {lettering()}
+  <div class="author">{esc(AUTHOR)}</div>
   <div class="sub">{esc(book['subtitle'])}</div>
 </div>"""
 
@@ -493,7 +500,7 @@ def cover_back(book):
     <p>{esc(book['blurb'])}</p>
     <p class="q">{esc(book['khatima'][-3])}</p>
   </div>
-  <div class="mark">رواية</div>
+  <div class="mark">رواية<span class="a">{esc(AUTHOR)}</span></div>
 </div>"""
 
 
@@ -508,6 +515,7 @@ def front_matter(book, ctx):
   <div class="kicker">رواية</div>
   {lettering()}
   <div class="sub">{esc(book['subtitle'])}</div>
+  <div class="author">{esc(AUTHOR)}</div>
   <img class="strip" src="art/strip-title.png" alt="">
 </div>""")
     out.append(f"""
@@ -515,7 +523,8 @@ def front_matter(book, ctx):
   <div class="t">{t}</div>
   <div>رواية</div>
   <hr>
-  <div>جميع الحقوق محفوظة للمؤلف ©</div>
+  <div>© {esc(AUTHOR)}</div>
+  <div>جميع الحقوق محفوظة للمؤلف</div>
   <div>الطبعة الأولى، {ar(2026)}</div>
   <hr>
   <div>جُمع النص بخطوط أميري، وعارف رقعة، وريم كوفي</div>
