@@ -13,7 +13,7 @@ function loadPlaywright() {
   const fps = Number(fpsArg || 30);
   const frames = Math.round(Number(seconds) * fps);
   const { chromium } = loadPlaywright();
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: ['--allow-file-access-from-files'] });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   await page.goto('file://' + path.resolve(input), { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 120000 });

@@ -23,16 +23,20 @@ html, body { margin: 0; background: #000; }
 #flash { position: absolute; inset: 0; background: #fbf8f2; opacity: 0; }
 #black { position: absolute; inset: 0; background: #000; opacity: 0; }
 
-/* words */
-.line { position: absolute; left: 0; right: 0; text-align: center; font-family: 'Amiri'; font-size: 50px; line-height: 1.6;
-        color: #2e2a27; text-shadow: 0 0 22px rgba(240,236,228,.9), 0 0 6px rgba(240,236,228,.7); white-space: nowrap; }
-.line.night { color: #e7ebf2; text-shadow: 0 0 18px rgba(10,14,24,.9); }
-.line .w { display: inline-block; opacity: 0; }
-.line.ruqaa { font-family: 'Aref Ruqaa'; font-weight: 700; }
-.rose { color: #9c4a55; }
-.gold { color: #96794d; }
-.muted { color: #6f675f; }
-#echoGhost { color: #9c4a55; }
+/* words: two or three at a time, painted on by a brush and dissolving like ink into fog */
+.chunk { position: absolute; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
+.chunk .ex { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; padding: 30px 70px; }
+.chunk .in { -webkit-mask-image: url(build/art/sweep.png); mask-image: url(build/art/sweep.png);
+             -webkit-mask-size: 250% 100%; mask-size: 250% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+             position: relative; padding: 4px 44px; }
+.chunk .txt { position: relative; font-family: 'Aref Ruqaa'; font-weight: 700; font-size: 100px; line-height: 1.45;
+              color: #2a2622; white-space: nowrap; text-shadow: 0 0 26px rgba(240,236,228,.85); }
+.chunk .txt .w { display: inline-block; }
+.chunk.emph .in { background: url(../art/brush.png) center / 100% 100% no-repeat; padding: 2px 64px 10px; }
+.chunk.emph .txt { color: #f6f1e9; text-shadow: none; font-size: 104px; }
+.chunk.night .txt { color: #eef1f6; text-shadow: 0 0 22px rgba(8,12,22,.9); }
+.chunk.soft .txt { color: #5a534c; }
+.chunk.big .txt { font-size: 132px; }
 
 /* title lettering (the book cover's, at video scale) */
 #lettering { position: absolute; top: 70px; left: 50%; width: 124mm; height: 56mm; margin-left: -62mm;
@@ -112,55 +116,50 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 const ramp = (t, a, b) => clamp((t - a) / (b - a));
 
 // ---------------------------------------------------------------- words
-// Each line: id, text, start, end (when its voice ends), out (when it leaves), position, styles.
-const lines = TL.lines.map(spec => {
+// Two or three words at a time (TL.chunks): a brush paints them on from the right, and when the
+// next words come they dissolve like ink into the fog.
+const DISSOLVE_STEPS = 12;
+const chunks = TL.chunks.map(c => {
   const el = document.createElement('div');
-  el.className = 'line ' + (spec.cls || '');
-  Object.assign(el.style, spec.css || {});
-  const words = spec.text.split(' ');
-  el.innerHTML = words.map(w => {
-    let cls = 'w';
-    for (const [word, c] of Object.entries(spec.color || {})) if (w.includes(word)) cls += ' ' + c;
-    return `<span class="${cls}">${w}</span>`;
-  }).join(' ');
-  if (spec.id) el.id = spec.id;
+  el.className = 'chunk ' + (c.cls || '');
+  el.style.top = c.top + 'px';
+  const words = c.text.split(' ').map(w => `<span class="w">${w}</span>`).join(' ');
+  el.innerHTML = `<div class="ex"><div class="in"><span class="txt">${words}</span></div></div>`;
   $('lines').appendChild(el);
-  return { spec, el, spans: [...el.querySelectorAll('.w')] };
+  return { c, el, ex: el.firstChild, inn: el.querySelector('.in'), spans: [...el.querySelectorAll('.w')] };
 });
 
-function drawLines(t) {
-  for (const { spec, el, spans } of lines) {
-    const visible = t >= spec.start - 0.5 && t <= spec.out + 0.8;
+function setMask(el, value, pos) {
+  el.style.webkitMaskImage = el.style.maskImage = value;
+  if (pos !== undefined) el.style.webkitMaskPosition = el.style.maskPosition = pos;
+}
+
+function drawWords(t) {
+  for (const { c, el, ex, inn, spans } of chunks) {
+    const visible = t >= c.start - 0.05 && t <= c.out + 0.05;
     el.style.display = visible ? '' : 'none';
     if (!visible) continue;
-    const leave = 1 - ramp(t, spec.out, spec.out + 0.6);
-    const dur = Math.max(0.4, (spec.end - spec.start) * 0.85);
-    spans.forEach((sp, i) => {
-      const ti = spec.start + (spans.length > 1 ? i / (spans.length - 1) : 0) * dur;
-      let p = ramp(t, ti - 0.12, ti + 0.38);
-      let o = ease(p) * leave * (spec.alpha ?? 1);
-      let y = (1 - easeOut(p)) * 14, blur = (1 - p) * 7, rot = 0;
-      if (spec.kind === 'fall') {           // the words of the fall drop to the ground
-        const d = clamp(t - ti - 0.2, 0, 2);
-        const drop = Math.min(spec.fall + i * 18, 0.5 * 2600 * d * d);
-        y += drop;
-        rot = -clamp(d * 70, 0, 18 + i * 9) * (i % 2 ? 1 : -0.7);
-      }
-      if (spec.kind === 'fade') o *= 1 - (i / (spans.length - 1)) * 0.8 * ramp(t, spec.end, spec.end + 1);
-      sp.style.opacity = o.toFixed(3);
-      sp.style.transform = `translateY(${y.toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
-      sp.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : 'none';
-    });
-    if (spec.kind === 'dim') {                // an earlier thought fading back as the next arrives
-      el.style.opacity = (1 - 0.6 * ramp(t, spec.dimAt, spec.dimAt + 0.5)).toFixed(3);
+    const paint = easeOut(ramp(t, c.start, c.start + c.paint));
+    const gone = ramp(t, c.out - c.leave, c.out);
+    const falling = c.kind === 'fall' && paint >= 1;
+    // the brush: its bristly edge travels across the words from right to left
+    setMask(inn, falling ? 'none' : 'url(build/art/sweep.png)', `${(paint * 100).toFixed(2)}% 0`);
+    // the dissolve: holes open in the ink until nothing is left
+    const k = Math.min(DISSOLVE_STEPS - 1, Math.round(gone * (DISSOLVE_STEPS - 1)));
+    setMask(ex, falling ? 'none' : `url(build/art/dissolve${k}.png)`);
+    ex.style.filter = gone > 0 ? `blur(${(gone * 5).toFixed(2)}px)` : 'none';
+    let tf = `translate(${((c.x || 0) - (1 - paint) * 16).toFixed(1)}px, ${(-gone * 18).toFixed(1)}px)`;
+    if (c.shake) tf += ` translate(${(Math.sin(t * 37) * 2.5).toFixed(1)}px, ${(Math.cos(t * 29) * 1.8).toFixed(1)}px)`;
+    ex.style.transform = tf;
+    ex.style.opacity = (falling ? 1 - gone : 1 - gone * 0.25).toFixed(3);
+    if (c.kind === 'fall') {   // the words of the fall drop to the ground, one after another
+      spans.forEach((sp, i) => {
+        const d = clamp(t - c.start - c.paint - i * 0.09, 0, 2);
+        const drop = Math.min(c.fall + i * 24, 0.5 * 2600 * d * d);
+        const rot = -Math.min(d * 80, 14 + i * 10) * (i % 2 ? 1 : -0.7);
+        sp.style.transform = `translateY(${drop.toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
+      });
     }
-    if (spec.drift) el.style.transform = `translateX(${(Math.sin(t * 0.9 + spec.start) * 6).toFixed(1)}px)`;
-  }
-  // the echo of «يشبهني»: a rose shadow that finds its place under the words
-  const g = $('echoGhost');
-  if (g) {
-    const p = easeOut(ramp(t, TL.t.echo, TL.t.echo + 1.4));
-    g.style.transform = `translate(${lerp(-46, -5, p)}px, ${lerp(10, 4, p)}px)`;
   }
 }
 
@@ -267,7 +266,7 @@ function seek(t, frame) {
   document.querySelectorAll('.grain').forEach((g, i) => { g.style.opacity = (i === frame % 4 ? grainAmt : 0).toFixed(3); });
   $('black').style.opacity = (Math.max(1 - ramp(t, 0, 0.6), ramp(t, TL.length - 1.3, TL.length))).toFixed(3);
 
-  drawLines(t);
+  drawWords(t);
 }
 
 window.seek = seek;

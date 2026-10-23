@@ -43,52 +43,63 @@ SCENES = {
     "title": v("L16a"), "choose": v("L16b"), "echo": v("L4"),
 }
 
-NIGHT = "night"
+# Each phrase is cut into chunks of two or three words ("|"), painted on one after another.
+# Options: emph = indexes of chunks set on the rose brush; cls = classes for every chunk;
+# x = horizontal offset in px; kind="fall" for the words that drop; shake for restless thoughts.
+PHRASES = [
+    ("L1", "لم أكنْ | أبحثُ عنكِ."),
+    ("L2a", "كلُّ ما | في الأمر..."),
+    ("L2b", "أنني تعرّفتُ إليكِ.", {"emph": [0]}),
+    ("L3a", "حديثٌ بدأ | من شاشةٍ صغيرة،"),
+    ("L3b", "ووصل إلى أماكن | في داخلي، | لم يصلْ | إليها أحد."),
+    ("L4", "كان فيكِ | شيءٌ يُشبهني.", {"emph": [1]}),
+    ("L5a", "وصارَ الحديثُ بيتًا...", {"emph": [0]}),
+    ("L5b", "أعودُ إليه، | كلّما ثقُلَ العالمُ | على صدري."),
+    ("L6", "ثم جاءت الكلمة... | التي لم أتوقّعها.", {"cls": "soft"}),
+    ("L7a", "كنتُ واقفًا... | وفجأة،"),
+    ("L7b", "وجدتُ نفسي على الأرض.", {"kind": "fall", "fall": 300}),
+    ("L8", "تصالحنا.", {"emph": [0]}),
+    ("L9a", "لكنّ بعضَ المواقف | تتركُ فينا أثرًا،"),
+    ("L9b", "لا يختفي | بمجرّد أن نتصالح."),
+    ("Q1", "هل قصّرت؟", {"emph": [0], "cls": "night", "x": 260, "shake": True}),
+    ("Q2", "هل كان بإمكاني | أن أجدَ وقتًا؟", {"cls": "night", "x": -240, "shake": True}),
+    ("Q3", "هل كان عليَّ | أن أتصرّفَ | بطريقةٍ مختلفة؟", {"cls": "night", "x": 140, "shake": True}),
+    ("L11a", "هل ترينَني...", {"cls": "night"}),
+    ("L11b", "حين أتعب؟", {"emph": [0], "cls": "night"}),
+    ("L12", "أنا لا أريدُ | أن أخسرَكِ.", {"emph": [1], "x": 200}),
+    ("L13a", "ولا أريدُ | أن أخسرَ نفسي...", {"x": -200}),
+    ("L13b", "وأنا أحاولُ | ألّا أخسرَكِ.", {"emph": [1]}),
+    ("L14", "لا أعرفُ | ماذا سيحدثُ | لهذا الحب.", {"cls": "soft"}),
+    ("L15a", "لكنّني، | يا شهد..."),
+    ("L15b", "ما زلتُ هنا.", {"emph": [0], "cls": "big"}),
+]
+TOP = 200          # the words sit in the fog of the sky
+HOLD = 3.2         # longest a chunk lingers after its phrase is spoken
+LEAVE = 0.35       # how long the dissolve takes
 
 
-def line(key, text, top, out, size=None, cls="", **extra):
-    css = {"top": f"{top}px"}
-    if size:
-        css["fontSize"] = f"{size}px"
-    css.update(extra.pop("css", {}))
-    return {"text": text, "start": v(key), "end": v(key, True), "out": out, "cls": cls, "css": css, **extra}
-
-
-def lines():
-    t = SCENES
-    q_out = v("L11a") - 0.65
-    return [
-        line("L1", "لم أكن أبحث عنكِ.", 200, v("L2a") - 0.65),
-        line("L2a", "كلُّ ما في الأمر...", 170, t["near"] - 0.65),
-        line("L2b", "أنني تعرّفتُ إليكِ.", 250, t["near"] - 0.65, 60, "ruqaa rose"),
-        line("L3a", "حديثٌ بدأ من شاشةٍ صغيرة،", 170, t["echo"] - 0.65),
-        line("L3b", "ووصل إلى أماكن في داخلي، لم يصل إليها أحد.", 250, t["echo"] - 0.65, 44),
-        line("L4", "كان فيكِ شيءٌ يُشبهني.", 200, t["home"] - 0.65, 72, "ruqaa", id="echoGhost", alpha=0.3),
-        line("L4", "كان فيكِ شيءٌ يُشبهني.", 200, t["home"] - 0.65, 72, "ruqaa"),
-        line("L5a", "وصار الحديثُ بيتًا...", 170, t["pre"] - 0.65),
-        line("L5b", "أعودُ إليه، كلّما ثقُلَ العالمُ على صدري.", 250, t["pre"] - 0.65, 44),
-        line("L6", "ثم جاءت الكلمة... التي لم أتوقّعها.", 200, t["ice"] - 0.65, css={"color": "#4a443f"}),
-        line("L7a", "كنتُ واقفًا... وفجأة،", 200, t["impact"] - 0.6),
-        line("L7b", "وجدتُ نفسي على الأرض.", 200, t["mark"] - 0.65, 56, kind="fall", fall=330),
-        line("L8", "تصالحنا.", 200, v("L9a") - 0.65, 52, "ruqaa"),
-        line("L9a", "لكنّ بعضَ المواقف تتركُ فينا أثرًا،", 170, t["questions"] - 0.65),
-        line("L9b", "لا يختفي بمجرّد أن نتصالح.", 250, t["questions"] - 0.65, 46),
-        line("Q1", "هل قصّرت؟", 120, q_out, 66, f"ruqaa {NIGHT}", kind="dim", dimAt=v("Q2"), drift=True,
-             css={"left": "auto", "right": "13%"}),
-        line("Q2", "هل كان بإمكاني أن أجدَ وقتًا؟", 250, q_out, 44, NIGHT, kind="dim", dimAt=v("Q3"), drift=True,
-             css={"right": "auto", "left": "9%"}),
-        line("Q3", "هل كان عليَّ أن أتصرّفَ بطريقةٍ مختلفة؟", 380, q_out, 40, NIGHT, drift=True),
-        line("L11a", "هل ترينَني...", 200, t["confess"] - 0.65, 70, f"ruqaa {NIGHT}"),
-        line("L11b", "حين أتعب؟", 300, t["confess"] - 0.65, 50, NIGHT),
-        line("L12", "أنا لا أريدُ أن أخسرَكِ.", 160, t["open_end"] - 0.5, 50, color={"أخسرَكِ": "rose"},
-             css={"left": "auto", "right": "12%"}),
-        line("L13a", "ولا أريدُ أن أخسرَ نفسي...", 270, t["open_end"] - 0.5, 50, color={"نفسي": "gold"},
-             css={"right": "auto", "left": "12%"}),
-        line("L13b", "وأنا أحاولُ ألّا أخسرَكِ.", 390, t["open_end"] - 0.5, 50, color={"أخسرَكِ": "rose"}),
-        line("L14", "لا أعرفُ ماذا سيحدثُ لهذا الحب.", 200, v("L15a") - 0.65, css={"color": "#5a534c"}),
-        line("L15a", "لكنّني، يا شهد...", 175, t["title"] - 0.5),
-        line("L15b", "ما زلتُ هنا.", 265, t["title"] - 0.5, 80, "ruqaa rose"),
-    ]
+def chunks():
+    out = []
+    for entry in PHRASES:
+        key, text, opts = entry[0], entry[1], (entry[2] if len(entry) > 2 else {})
+        parts = [p.strip() for p in text.split("|")]
+        counts = [len(p.split()) for p in parts]
+        start, end = v(key), v(key, True)
+        done = 0
+        for i, part in enumerate(parts):
+            c0 = start + (end - start) * done / sum(counts)
+            done += counts[i]
+            c1 = start + (end - start) * done / sum(counts)
+            cls = " ".join(filter(None, [opts.get("cls", ""), "emph" if i in opts.get("emph", []) else ""]))
+            out.append({"text": part, "start": round(c0, 3), "spoken": round(c1, 3), "phraseEnd": end,
+                        "paint": round(min(0.55, max(0.3, 0.7 * (c1 - c0))), 3), "leave": LEAVE,
+                        "top": TOP, "cls": cls, "x": opts.get("x", 0), "shake": opts.get("shake", False),
+                        "kind": opts.get("kind", ""), "fall": opts.get("fall", 0)})
+    # each chunk dissolves as the next is painted (or after lingering a while in a long silence)
+    for c, nxt in zip(out, out[1:] + [None]):
+        until = nxt["start"] + 0.12 if nxt else SCENES["title"]
+        c["out"] = round(min(until, c["phraseEnd"] + HOLD), 3)
+    return out
 
 
 def run(*cmd):
@@ -102,6 +113,8 @@ def main():
     BUILD.mkdir(exist_ok=True)
     if not (BUILD / "art" / "layout.json").exists():
         run(sys.executable, HERE / "scenes.py")
+    if not (BUILD / "art" / "sweep.png").exists():
+        run(sys.executable, HERE / "textfx.py")
 
     # the score, on the same timeline as the pictures
     music.SCENES = {k: SCENES[k] for k in ("open", "near", "home", "pre", "shock", "mark", "questions",
@@ -110,7 +123,7 @@ def main():
     score = BUILD / "score.wav"
     music.write_wav(score, music.compose())
 
-    timeline = {"t": SCENES, "length": LENGTH, "heartbeats": music.heartbeat_times(), "lines": lines()}
+    timeline = {"t": SCENES, "length": LENGTH, "heartbeats": music.heartbeat_times(), "chunks": chunks()}
     page = (HERE / "trailer.html").read_text(encoding="utf-8")
     page = page.replace("/*TIMELINE*/", json.dumps(timeline, ensure_ascii=False))
     page = page.replace("/*LAYOUT*/", (BUILD / "art" / "layout.json").read_text())
