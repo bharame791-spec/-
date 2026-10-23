@@ -58,13 +58,29 @@ npm run preview          # افتح http://localhost:8080 — فيه زر تشغ
 
 ```bash
 cd motion
-node render.mjs                         # output/coffee-identity.mp4 — 30fps
-node render.mjs --fps 60 --out output/coffee-identity-60fps.mp4
-node render.mjs --audio ../vo.wav       # دمج الفويس أوفر
-node render.mjs --stills 5,20,47        # صور ثابتة للمراجعة
+# 1) الصوت: يشدّ وقفات الفويس أوفر، ويولّد المؤثرات الصوتية، ويمكسها تحت الصوت (-14 LUFS)
+ffmpeg -y -i audio/vo.mp3 -filter_complex "[0]atrim=0:8.75,asetpts=N/SR/TB[a];[0]atrim=9.40:13.10,asetpts=N/SR/TB[b];[0]atrim=13.74:16.95,asetpts=N/SR/TB[c];[0]atrim=17.67,asetpts=N/SR/TB[d];[a][b][c][d]concat=n=4:v=0:a=1" -ar 44100 audio/vo-cut.wav
+python3 audio/sfx.py
+# 2) الفيديو مع الصوت
+node render.mjs --audio audio/mix.wav --out output/coffee-identity-final.mp4
+node render.mjs --stills 5,12,25                # صور ثابتة للمراجعة
 ```
 
-يحتاج Node 18 أو أحدث، و`ffmpeg`، و Playwright (Chromium).
+يحتاج Node 18 أو أحدث، و`ffmpeg`، و Playwright (Chromium)، و Python 3 مع numpy.
+
+### الصوت والمؤثرات
+
+- **الفويس أوفر:** `audio/vo.mp3` (ElevenLabs — Jeddawi). قصّرت ثلاث وقفات طويلة بين الجمل، والكلام نفسه ما تغيّر، عشان يكمل الفيديو في 30 ثانية.
+- **المؤثرات الصوتية:** مولّدة بالكود في `audio/sfx.py` (ما فيها أي مكتبة جاهزة)، وكل مؤثر مربوط بحركته على نفس منحنى `RETIME`:
+  - Whoosh لحركة الكاميرا والعناصر.
+  - Pops لاستقرار الحبات والعناصر.
+  - Ticks لظهور النصوص وخطوط الـ Grid.
+  - Shimmer لرسم الخطوط.
+  - لهب عند اشتعال النار.
+  - Boom ناعم عند ظهور المصمم وكلمة «قهوة».
+  - Chime عند الشعار والنهاية.
+  - بالإضافة إلى خلفية صوتية متصلة طول الفيديو.
+- **الميكس:** المؤثرات تنخفض تلقائيًا تحت الصوت (Ducking) عشان كل كلمة تبقى واضحة.
 
 ## الهوية البصرية — كيف تعدّلها
 

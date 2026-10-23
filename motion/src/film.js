@@ -8,9 +8,12 @@
   // The choreography is authored on a 53s master timeline; this curve retimes it to
   // the 30s cut. Quiet holds compress harder than key moves, and the monotone cubic
   // keeps playback speed smooth across scene boundaries (no velocity kinks).
+  // Keys are [cut time, master time], locked to the recorded voice-over (audio/vo-cut.wav).
   const RETIME = [
-    [0, 0], [3.6, 6], [9.6, 16], [14.4, 25], [17.0, 30], [19.4, 36],
-    [24.4, 44], [28.4, 50.6], [30, 53],
+    [0, 0], [2.2, 4.7], [3.3, 6.3], [4.35, 7.7], [5.4, 9.3], [6.95, 11.75],
+    [9.6, 18.2], [10.95, 20.6], [12.9, 25.9], [14.15, 28.0], [15.0, 31.0],
+    [17.0, 36.9], [21.4, 42.2], [22.8, 44.0], [23.6, 45.3], [24.3, 46.4],
+    [25.3, 47.4], [27.2, 48.7], [28.8, 50.6], [30, 53],
   ];
   const retime = (function monotone(pts) {
     const n = pts.length, x = pts.map((q) => q[0]), y = pts.map((q) => q[1]);
