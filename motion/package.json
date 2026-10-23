@@ -1,0 +1,14 @@
+{
+  "name": "coffee-identity-motion",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "npx http-server . -p 8080 -c-1",
+    "render": "node render.mjs",
+    "render:60": "node render.mjs --fps 60 --out output/coffee-identity-60fps.mp4",
+    "stills": "node render.mjs --stills 3,8,12,15,20,25,28,38,47,52"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

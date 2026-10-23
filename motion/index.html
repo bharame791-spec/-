@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>من الدلّة إلى الهوية — مؤمن أيمن</title>
+<style>
+  @font-face { font-family: 'Brand Arabic'; font-weight: 300; src: url(assets/fonts/ibm-plex-sans-arabic-arabic-300-normal.woff2) format('woff2'); unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200E; }
+  @font-face { font-family: 'Brand Arabic'; font-weight: 500; src: url(assets/fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2) format('woff2'); unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200E; }
+  @font-face { font-family: 'Brand Arabic'; font-weight: 700; src: url(assets/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2) format('woff2'); unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200E; }
+  @font-face { font-family: 'Brand Arabic'; font-weight: 300; src: url(assets/fonts/ibm-plex-sans-arabic-latin-300-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+2000-206F; }
+  @font-face { font-family: 'Brand Arabic'; font-weight: 500; src: url(assets/fonts/ibm-plex-sans-arabic-latin-500-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+2000-206F; }
+  @font-face { font-family: 'Brand Arabic'; font-weight: 700; src: url(assets/fonts/ibm-plex-sans-arabic-latin-700-normal.woff2) format('woff2'); unicode-range: U+0000-00FF, U+2000-206F; }
+  html, body { margin: 0; background: #0b1622; color: #fff; font-family: 'Brand Arabic', sans-serif; }
+  #viewport { width: 1080px; height: 1920px; overflow: hidden; background: #fff; transform-origin: top right; }
+  #stage { width: 1080px; height: 1920px; transform-origin: 50% 50%; }
+  #stage svg { display: block; }
+  body.preview { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 0; }
+  body.preview #frame { position: relative; }
+  #controls { display: flex; gap: 12px; align-items: center; width: min(92vw, 540px); direction: ltr; }
+  #controls input { flex: 1; }
+  #controls button { background: #2F91D0; color: #fff; border: 0; border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; }
+  #time { font-variant-numeric: tabular-nums; min-width: 64px; }
+  body.render #controls { display: none; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="viewport"><div id="stage"></div></div></div>
+<div id="controls">
+  <button id="play">▶</button>
+  <input id="scrub" type="range" min="0" max="53" step="0.01" value="0">
+  <span id="time">0.00s</span>
+</div>
+<script src="src/theme.js"></script>
+<script src="src/engine.js"></script>
+<script>
+  const isRender = new URLSearchParams(location.search).has('render');
+  document.body.classList.add(isRender ? 'render' : 'preview');
+
+  const imgs = Object.values(THEME.assets).filter((v) => typeof v === 'string');
+  const loadImg = (src) => new Promise((res) => { const i = new Image(); i.onload = i.onerror = res; i.src = src; });
+  Promise.all([
+    document.fonts.load("700 40px 'Brand Arabic'", 'قهوة'),
+    document.fonts.load("500 40px 'Brand Arabic'", 'قهوة'),
+    document.fonts.load("300 40px 'Brand Arabic'", 'قهوة'),
+    ...imgs.map(loadImg),
+  ]).then(() => document.fonts.ready).then(() => {
+    const s = document.createElement('script');
+    s.src = 'src/film.js';
+    s.onload = start;
+    document.body.appendChild(s);
+  });
+
+  function start() {
+    const { render, DURATION } = window.FILM;
+    window.__seek = (t) => render(t);
+    render(0);
+    window.__ready = true;
+    if (isRender) return;
+
+    const vp = document.getElementById('viewport'), frame = document.getElementById('frame');
+    const fit = () => {
+      const s = Math.min((innerHeight - 90) / 1920, (innerWidth - 32) / 1080);
+      vp.style.transform = `scale(${s})`;
+      frame.style.width = 1080 * s + 'px'; frame.style.height = 1920 * s + 'px';
+      vp.style.transformOrigin = 'top left';
+    };
+    fit(); addEventListener('resize', fit);
+
+    const scrub = document.getElementById('scrub'), time = document.getElementById('time'), btn = document.getElementById('play');
+    let t = 0, playing = false, last = 0;
+    const show = () => { render(t); scrub.value = t; time.textContent = t.toFixed(2) + 's'; };
+    scrub.oninput = () => { t = +scrub.value; show(); };
+    btn.onclick = () => { playing = !playing; btn.textContent = playing ? '❚❚' : '▶'; if (t >= DURATION) t = 0; last = performance.now(); };
+    addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); btn.click(); } });
+    (function loop(now) {
+      if (playing) { t = Math.min(DURATION, t + (now - last) / 1000); last = now; show(); if (t >= DURATION) btn.click(); }
+      requestAnimationFrame(loop);
+    })(performance.now());
+  }
+</script>
+</body>
+</html>
