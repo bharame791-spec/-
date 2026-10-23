@@ -4,7 +4,29 @@
   const { el, set, E, clamp, lerp, p, track, trim, pointAt, mixHex } = window.M;
   const T = window.THEME, C = T.colors, A = T.assets, COPY = T.copy;
   const W = 1080, H = 1920;
-  const DURATION = 53;
+  const DURATION = 30;
+  // The choreography is authored on a 53s master timeline; this curve retimes it to
+  // the 30s cut. Quiet holds compress harder than key moves, and the monotone cubic
+  // keeps playback speed smooth across scene boundaries (no velocity kinks).
+  const RETIME = [
+    [0, 0], [3.6, 6], [9.6, 16], [14.4, 25], [17.0, 30], [19.4, 36],
+    [24.4, 44], [28.4, 50.6], [30, 53],
+  ];
+  const retime = (function monotone(pts) {
+    const n = pts.length, x = pts.map((q) => q[0]), y = pts.map((q) => q[1]);
+    const d = [], m = [];
+    for (let i = 0; i < n - 1; i++) d.push((y[i + 1] - y[i]) / (x[i + 1] - x[i]));
+    m[0] = d[0]; m[n - 1] = d[n - 2];
+    for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : (2 * d[i - 1] * d[i]) / (d[i - 1] + d[i]);
+    return (t) => {
+      if (t <= x[0]) return y[0];
+      if (t >= x[n - 1]) return y[n - 1];
+      let i = 0;
+      while (t > x[i + 1]) i++;
+      const h = x[i + 1] - x[i], u = (t - x[i]) / h, u2 = u * u, u3 = u2 * u;
+      return (2 * u3 - 3 * u2 + 1) * y[i] + (u3 - 2 * u2 + u) * h * m[i] + (-2 * u3 + 3 * u2) * y[i + 1] + (u3 - u2) * h * m[i + 1];
+    };
+  })(RETIME);
   let uid = 0;
   const id = (s) => `${s}${++uid}`;
 
@@ -372,7 +394,7 @@
   const rotY = track([[0, 0], [6.2, 0], [10, -3], [14, 2.5], [15.5, 0], [18.6, 0], [20.4, -3], [22.6, 0]]);
 
   // ================================================================ RENDER
-  function render(t) {
+  function renderMaster(t) {
     // ---- camera
     const cx = camX(t), cy = camY(t), z = camZ(t);
     set(world, { transform: `translate(${W / 2} ${H / 2}) scale(${z}) translate(${-cx} ${-cy})` });
@@ -685,6 +707,8 @@
     set(bubble, { transform: `translate(${bxp} ${byp}) rotate(${bRot}) scale(${0.35 + 0.65 * p(t, 45.9, 46.7, E.out)})` });
     bubble.style.display = t < 45.9 ? 'none' : '';
   }
+
+  const render = (t) => renderMaster(retime(t));
 
   window.FILM = { render, DURATION, W, H };
 })();
