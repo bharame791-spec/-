@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ما زلتُ أختاركِ — تريلر</title>
+<style>
+@font-face { font-family: 'Amiri'; src: url(../fonts/Amiri-Regular.ttf); }
+@font-face { font-family: 'Aref Ruqaa'; src: url(../fonts/ArefRuqaa-Bold.ttf); font-weight: 700; }
+@font-face { font-family: 'Gulzar'; src: url(../fonts/Gulzar-Regular.ttf); }
+@font-face { font-family: 'Lalezar'; src: url(../fonts/Lalezar-Regular.ttf); }
+@font-face { font-family: 'Cormorant'; src: url(../fonts/CormorantGaramond-MediumItalic.ttf); }
+@font-face { font-family: 'Reem Kufi'; src: url(../fonts/ReemKufi-Regular.ttf); }
+html, body { margin: 0; background: #000; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #d6cfc3; }
+.scene { position: absolute; inset: 0; opacity: 0; }
+.cam { position: absolute; inset: 0; transform-origin: 50% 60%; }
+.cam > img, .layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.sprite { transform-origin: 0 0; }
+.glow { position: absolute; border-radius: 50%; pointer-events: none; }
+#fog { position: absolute; top: 0; left: 0; width: 3072px; height: 1080px; opacity: .9; }
+.grain { position: absolute; inset: 0; width: 1920px; height: 1080px; image-rendering: pixelated; mix-blend-mode: overlay; opacity: 0; }
+#vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(40,32,26,.28) 100%); }
+#flash { position: absolute; inset: 0; background: #fbf8f2; opacity: 0; }
+#black { position: absolute; inset: 0; background: #000; opacity: 0; }
+
+/* words */
+.line { position: absolute; left: 0; right: 0; text-align: center; font-family: 'Amiri'; font-size: 50px; line-height: 1.6;
+        color: #2e2a27; text-shadow: 0 0 22px rgba(240,236,228,.9), 0 0 6px rgba(240,236,228,.7); white-space: nowrap; }
+.line.night { color: #e7ebf2; text-shadow: 0 0 18px rgba(10,14,24,.9); }
+.line .w { display: inline-block; opacity: 0; }
+.line.ruqaa { font-family: 'Aref Ruqaa'; font-weight: 700; }
+.rose { color: #9c4a55; }
+.gold { color: #96794d; }
+.muted { color: #6f675f; }
+#echoGhost { color: #9c4a55; }
+
+/* title lettering (the book cover's, at video scale) */
+#lettering { position: absolute; top: 70px; left: 50%; width: 124mm; height: 56mm; margin-left: -62mm;
+             transform: scale(2.05); transform-origin: 50% 0; color: #2e2a27; text-align: center; }
+#lettering .big { position: absolute; top: 4mm; left: 0; right: 0; font-family: 'Gulzar'; font-size: 66pt; line-height: 1.35; white-space: nowrap; }
+#lettering .brush { position: absolute; top: 4.6mm; right: 36mm; width: 40mm; height: 12mm; background: url(../art/brush.png) center/100% 100% no-repeat; }
+#lettering .still { position: absolute; top: 4mm; right: 36mm; width: 40mm; font-family: 'Lalezar'; font-size: 24pt; line-height: 1.55; color: #f4efe7; }
+#lettering .wave { position: absolute; top: 47.5mm; left: 30mm; width: 26mm; height: 3mm; }
+#lettering .star { position: absolute; top: 46.2mm; left: 58mm; font-size: 9pt; color: #9c4a55; }
+#lettering .en { position: absolute; top: 43mm; left: 3mm; font-family: 'Cormorant'; font-style: italic; font-size: 10.5pt; line-height: 1.3; direction: ltr; text-align: left; color: #4a443f; }
+#lettering .en b { font-weight: normal; background: #964652; color: #f4efe7; padding: 0 1.2mm; }
+#author { position: absolute; bottom: 46px; left: 0; right: 0; text-align: center; font-family: 'Aref Ruqaa'; font-weight: 700; font-size: 40px; color: #9c4a55; opacity: 0; }
+#kicker { position: absolute; bottom: 104px; left: 0; right: 0; text-align: center; font-family: 'Reem Kufi'; font-size: 22px; color: #6f675f; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scene" id="s_plain1"><div class="cam">
+    <img src="build/art/plain1.jpg">
+    <img class="layer sprite" id="woman1" src="build/art/woman1.png">
+    <img class="layer sprite" id="man_phone" src="build/art/man_phone.png">
+    <img class="layer sprite" id="man1" src="build/art/man1.png">
+    <div class="glow" id="phoneGlow"></div>
+  </div></div>
+  <div class="scene" id="s_home"><div class="cam">
+    <img src="build/art/home.jpg">
+    <div class="glow" id="windowGlow"></div>
+    <img class="layer" src="build/art/couple.png">
+  </div></div>
+  <div class="scene" id="s_ice"><div class="cam">
+    <img src="build/art/ice.jpg">
+    <img class="layer" id="cracks" src="build/art/cracks.png">
+    <img class="layer" src="build/art/woman_ice.png">
+    <img class="layer" id="man_stand" src="build/art/man_stand.png">
+    <img class="layer" id="man_fallen" src="build/art/man_fallen.png">
+  </div></div>
+  <div class="scene" id="s_gap"><div class="cam"><img src="build/art/gap.jpg"></div></div>
+  <div class="scene" id="s_night"><div class="cam">
+    <img src="build/art/night.jpg">
+    <div class="glow" id="beatGlow"></div>
+  </div></div>
+  <div class="scene" id="s_apart"><div class="cam"><img src="build/art/apart.jpg"></div></div>
+  <div class="scene" id="s_end"><div class="cam">
+    <img src="build/art/plain2.jpg">
+    <img class="layer" id="woman_end" src="build/art/woman_end.png">
+    <img class="layer" src="build/art/man_end.png">
+  </div></div>
+  <div class="scene" id="s_title"><div class="cam"><img src="build/art/title.jpg"></div>
+    <div id="lettering">
+      <div class="big" id="lt_big">أختـــــــاركِ</div>
+      <div class="brush" id="lt_brush"></div><div class="still" id="lt_still">ما زلتُ</div>
+      <svg class="wave" id="lt_wave" viewBox="0 0 90 10" preserveAspectRatio="none"><path d="M0 5 Q4.5 1 9 5 T18 5 T27 5 T36 5 T45 5 T54 5 T63 5 T72 5 T81 5 T90 5" fill="none" stroke="#2e2a27" stroke-width="1" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg>
+      <div class="star" id="lt_star">✦</div>
+      <div class="en" id="lt_en">I <b>still</b><br>choose you.</div>
+    </div>
+    <div id="kicker">رواية</div>
+    <div id="author">بهاء الدين أبو زبيدة</div>
+  </div>
+
+  <img id="fog" src="build/art/fog.png">
+  <div id="lines"></div>
+  <img class="grain" src="build/art/grain0.png"><img class="grain" src="build/art/grain1.png">
+  <img class="grain" src="build/art/grain2.png"><img class="grain" src="build/art/grain3.png">
+  <div id="vignette"></div>
+  <div id="flash"></div>
+  <div id="black"></div>
+</div>
+
+<script>
+const TL = /*TIMELINE*/;
+const L = /*LAYOUT*/;
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t * t * (3 - 2 * t);
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const ramp = (t, a, b) => clamp((t - a) / (b - a));
+
+// ---------------------------------------------------------------- words
+// Each line: id, text, start, end (when its voice ends), out (when it leaves), position, styles.
+const lines = TL.lines.map(spec => {
+  const el = document.createElement('div');
+  el.className = 'line ' + (spec.cls || '');
+  Object.assign(el.style, spec.css || {});
+  const words = spec.text.split(' ');
+  el.innerHTML = words.map(w => {
+    let cls = 'w';
+    for (const [word, c] of Object.entries(spec.color || {})) if (w.includes(word)) cls += ' ' + c;
+    return `<span class="${cls}">${w}</span>`;
+  }).join(' ');
+  if (spec.id) el.id = spec.id;
+  $('lines').appendChild(el);
+  return { spec, el, spans: [...el.querySelectorAll('.w')] };
+});
+
+function drawLines(t) {
+  for (const { spec, el, spans } of lines) {
+    const visible = t >= spec.start - 0.5 && t <= spec.out + 0.8;
+    el.style.display = visible ? '' : 'none';
+    if (!visible) continue;
+    const leave = 1 - ramp(t, spec.out, spec.out + 0.6);
+    const dur = Math.max(0.4, (spec.end - spec.start) * 0.85);
+    spans.forEach((sp, i) => {
+      const ti = spec.start + (spans.length > 1 ? i / (spans.length - 1) : 0) * dur;
+      let p = ramp(t, ti - 0.12, ti + 0.38);
+      let o = ease(p) * leave * (spec.alpha ?? 1);
+      let y = (1 - easeOut(p)) * 14, blur = (1 - p) * 7, rot = 0;
+      if (spec.kind === 'fall') {           // the words of the fall drop to the ground
+        const d = clamp(t - ti - 0.2, 0, 2);
+        const drop = Math.min(spec.fall + i * 18, 0.5 * 2600 * d * d);
+        y += drop;
+        rot = -clamp(d * 70, 0, 18 + i * 9) * (i % 2 ? 1 : -0.7);
+      }
+      if (spec.kind === 'fade') o *= 1 - (i / (spans.length - 1)) * 0.8 * ramp(t, spec.end, spec.end + 1);
+      sp.style.opacity = o.toFixed(3);
+      sp.style.transform = `translateY(${y.toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
+      sp.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : 'none';
+    });
+    if (spec.kind === 'dim') {                // an earlier thought fading back as the next arrives
+      el.style.opacity = (1 - 0.6 * ramp(t, spec.dimAt, spec.dimAt + 0.5)).toFixed(3);
+    }
+    if (spec.drift) el.style.transform = `translateX(${(Math.sin(t * 0.9 + spec.start) * 6).toFixed(1)}px)`;
+  }
+  // the echo of «يشبهني»: a rose shadow that finds its place under the words
+  const g = $('echoGhost');
+  if (g) {
+    const p = easeOut(ramp(t, TL.t.echo, TL.t.echo + 1.4));
+    g.style.transform = `translate(${lerp(-46, -5, p)}px, ${lerp(10, 4, p)}px)`;
+  }
+}
+
+// ---------------------------------------------------------------- scenes
+function sceneAlpha(t, a, b, fadeIn = 0.9, fadeOut = 0.9) {
+  return Math.min(ramp(t, a - fadeIn / 2, a + fadeIn / 2), 1 - ramp(t, b - fadeOut / 2, b + fadeOut / 2));
+}
+function cam(id, t, a, b, z0 = 1.0, z1 = 1.05, dx = 0) {
+  const p = ramp(t, a, b);
+  $(id).querySelector('.cam').style.transform = `scale(${lerp(z0, z1, p)}) translateX(${(dx * p).toFixed(1)}px)`;
+}
+function place(el, sp, x, y, s, o) {     // move a full-frame figure layer so its feet land at x, y
+  const ox = sp.x, oy = sp.y;
+  el.style.transform = `translate(${(x - ox * s).toFixed(1)}px, ${(y - oy * s).toFixed(1)}px) scale(${s.toFixed(4)})`;
+  el.style.opacity = o.toFixed(3);
+}
+
+function seek(t, frame) {
+  const T = TL.t;
+  const S = (id, a, b, fi, fo) => { const o = sceneAlpha(t, a, b, fi, fo); $(id).style.opacity = o; $(id).style.display = o > 0.001 ? '' : 'none'; return o; };
+
+  // 1–2: they find each other
+  S('s_plain1', -1, T.home, 0.01, 0.9);
+  cam('s_plain1', t, 0, T.home, 1.0, 1.07, -20);
+  const emerge = ease(ramp(t, 0.6, 2.4));
+  const near = ease(ramp(t, T.near, T.near + 5.6));
+  const wf = L.woman_far, w1 = L.woman1;
+  place($('woman1'), w1, lerp(wf.x, w1.x, near), lerp(wf.y, w1.y, near), lerp(wf.scale, 1, near),
+        emerge * lerp(0.38, 1, near));
+  const manX = lerp(L.man1.x, L.man1.x - 0.11 * 1920, near);
+  const phoneOn = 1 - ramp(t, T.near + 0.3, T.near + 1.4);
+  place($('man_phone'), L.man1, manX, L.man1.y, 1, emerge * phoneOn);
+  place($('man1'), L.man1, manX, L.man1.y, 1, emerge * (1 - phoneOn));
+  const pg = $('phoneGlow'), c = L.man_phone.chest;
+  const pulse = 0.85 + 0.15 * Math.sin(t * 2.4);
+  Object.assign(pg.style, { left: (c[0] - 70) + 'px', top: (c[1] - 70) + 'px', width: '140px', height: '140px',
+    background: 'radial-gradient(circle, rgba(255,251,240,.95) 0%, rgba(255,248,232,.5) 18%, rgba(255,246,228,0) 70%)',
+    opacity: (ramp(t, 1.3, 2.6) * phoneOn * pulse).toFixed(3) });
+
+  // 3: home, and the light going out when the hurting word comes
+  S('s_home', T.home, T.ice, 0.9, 0.5);
+  cam('s_home', t, T.home, T.ice, 1.02, 1.08, 15);
+  const wg = $('windowGlow'), wi = L.window;
+  const lightOut = 1 - ramp(t, T.pre + 0.4, T.pre + 2.2);
+  Object.assign(wg.style, { left: (wi.x - 90) + 'px', top: (wi.y - 90) + 'px', width: '180px', height: '180px',
+    background: 'radial-gradient(circle, rgba(255,226,170,.75) 0%, rgba(255,226,170,0) 65%)',
+    opacity: ((0.75 + 0.25 * Math.sin(t * 1.7)) * lightOut).toFixed(3) });
+  $('s_home').style.filter = `grayscale(${(0.8 * ramp(t, T.pre, T.pre + 2.2)).toFixed(2)}) brightness(${(1 - 0.08 * ramp(t, T.pre, T.pre + 2.2)).toFixed(3)})`;
+
+  // 4: the fall
+  S('s_ice', T.ice, T.mark, 0.5, 0.9);
+  const hit = t >= T.impact;
+  let shake = 0;
+  if (hit) shake = Math.exp(-(t - T.impact) * 7) * 14 * Math.sin((t - T.impact) * 90);
+  const iceCam = $('s_ice').querySelector('.cam');
+  const zp = ramp(t, T.ice, T.mark);
+  iceCam.style.transform = `translate(${shake.toFixed(1)}px, ${(shake * 0.6).toFixed(1)}px) scale(${lerp(1.0, 1.06, zp)})`;
+  $('man_stand').style.opacity = hit ? 0 : 1;
+  $('man_fallen').style.opacity = hit ? 1 : 0;
+  const r = easeOut(ramp(t, T.impact, T.impact + 0.8)) * 1100;
+  $('cracks').style.clipPath = `circle(${r.toFixed(0)}px at ${L.impact.x}px ${L.impact.y}px)`;
+  $('flash').style.opacity = hit ? (0.55 * Math.exp(-(t - T.impact) * 10)).toFixed(3) : 0;
+
+  // 5–7
+  S('s_gap', T.mark, T.questions);
+  cam('s_gap', t, T.mark, T.questions, 1.0, 1.06, 10);
+  S('s_night', T.questions, T.confess);
+  cam('s_night', t, T.questions, T.confess, 1.04, 1.0, 0);
+  let beat = 0;
+  for (const hb of TL.heartbeats) {
+    const d = t - hb;
+    if (d >= 0 && d < 0.6) beat = Math.max(beat, Math.exp(-d * 9) + 0.6 * Math.exp(-Math.max(0, d - 0.24) * 9) * (d > 0.24));
+  }
+  const bg = $('beatGlow'), sc = L.screen;
+  Object.assign(bg.style, { left: (sc.x - 520) + 'px', top: (sc.y - 520) + 'px', width: '1040px', height: '1040px',
+    background: 'radial-gradient(circle, rgba(170,195,235,.22) 0%, rgba(150,175,215,.08) 30%, rgba(120,145,190,0) 55%)',
+    opacity: (0.12 + 0.55 * beat).toFixed(3) });
+  S('s_apart', T.confess, T.open_end);
+  cam('s_apart', t, T.confess, T.open_end, 1.08, 1.0, 0);
+
+  // 8: still here; she is there, or almost
+  S('s_end', T.open_end, T.title);
+  cam('s_end', t, T.open_end, T.title, 1.0, 1.07, -10);
+  $('woman_end').style.opacity = (0.45 + 0.4 * Math.sin((t - T.open_end) * 1.3)).toFixed(3);
+
+  // 9: the title builds itself
+  S('s_title', T.title, TL.length + 1, 1.0, 0.01);
+  cam('s_title', t, T.title, TL.length, 1.07, 1.0, 0);
+  const b0 = T.title;
+  $('lt_brush').style.clipPath = `inset(0 0 0 ${(100 * (1 - easeOut(ramp(t, b0 + 0.05, b0 + 0.7)))).toFixed(1)}%)`;
+  $('lt_still').style.opacity = ramp(t, b0 + 0.35, b0 + 0.9).toFixed(3);
+  const big = T.choose;
+  $('lt_big').style.clipPath = `inset(0 0 0 ${(100 * (1 - ease(ramp(t, big - 0.1, big + 1.2)))).toFixed(1)}%)`;
+  $('lt_wave').querySelector('path').setAttribute('stroke-dashoffset', (100 * (1 - ease(ramp(t, big + 1.1, big + 2.1)))).toFixed(1));
+  $('lt_star').style.opacity = ramp(t, big + 1.9, big + 2.3).toFixed(3);
+  $('lt_en').style.opacity = ramp(t, big + 2.0, big + 2.8).toFixed(3);
+  $('kicker').style.opacity = ramp(t, big + 2.4, big + 3.2).toFixed(3);
+  $('author').style.opacity = ramp(t, big + 2.8, big + 3.8).toFixed(3);
+
+  // over everything: drifting fog, grain, the last fade
+  $('fog').style.transform = `translateX(${(-t * 9).toFixed(1)}px)`;
+  $('fog').style.opacity = (0.9 * (1 - sceneAlpha(t, T.questions, T.confess, 0.9, 0.9))).toFixed(3);
+  const grainAmt = 0.55 + 0.45 * sceneAlpha(t, T.questions, T.confess);  // more grain in the dark, against banding
+  document.querySelectorAll('.grain').forEach((g, i) => { g.style.opacity = (i === frame % 4 ? grainAmt : 0).toFixed(3); });
+  $('black').style.opacity = (Math.max(1 - ramp(t, 0, 0.6), ramp(t, TL.length - 1.3, TL.length))).toFixed(3);
+
+  drawLines(t);
+}
+
+window.seek = seek;
+Promise.all([document.fonts.ready, ...[...document.images].map(im => im.decode().catch(() => {}))])
+  .then(() => { seek(0, 0); window.__ready = true; });
+</script>
+</body>
+</html>

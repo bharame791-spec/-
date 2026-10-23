@@ -14,8 +14,8 @@ LENGTH = 94.0
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "build"
 
-# scene starts in seconds, matching the voice-over script
-SCENES = {"open": 0, "near": 8, "home": 22, "shock": 30, "mark": 42, "questions": 52,
+# scene starts in seconds; the trailer's make.py sets these from the voice-over's timing
+SCENES = {"open": 0, "near": 8, "home": 22, "pre": 26, "shock": 30, "mark": 42, "questions": 52,
           "confess": 62, "open_end": 72, "title": 82}
 
 rng = np.random.default_rng(11)
@@ -167,79 +167,100 @@ def arpeggio(track, start, chord, beats=4, beat=0.909, vel=0.5, pattern=(0, 1, 2
 
 
 def compose():
+    """Lays the score on SCENES (scene starts in seconds) over LENGTH seconds."""
     s = SCENES
-    piano_t, pad_t, fx_t = Track(), Track(), Track()
+    piano_t, pad_t, fx_t = Track(LENGTH), Track(LENGTH), Track(LENGTH)
     beat = 60 / 66
 
-    # 1. open: wind, a held low pad, a few single notes like a screen lighting up
-    fx_t.add(0, wind(31, 0.06))
-    pad_t.add(0.5, pad([n("A2"), n("E3")], 9, 0.05, 3))
-    for t0, nn in [(2.2, "E5"), (4.6, "A4"), (6.4, "C5")]:
-        piano_t.add(t0, piano(n(nn), 6, 0.35), pan=0.2)
+    def span(a, b):
+        return s[b] - s[a]
 
-    # 2–3. near, home: warm arpeggios, a small melody above
-    prog = ["Am", "F", "C", "G", "Am", "F"]
+    # 1. open: wind, a held low pad, a few single notes like a screen lighting up
+    fx_t.add(0, wind(s["shock"] + 1, 0.06))
+    pad_t.add(0.3, pad([n("A2"), n("E3")], s["near"] + 1.5, 0.05, 2.5))
+    for frac, nn in [(0.22, "E5"), (0.5, "A4"), (0.75, "C5")]:
+        piano_t.add(s["near"] * frac, piano(n(nn), 6, 0.35), pan=0.2)
+
+    # 2–3. near, home: warm arpeggios with a small melody, until the word that hurt
+    chords = ["Am", "F", "C", "G", "Am", "F", "C", "G"]
+    count = max(1, int(span("near", "pre") // (4 * beat)))
     t = s["near"]
-    for ch in prog:
+    for ch in chords[:count]:
         arpeggio(piano_t, t, ch, beats=4, beat=beat, vel=0.42)
         pad_t.add(t, pad([n(x) for x in CHORDS[ch][:3]], 4 * beat + 1.2, 0.045, 1.2))
         t += 4 * beat
-    melody = [(s["near"] + 3.6, "E5"), (s["near"] + 5.4, "D5"), (s["near"] + 7.3, "C5"),
-              (s["near"] + 10.9, "G5"), (s["near"] + 12.7, "E5"), (s["near"] + 14.5, "D5"),
-              (s["home"] + 0.2, "C5"), (s["home"] + 1.9, "E5"), (s["home"] + 4.0, "A5"),
-              (s["home"] + 6.2, "G5")]
-    for t0, nn in melody:
+    tune = ["E5", "D5", "C5", "G5", "E5", "D5", "C5", "E5", "A5", "G5"]
+    for i, nn in enumerate(tune):
+        t0 = s["near"] + 3.6 + i * (count * 4 * beat - 4.5) / len(tune)
         piano_t.add(t0, piano(n(nn), 6, 0.33), pan=0.15)
 
-    # 4. shock: everything stops; the ice cracks; a low, uneasy drone
-    fx_t.add(s["shock"] + 0.2, ice_crack(), pan=0.0, gain=1.0)
-    pad_t.add(s["shock"] + 1.2, pad([n("A1"), n("Bb2"), n("E3")], 11.5, 0.05, 2.5))
-    piano_t.add(s["shock"] + 4.5, piano(n("A1"), 7, 0.5))
-    piano_t.add(s["shock"] + 8.0, piano(n("Bb3"), 5, 0.22), pan=-0.3)
+    # the word that hurt: the warmth drains to one held, uneasy chord
+    pad_t.add(s["pre"], pad([n("A2"), n("E3"), n("Bb3")], span("pre", "shock") + 0.6, 0.05, 1.5))
+    piano_t.add(s["pre"] + 0.4, piano(n("A2"), 6, 0.35))
+
+    # 4. shock: everything stops; the ice cracks; a low drone
+    fx_t.add(s["shock"], ice_crack(), pan=0.0, gain=1.0)
+    pad_t.add(s["shock"] + 1.0, pad([n("A1"), n("Bb2"), n("E3")], span("shock", "mark") + 1.0, 0.05, 1.5))
+    piano_t.add(s["shock"] + 1.6, piano(n("A1"), 6, 0.45))
 
     # 5. the mark it leaves: single low notes, the warmth not quite back
-    for i, (nn, v) in enumerate([("A2", 0.4), ("E3", 0.3), ("C4", 0.28), ("B3", 0.26), ("A3", 0.3)]):
-        piano_t.add(s["mark"] + 0.4 + i * 1.9, piano(n(nn), 6, v), pan=-0.2 + 0.1 * i)
-    pad_t.add(s["mark"], pad([n("A2"), n("E3"), n("C4")], 10.5, 0.04, 3))
+    notes = [("A2", 0.4), ("E3", 0.3), ("C4", 0.28), ("B3", 0.26), ("A3", 0.3)]
+    gap = (span("mark", "questions") - 0.6) / len(notes)
+    for i, (nn, v) in enumerate(notes):
+        piano_t.add(s["mark"] + 0.3 + i * gap, piano(n(nn), 6, v), pan=-0.2 + 0.1 * i)
+    pad_t.add(s["mark"], pad([n("A2"), n("E3"), n("C4")], span("mark", "questions") + 0.5, 0.04, 2))
 
     # 6. questions: a heartbeat, a repeated high note like a thought that won't stop
-    for k in range(13):
-        fx_t.add(s["questions"] + k * 0.78, heartbeat(0.32 + 0.02 * k))
-    for k in range(20):
+    for t0 in heartbeat_times():
+        fx_t.add(t0, heartbeat(0.32 + 0.02 * (t0 - s["questions"])))
+    k = 0
+    while s["questions"] + 0.4 + k * 0.48 < s["confess"] - 1.0:
         piano_t.add(s["questions"] + 0.4 + k * 0.48, piano(n("E5" if k % 4 else "F5"), 2.5, 0.16 + 0.006 * k), pan=0.35)
-    pad_t.add(s["questions"], pad([n("D3"), n("F3"), n("A3")], 10.5, 0.05, 2))
+        k += 1
+    pad_t.add(s["questions"], pad([n("D3"), n("F3"), n("A3")], span("questions", "confess") + 0.5, 0.05, 2))
 
     # 7. confession: slow chords, very quiet
+    step = span("confess", "open_end") / 4
     for i, ch in enumerate(["F", "C", "Am", "G"]):
-        t0 = s["confess"] + 0.3 + i * 2.5
+        t0 = s["confess"] + 0.3 + i * step
         for j, nn in enumerate(CHORDS[ch][1:]):
             piano_t.add(t0 + j * 0.03, piano(n(nn), 6, 0.3))
-        pad_t.add(t0, pad([n(x) for x in CHORDS[ch][:3]], 3.6, 0.035, 1.0))
+        pad_t.add(t0, pad([n(x) for x in CHORDS[ch][:3]], step + 1.1, 0.035, 1.0))
 
     # 8. the open ending: suspended chords that don't resolve
+    step = span("open_end", "title") / 4
     for i, ch in enumerate(["Fmaj7", "Gsus", "Fmaj7", "Gsus"]):
-        t0 = s["open_end"] + i * 2.5
+        t0 = s["open_end"] + i * step
         for j, nn in enumerate(CHORDS[ch]):
             piano_t.add(t0 + j * 0.12, piano(n(nn), 6, 0.27), pan=-0.2 + 0.1 * j)
-    pad_t.add(s["open_end"], pad([n("F2"), n("C3"), n("G3")], 10.5, 0.045, 3))
+    pad_t.add(s["open_end"], pad([n("F2"), n("C3"), n("G3")], span("open_end", "title") + 0.5, 0.045, 2.5))
     fx_t.add(s["open_end"], wind(LENGTH - s["open_end"], 0.045))
 
     # 9. title: a few high notes, and a last chord left open
-    for t0, nn in [(s["title"] + 0.5, "E5"), (s["title"] + 1.6, "B4"), (s["title"] + 2.8, "C5")]:
-        piano_t.add(t0, piano(n(nn), 6, 0.3), pan=0.1)
+    for d, nn in [(0.0, "E5"), (0.85, "B4"), (1.9, "C5")]:
+        piano_t.add(s["title"] + d, piano(n(nn), 6, 0.3), pan=0.1)
     for j, nn in enumerate(CHORDS["Am9"]):
-        piano_t.add(s["title"] + 4.2 + j * 0.09, piano(n(nn), 8, 0.32), pan=-0.2 + 0.1 * j)
-    pad_t.add(s["title"] + 3.5, pad([n("A2"), n("E3"), n("B3")], LENGTH - s["title"] - 3.5, 0.045, 3))
+        piano_t.add(s["title"] + 3.0 + j * 0.09, piano(n(nn), 8, 0.32), pan=-0.2 + 0.1 * j)
+    pad_t.add(s["title"] + 2.5, pad([n("A2"), n("E3"), n("B3")], LENGTH - s["title"] - 2.5, 0.045, 2.5))
 
     music = reverb(piano_t.buf, 3.4, 0.35) + reverb(pad_t.buf, 4.0, 0.45)
     # the silence around the crack: the music drops away while the crack stays on top
     t = np.arange(len(music)) / SR
-    duck = 1 - 0.85 * np.exp(-((t - (s["shock"] + 0.6)) / 0.9) ** 2) * (t > s["shock"] - 0.3)
+    duck = 1 - 0.85 * np.exp(-((t - (s["shock"] + 0.4)) / 0.9) ** 2) * (t > s["shock"] - 0.3)
     mix = music * duck[:, None] ** 0.6 + fx_t.buf
-    fade = np.clip((LENGTH - t) / 4.0, 0, 1)[:, None]
+    fade = np.clip((LENGTH - t) / 3.0, 0, 1)[:, None]
     mix *= fade
     mix /= np.abs(mix).max() + 1e-9
     return (mix * 0.89).astype(np.float32)
+
+
+def heartbeat_times():
+    """When the heartbeat falls during the questions (the trailer pulses on the same beats)."""
+    times, t0 = [], SCENES["questions"]
+    while t0 < SCENES["confess"] - 0.8:
+        times.append(round(t0, 3))
+        t0 += 0.78
+    return times
 
 
 def write_wav(path, stereo):
