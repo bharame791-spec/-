@@ -10,10 +10,10 @@
   // keeps playback speed smooth across scene boundaries (no velocity kinks).
   // Keys are [cut time, master time], locked to the recorded voice-over (audio/vo-cut.wav).
   const RETIME = [
-    [0, 0], [2.2, 4.7], [3.3, 6.3], [4.35, 7.7], [5.4, 9.3], [6.95, 11.75],
-    [9.6, 18.2], [10.95, 20.6], [12.9, 25.9], [14.15, 28.0], [15.0, 31.0],
-    [17.0, 36.9], [21.4, 42.2], [22.8, 44.0], [23.6, 45.3], [24.3, 46.4],
-    [25.3, 47.4], [27.2, 48.7], [28.8, 50.6], [30, 53],
+    [0, 0], [2.1, 4.7], [3.4, 6.3], [4.5, 7.7], [5.55, 9.3], [6.95, 11.75],
+    [8.8, 15.0], [10.0, 18.2], [11.05, 20.6], [12.95, 25.9], [14.25, 28.0], [15.1, 31.0],
+    [16.75, 36.9], [21.4, 42.2], [22.6, 44.0], [23.75, 45.3], [24.4, 46.4],
+    [25.5, 47.4], [27.4, 48.7], [28.7, 50.6], [30, 53],
   ];
   const retime = (function monotone(pts) {
     const n = pts.length, x = pts.map((q) => q[0]), y = pts.map((q) => q[1]);
@@ -167,6 +167,11 @@
     'C-130,270 -165,200 -158,100 C-150,-20 -42,-60 -42,-120 L-42,-200 C-44,-250 -72,-270 -72,-300 Z';
   const dFill = el('path', { d: silhouette, fill: C.white, opacity: 0 }, dalla);
   const dLidFill = el('path', { d: 'M-62,-300 C-62,-345 -25,-362 0,-362 C25,-362 62,-345 62,-300 Z', fill: C.white, opacity: 0 }, dalla);
+  const liqClip = id('liq');
+  el('path', { d: silhouette }, el('clipPath', { id: liqClip, clipPathUnits: 'userSpaceOnUse' }, el('defs', {}, dalla)));
+  const liquidG = el('g', { 'clip-path': `url(#${liqClip})` }, dalla);
+  const liquid = el('path', { fill: C.blue, opacity: 0.92 }, liquidG);
+  const liquidSurf = el('path', { fill: 'none', stroke: C.white, 'stroke-width': 4, opacity: 0.7 }, liquidG);
   const silPath = el('path', { d: silhouette, fill: 'none', stroke: 'none' }, dalla);
   const ds = { stroke: C.blue, width: 5 };
   const dSpout = stroke(dalla, 'M46,-104 C120,-150 186,-250 236,-346 L262,-338 C214,-236 170,-110 96,-30', ds);
@@ -187,13 +192,35 @@
   ];
   const dMouth = el('ellipse', { cx: 0, cy: -300, rx: 72, ry: 13, fill: C.white, stroke: C.blue, 'stroke-width': 5, opacity: 0 }, dalla);
 
-  // flame: a curve rises from the cardamom seeds and becomes the flame outline
-  const FLAME = 'C-42,452 -48,410 -22,378 C-14,398 -6,402 0,366 C8,398 16,396 24,382 C48,412 42,452 0,470';
-  const leadD = 'M0,706 C-80,650 80,560 0,470';
-  const leadPath = el('path', { d: leadD, fill: 'none', stroke: 'none' }, dalla);
-  const flameLine = stroke(dalla, `${leadD} ${FLAME}`, { stroke: C.orange, width: 5 });
-  const flameFill = el('path', { d: `M0,470 ${FLAME} Z`, fill: C.orange, opacity: 0 }, dalla);
-  const flameCore = el('path', { d: '', fill: C.white, opacity: 0 }, dalla);
+  // ---- fire: a curve rises from the cardamom seeds, lands on a burner and ignites.
+  // Heat climbs into the dalla, the coffee rises inside it, and steam leaves the spout.
+  const FIRE_Y = 482;
+  const flameLine = stroke(dalla, `M0,753 C-80,690 80,580 0,${FIRE_Y}`, { stroke: C.orange, width: 5 });
+  const burner = [stroke(dalla, `M0,${FIRE_Y + 12} L-118,${FIRE_Y + 12}`, { stroke: C.navy, width: 5 }), stroke(dalla, `M0,${FIRE_Y + 12} L118,${FIRE_Y + 12}`, { stroke: C.navy, width: 5 })];
+  const glowId = id('glow');
+  const glowGrad = el('radialGradient', { id: glowId }, el('defs', {}, dalla));
+  el('stop', { offset: '0%', 'stop-color': C.orange, 'stop-opacity': 0.42 }, glowGrad);
+  el('stop', { offset: '100%', 'stop-color': C.orange, 'stop-opacity': 0 }, glowGrad);
+  const glow = el('circle', { cx: 0, cy: FIRE_Y - 50, r: 170, fill: `url(#${glowId})`, opacity: 0 }, dalla);
+  const flameG = el('g', {}, dalla);
+  const flameSide = [el('path', { fill: C.orange }, flameG), el('path', { fill: C.orange }, flameG)];
+  const flameOuter = el('path', { fill: C.orange }, flameG);
+  const flameMid = el('path', { fill: mixHex(C.orange, C.white, 0.5) }, flameG);
+  const flameCore = el('path', { fill: C.white }, flameG);
+  const flameBase = el('ellipse', { cx: 0, cy: -5, rx: 30, ry: 7, fill: C.blue, opacity: 0.9 }, flameG);
+  function tongue(h, w, sx) {
+    return `M0,0 C${-w},${-0.08 * h} ${-w * 1.1 + sx * 0.2},${-0.5 * h} ${-w * 0.35 + sx * 0.6},${-0.78 * h} ` +
+      `C${-w * 0.15 + sx * 0.9},${-0.9 * h} ${sx},${-0.96 * h} ${sx},${-h} ` +
+      `C${sx},${-0.96 * h} ${w * 0.15 + sx * 0.9},${-0.9 * h} ${w * 0.35 + sx * 0.6},${-0.78 * h} ` +
+      `C${w * 1.1 + sx * 0.2},${-0.5 * h} ${w},${-0.08 * h} 0,0 Z`;
+  }
+  const heat = [-46, 0, 46].map((x) => stroke(dalla,
+    `M${x},${FIRE_Y - 110} C${x + 14},${FIRE_Y - 150} ${x - 14},${FIRE_Y - 190} ${x},${FIRE_Y - 230} C${x + 14},${FIRE_Y - 270} ${x - 14},${FIRE_Y - 310} ${x},${FIRE_Y - 350} C${x + 14},${FIRE_Y - 390} ${x - 14},${FIRE_Y - 430} ${x},${FIRE_Y - 470}`,
+    { stroke: C.orange, width: 4, attrs: { opacity: 0.75 } }));
+  const steam = [
+    stroke(dalla, 'M252,-362 C232,-402 282,-432 258,-472 C236,-508 274,-538 260,-578', { stroke: C.blue, width: 4, attrs: { opacity: 0.5 } }),
+    stroke(dalla, 'M236,-372 C212,-410 252,-446 232,-482 C214,-514 246,-542 236,-572', { stroke: C.blue, width: 3, attrs: { opacity: 0.35 } }),
+  ];
 
   // ---- beans
   const BEAN = 'M0,-50 C28,-50 36,-22 36,0 C36,26 24,50 0,50 C-24,50 -36,26 -36,0 C-36,-22 -28,-50 0,-50 Z';
@@ -234,7 +261,7 @@
   const labelMark = roundedDiamond(labelG, 22, C.orange);
   const lblBean = maskLine(labelG, COPY.bean, { x: 540, y: 1600, size: 66, weight: 500 });
   const lblCard = maskLine(labelG, COPY.cardamom, { x: 540, y: 1600, size: 66, weight: 500 });
-  const lblFire = maskLine(labelG, COPY.fire, { x: 540, y: 1600, size: 66, weight: 500 });
+  const lblFire = maskLine(labelG, COPY.fire, { x: 540, y: 1352, size: 58, weight: 500 });
 
   // ================================================================ POUR → GRID
   const pourD = 'M752,509 C820,515 880,600 880,800 C880,1200 980,1700 1000,2100 C1010,2350 1040,2550 960,2550 L120,2550';
@@ -388,9 +415,9 @@
 
   // ================================================================ CAMERA
   const camX = track([[0, 540], [9, 540], [12, 575, E.inOut], [15.3, 540], [16.6, 620], [18, 540]]);
-  const camY = track([[0, 545], [3.7, 545], [6.2, 960, E.out], [15.3, 960], [18, 3100, E.inOut], [44, 3100], [46, 2960, E.inOut]]);
+  const camY = track([[0, 545], [3.7, 545], [6.2, 960, E.out], [11.4, 960], [12.3, 1105], [13.1, 1085, E.lin], [14.3, 935], [15.3, 960], [18, 3100, E.inOut], [44, 3100], [46, 2960, E.inOut]]);
   const camZ = track([
-    [0, 3.0], [2.6, 2.5, E.soft], [3.7, 2.9], [6.2, 1.0, E.out], [15.3, 1.04, E.lin],
+    [0, 3.0], [2.6, 2.5, E.soft], [3.7, 2.9], [6.2, 1.0, E.out], [11.4, 1.02, E.lin], [12.3, 1.75], [13.1, 1.82, E.lin], [14.3, 0.98], [15.3, 1.04, E.lin],
     [16.6, 0.86], [18, 1], [21, 1.05], [23, 1], [36, 1, E.lin], [44, 1.04, E.lin], [46, 1],
   ]);
   const rotX = track([[0, 0], [18.6, 0], [20.4, 4], [22.6, 0]]);
@@ -468,7 +495,7 @@
     }
 
     // dalla outline
-    const dPos = track([[0, [DX, DY, DS, 0]], [44, [-280, 3010, 0.27, -6]], [46.4, [-280, 3010, 0.27, -6]], [47.8, [222, 3010, 0.27, 0], E.out], [48.8, [222, 3010, 0.27, 9], E.soft]])(t);
+    const dPos = track([[0, [DX, DY, DS, 0]], [43.9, [DX, DY, DS, 0]], [44, [-280, 3010, 0.27, -6], E.lin], [46.4, [-280, 3010, 0.27, -6]], [47.8, [222, 3010, 0.27, 0], E.out], [48.8, [222, 3010, 0.27, 9], E.soft]])(t);
     set(dalla, { transform: `translate(${dPos[0]} ${dPos[1]}) rotate(${dPos[3]}) scale(${dPos[2]})` });
     dalla.style.display = t > 18.2 && t < 44 ? 'none' : '';
     set(dMouth, { opacity: t >= 3.8 ? 1 : 0 });
@@ -483,25 +510,46 @@
     trim(dLidR, 0, kLid); trim(dLidL, 0, kLid);
     const fin = p(t, 4.9, 5.5, E.settle);
     set(dFinial, { transform: `translate(0 -362) scale(${Math.max(0.001, fin)}) translate(0 362)`, opacity: clamp(fin * 2) });
-    trim(dSpout, 0, p(t, 12.6, 13.6, E.inOut));
-    trim(dHandleO, 0, p(t, 12.9, 13.9, E.inOut));
-    trim(dHandleI, 0, p(t, 13.1, 14.0, E.inOut));
-    dBands.forEach((b, i) => trim(b, 0, p(t, 13.4 + i * 0.14, 14.2 + i * 0.14, E.out)));
-    const fillK = p(t, 14.0, 15.0, E.lin);
+    trim(dSpout, 0, p(t, 13.0, 13.8, E.inOut));
+    trim(dHandleO, 0, p(t, 13.1, 14.0, E.inOut));
+    trim(dHandleI, 0, p(t, 13.25, 14.1, E.inOut));
+    dBands.forEach((b, i) => trim(b, 0, p(t, 13.5 + i * 0.12, 14.2 + i * 0.12, E.out)));
+    const fillK = p(t, 12.6, 13.1, E.lin);
     set(dFill, { opacity: fillK }); set(dLidFill, { opacity: fillK });
 
+    // coffee rises inside the dalla, its surface rocking gently
+    const lvl = lerp(345, -110, p(t, 12.9, 14.5, E.soft));
+    const wv = Math.sin(t * 2.2) * 7 * (1 - p(t, 49.5, 50.6, E.inOut));
+    set(liquid, { d: `M-220,${lvl + wv} C-80,${lvl - 14 - wv} 80,${lvl + 14 + wv} 220,${lvl - wv} L220,360 L-220,360 Z` });
+    set(liquidSurf, { d: `M-220,${lvl + wv} C-80,${lvl - 14 - wv} 80,${lvl + 14 + wv} 220,${lvl - wv}` });
+    liquidG.style.display = t < 12.9 ? 'none' : '';
+
     // flame
-    const leadLen = leadPath.__len || (leadPath.__len = leadPath.getTotalLength());
-    const flL = flameLine.__len || (flameLine.__len = flameLine.getTotalLength());
-    const leadF = leadLen / flL;
-    const fHead = p(t, 11.5, 12.7, E.inOut), fTail = p(t, 12.0, 12.95, E.inOut) * leadF;
-    trim(flameLine, fTail, fHead);
-    flameLine.style.display = t > 44 ? 'none' : '';
-    const sway = p(t, 12.9, 13.6, E.lin) * (1 - p(t, 49.5, 50.6, E.inOut));
-    const sw = Math.sin(t * 3.1) * 5 * sway, sw2 = Math.sin(t * 2.3 + 1) * 4 * sway;
-    const flameD = `M0,470 C-42,452 -48,410 ${-22 + sw},378 C${-14 + sw},398 -6,402 ${sw2},${366 - sw2 * 0.5} C8,398 16,396 ${24 + sw},382 C48,412 42,452 0,470 Z`;
-    set(flameFill, { d: flameD, opacity: p(t, 12.7, 13.4, E.lin) * (t > 44 ? 0 : 1) });
-    set(flameCore, { d: `M0,462 C-20,452 -22,428 ${-6 + sw2},404 C2,418 8,420 ${12 + sw},410 C22,430 20,452 0,462 Z`, opacity: 0.85 * p(t, 13.0, 13.6, E.lin) * (t > 44 ? 0 : 1) });
+    trim(flameLine, p(t, 11.95, 12.45, E.in), p(t, 11.5, 12.3, E.inOut));
+    burner.forEach((b) => trim(b, 0, p(t, 12.0, 12.45, E.out)));
+    const fireOn = t < 44 ? 1 : 0;
+    const ig = p(t, 12.22, 12.85, E.settle) * fireOn;
+    const breathe = (ph) => 1 + 0.06 * Math.sin(t * 2.0 + ph);
+    const sx = (ph) => 7 * Math.sin(t * 1.6 + ph) * p(t, 12.5, 13.0, E.lin);
+    set(flameG, { transform: `translate(0 ${FIRE_Y}) scale(${Math.max(0.001, ig)})` });
+    flameG.style.display = ig <= 0.001 ? 'none' : '';
+    set(flameSide[0], { d: tongue(78 * breathe(1.3), 22, sx(2)), transform: 'translate(-18 0) rotate(-20)' });
+    set(flameSide[1], { d: tongue(86 * breathe(2.6), 24, sx(3)), transform: 'translate(18 0) rotate(18)' });
+    set(flameOuter, { d: tongue(136 * breathe(0), 46, sx(0)) });
+    set(flameMid, { d: tongue(98 * breathe(0.8), 32, sx(0.6)) });
+    set(flameCore, { d: tongue(54 * breathe(1.7), 17, sx(1.2) * 0.6) });
+    set(glow, { opacity: ig * (0.85 + 0.15 * Math.sin(t * 2.0)), r: 170 * breathe(0.4) });
+    burner.forEach((b) => { b.style.display = fireOn ? '' : 'none'; });
+    heat.forEach((h, i) => {
+      const k = p(t, 12.7 + i * 0.16, 13.9 + i * 0.16, E.inOut);
+      trim(h, Math.max(0, k - 0.3), k);
+      h.setAttribute('opacity', 0.75 * (1 - p(t, 13.6 + i * 0.16, 13.9 + i * 0.16, E.lin)));
+    });
+    steam.forEach((st, i) => {
+      const k = p(t, 13.9 + i * 0.2, 14.9 + i * 0.2, E.out);
+      trim(st, Math.max(0, k - 0.45), k);
+      st.style.opacity = 1 - p(t, 14.6 + i * 0.2, 15.1 + i * 0.2, E.lin);
+    });
 
     // hook text
     hookL1.update(p(t, 4.7, 5.5, E.out), p(t, 6.1, 6.6, E.in));
@@ -534,7 +582,7 @@
       const a = (s * 2 * Math.PI) / 7 + out * 3.6;
       let x = 540 + Math.cos(a) * 78 * out, y = 1380 + Math.sin(a) * 78 * out;
       const row = p(t, 10.8 + 0.03 * s, 11.35 + 0.03 * s, E.inOut);
-      x = lerp(x, 540 + (s - 3) * 38, row); y = lerp(y, 1400, row);
+      x = lerp(x, 540 + (s - 3) * 38, row); y = lerp(y, 1440, row);
       const gone = p(t, 11.45 + Math.abs(s - 3) * 0.07, 11.8 + Math.abs(s - 3) * 0.07, E.in);
       const sc = clamp(out * 4) * (1 - gone);
       set(sd, { cx: x, cy: y, transform: `rotate(${a * 57.3 * (1 - row)} ${x} ${y}) scale(1)`, rx: 7 * sc, ry: 9 * sc });
@@ -544,7 +592,7 @@
     // labels
     const mk = p(t, 7.5, 8.0, E.settle) * (1 - p(t, 14.6, 15.0, E.in));
     const turn = p(t, 9.1, 9.6, E.inOut) + p(t, 11.5, 12.0, E.inOut);
-    set(labelMark, { transform: `translate(540 1500) rotate(${turn * 90}) scale(${Math.max(0.001, mk)})` });
+    set(labelMark, { transform: `translate(540 ${lerp(1500, 1268, p(t, 11.3, 11.8, E.inOut))}) rotate(${turn * 90}) scale(${Math.max(0.001, mk)})` });
     lblBean.update(p(t, 7.7, 8.4, E.out), p(t, 8.75, 9.15, E.in));
     lblCard.update(p(t, 9.3, 10.0, E.out), p(t, 11.1, 11.45, E.in));
     lblFire.update(p(t, 11.75, 12.45, E.out), p(t, 14.6, 15.0, E.in));
