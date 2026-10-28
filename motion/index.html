@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>شكر وتقدير — مجلس أولياء الأمور</title>
+<style>
+@font-face{font-family:Cairo;src:url(assets/fonts/cairo-arabic.woff2) format('woff2');font-weight:200 1000;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+200C-200E,U+FB50-FDFF,U+FE70-FEFC;}
+@font-face{font-family:Cairo;src:url(assets/fonts/cairo-latin.woff2) format('woff2');font-weight:200 1000;}
+:root{
+  --navy:#0a1f5c; --blue:#163a8f; --text:#fff; --muted:#b9c7ea;
+  --green:#2fb34a; --gold:#f4b916; --red:#e8323c;
+  --glass:rgba(255,255,255,.10); --line:rgba(255,255,255,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#071640}
+body{font-family:Cairo,sans-serif;color:var(--text)}
+#stage{position:absolute;inset:0;overflow:hidden;background:linear-gradient(170deg,#0d2a78 0%,#123690 45%,#0a1f5c 100%)}
+.glow{position:absolute;border-radius:50%;filter:blur(120px)}
+#grid{position:absolute;inset:-120px;opacity:.5;background-image:linear-gradient(rgba(255,255,255,.04) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.04) 2px,transparent 2px);background-size:120px 120px;
+  -webkit-mask-image:radial-gradient(circle at 50% 45%,#000 0,transparent 70%)}
+.scene{position:absolute;inset:0;opacity:0}
+.c{position:absolute;left:0;right:0;margin:auto;text-align:center}
+
+/* glass card – notification style */
+.card{position:absolute;left:0;right:0;margin:auto;border-radius:44px;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.06));border:2px solid var(--line);box-shadow:0 40px 90px rgba(3,10,40,.45),inset 0 2px 0 rgba(255,255,255,.18);backdrop-filter:blur(20px)}
+.ncard{display:flex;align-items:center;gap:30px;padding:0 40px}
+.ncard .ic{width:130px;height:130px;border-radius:32px;background:#fff;display:grid;place-items:center;flex:none;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.ncard .ic img{width:118px;height:118px;border-radius:50%}
+.ncard .ic svg{width:70px;height:70px}
+.ncard b{display:block;font-size:52px;font-weight:900;line-height:1.25}
+.ncard span{display:block;font-size:30px;color:var(--muted);font-weight:600}
+.ver{margin-right:auto;height:58px;border-radius:29px;padding:0 22px;display:flex;align-items:center;gap:10px;background:rgba(47,179,74,.2);border:2px solid rgba(47,179,74,.55);color:#8ef0a3;font-size:28px;font-weight:800;white-space:nowrap}
+.ver i{width:34px;height:34px;border-radius:50%;background:var(--green);display:grid;place-items:center}
+
+.big{font-size:118px;font-weight:900;line-height:1.2;text-shadow:0 10px 40px rgba(0,0,0,.25)}
+.mid{font-size:76px;font-weight:900;line-height:1.3}
+.sm{font-size:44px;font-weight:700;color:var(--muted)}
+.hl-gold{color:var(--gold)}
+.hl-green{color:#55d872}
+.w{display:inline-block}
+.box{display:inline-block;background:#fff;color:var(--navy);padding:0 26px;border-radius:14px;line-height:1.45}
+
+.photo{position:absolute;left:0;right:0;margin:auto;border-radius:44px;overflow:hidden;border:6px solid rgba(255,255,255,.85);box-shadow:0 50px 100px rgba(3,10,40,.55)}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo .tag{position:absolute;top:28px;right:28px;height:64px;border-radius:32px;padding:0 26px;display:flex;align-items:center;gap:12px;background:rgba(10,31,92,.82);border:2px solid var(--line);font-size:30px;font-weight:800;z-index:2}
+.photo .tag i{width:16px;height:16px;border-radius:50%;background:var(--red)}
+
+.stamp{position:absolute;left:0;right:0;margin:auto;width:max-content;padding:4px 44px;border:8px solid var(--green);border-radius:26px;color:var(--green);background:rgba(255,255,255,.92);font-size:92px;font-weight:900;line-height:1.35;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+
+.ring{position:absolute;inset:0}
+.logo{position:absolute;left:0;right:0;margin:auto;width:440px;height:440px}
+.logo img{position:absolute;inset:40px;width:360px;height:360px;border-radius:50%;background:#fff;box-shadow:0 30px 80px rgba(0,0,0,.3)}
+.pill{display:inline-flex;align-items:center;gap:16px;height:96px;border-radius:48px;padding:0 44px;background:#fff;color:var(--navy);font-size:40px;font-weight:900;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#black{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow" id="g1" style="width:900px;height:900px;background:rgba(47,179,74,.38);top:-300px;right:-260px"></div>
+  <div class="glow" id="g2" style="width:800px;height:800px;background:rgba(244,185,22,.16);bottom:-260px;left:-300px"></div>
+  <div class="glow" id="g3" style="width:700px;height:700px;background:rgba(80,140,255,.35);top:700px;left:-200px"></div>
+  <div id="grid"></div>
+
+  <!-- 1. title -->
+  <div class="scene" id="s1">
+    <div class="c big" id="s1a" style="top:760px">شكر <span class="hl-gold">وتقدير</span></div>
+    <div class="c sm" id="s1b" style="top:930px">مجلس أولياء الأمور · مدارس حمد</div>
+  </div>
+
+  <!-- 2. council card -->
+  <div class="scene" id="s2">
+    <div class="card ncard" id="s2c" style="top:560px;width:1000px;height:230px;gap:24px;padding:0 34px">
+      <div class="ic"><img src="assets/logo.jpg" alt=""></div>
+      <div><b style="font-size:46px;white-space:nowrap">مجلس أولياء الأمور</b><span>مدارس حمد للبنين والبنات</span></div>
+      <div class="ver"><i><svg width="22" height="22" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg></i>مدينة حمد</div>
+    </div>
+    <div class="c sm" id="s2a" style="top:900px">ضمن مساعي</div>
+    <div class="c mid" id="s2b" style="top:975px;width:960px">مجلس أولياء الأمور<br>في <span class="hl-gold">مدينة حمد</span></div>
+  </div>
+
+  <!-- 3. partners -->
+  <div class="scene" id="s3">
+    <div class="c sm" id="s3a" style="top:520px">وبالاشتراك مع</div>
+    <div class="card ncard" id="s3c0" style="top:640px;width:900px;height:210px">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#e8323c" stroke-width="2.2"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M12 8v7M8.5 11.5h7"/></svg></div>
+      <div><b>لجنة الإغاثة والطوارئ</b><span>شريك في المبادرة</span></div>
+    </div>
+    <div class="card ncard" id="s3c1" style="top:890px;width:900px;height:210px">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#2fb34a" stroke-width="2"><path d="M3 21V10l5-4 5 4v11M13 21V8l4-3 4 3v13M3 21h18M7 14h2M7 17h2M16 12h2M16 16h2"/></svg></div>
+      <div><b>لجنة الحي</b><span>شريك في المبادرة</span></div>
+    </div>
+    <div class="c mid" id="s3b" style="top:1180px">يداً <span class="hl-green">بيد</span></div>
+  </div>
+
+  <!-- 4. meeting photo -->
+  <div class="scene" id="s4">
+    <div class="photo" id="s4p" style="top:330px;width:960px;height:640px"><img id="s4i" src="assets/photo1.jpg" alt=""><div class="tag"><i></i>اللقاء</div></div>
+    <div class="c sm" id="s4a" style="top:1050px">تم الالتقاء مع الإخوة في</div>
+    <div class="card ncard" id="s4c" style="top:1150px;width:960px;height:220px">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="#f4b916"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+      <div><b>إدارة شبكة مولد السرحي</b><span>للكهرباء</span></div>
+    </div>
+  </div>
+
+  <!-- 5. representatives -->
+  <div class="scene" id="s5">
+    <div class="c sm" id="s5a" style="top:560px">ممثلةً بـ</div>
+    <div class="card ncard" id="s5c0" style="top:680px;width:880px;height:200px">
+      <div class="ic" style="background:#e9f0ff;color:var(--navy);font-size:70px;font-weight:900">خ</div>
+      <div><b>السيد خميس مراد</b><span>إدارة الشبكة</span></div>
+    </div>
+    <div class="card ncard" id="s5c1" style="top:920px;width:880px;height:200px">
+      <div class="ic" style="background:#e9f7ec;color:#1d7f33;font-size:70px;font-weight:900">أ</div>
+      <div><b>أبو أحمد مراد</b><span>إدارة الشبكة</span></div>
+    </div>
+  </div>
+
+  <!-- 6. agreement -->
+  <div class="scene" id="s6">
+    <div class="photo" id="s6p" style="top:300px;width:960px;height:620px"><img id="s6i" src="assets/photo2.jpg" alt=""><div class="tag"><i style="background:var(--green)"></i>جلسة التوافق</div></div>
+    <div class="stamp" id="s6s" style="top:830px">تم التوافق</div>
+    <div class="c sm" id="s6a" style="top:1060px">على تقديم الخدمات لمدرسة</div>
+    <div class="c mid" id="s6b" style="top:1130px;width:1000px">الشهيد <span class="hl-gold">ياسر النمروطي</span></div>
+  </div>
+
+  <!-- 7. conditions -->
+  <div class="scene" id="s7">
+    <div class="c mid" id="s7a" style="top:560px">بما يتناسب مع</div>
+    <div class="card ncard" id="s7c0" style="top:720px;width:900px;height:190px">
+      <div class="ic" style="width:110px;height:110px;background:var(--green)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" class="tick" stroke-dasharray="22" stroke-dashoffset="22"/></svg></div>
+      <div><b>حاجة المدرسة</b></div>
+    </div>
+    <div class="card ncard" id="s7c1" style="top:950px;width:900px;height:190px">
+      <div class="ic" style="width:110px;height:110px;background:var(--green)"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" class="tick" stroke-dasharray="22" stroke-dashoffset="22"/></svg></div>
+      <div><b>مديرية التربية والتعليم</b></div>
+    </div>
+  </div>
+
+  <!-- 8. thanks -->
+  <div class="scene" id="s8">
+    <div class="c" id="s8i" style="top:540px;width:240px;height:240px;border-radius:50%;background:rgba(244,185,22,.16);border:2px solid rgba(244,185,22,.5);display:grid;place-items:center;box-shadow:0 0 0 30px rgba(244,185,22,.06),0 0 120px rgba(244,185,22,.45)"><svg width="120" height="120" viewBox="0 0 24 24" fill="#f4b916"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z"/></svg></div>
+    <div class="c big" id="s8a" style="top:860px">كل الشكر<br><span class="hl-gold">والتقدير</span></div>
+    <div class="c sm" id="s8b" style="top:1170px;width:900px;color:#fff;line-height:1.6">لمن ساهم ويعمل لخدمة<br>أبنائنا الطلاب</div>
+  </div>
+
+  <!-- 9. end card -->
+  <div class="scene" id="s9" style="background:linear-gradient(170deg,#2fb34a,#1d8a36)">
+    <div class="logo" id="s9l" style="top:440px">
+      <svg class="ring" viewBox="0 0 440 440"><circle id="s9r" cx="220" cy="220" r="205" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-dasharray="1288" stroke-dashoffset="1288" transform="rotate(-90 220 220)"/></svg>
+      <img src="assets/logo.jpg" alt="">
+    </div>
+    <div class="c sm" id="s9a" style="top:960px;color:#eaffef">إخوانكم</div>
+    <div class="c mid" id="s9b" style="top:1030px;width:1000px">مجلس أولياء الأمور<br><span class="box">في مدارس حمد</span></div>
+    <div class="c" id="s9c" style="top:1330px"><div class="pill">﴿ وَقُل رَّبِّ زِدْنِي عِلْمًا ﴾</div></div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="black"></div>
+</div>
+
+<script>
+const DUR = 30;
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const E = {
+  out: t => 1 - Math.pow(1 - t, 3),
+  inOut: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  back: t => { const c = 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); },
+  lin: t => t
+};
+const P = (t, s, d, e = E.out) => e(clamp((t - s) / d));
+const lerp = (a, b, k) => a + (b - a) * k;
+
+function css(el, { o = 1, x = 0, y = 0, s = 1, r = 0, b = 0 } = {}) {
+  el.style.opacity = o;
+  el.style.transform = `translate(${x}px,${y}px) scale(${s}) rotate(${r}deg)`;
+  el.style.filter = b > .05 ? `blur(${b}px)` : 'none';
+}
+// entrance: fade + rise + overshoot scale + de-blur
+function pop(el, t, start, d = .7, dy = 70, dx = 0) {
+  const k = P(t, start, d, E.back), o = P(t, start, d * .55);
+  css(el, { o, x: (1 - k) * dx, y: (1 - k) * dy, s: .9 + .1 * k, b: (1 - o) * 14 });
+}
+function splitWords(el) {
+  const walk = n => [...n.childNodes].forEach(c => {
+    if (c.nodeType === 3) {
+      const f = document.createDocumentFragment();
+      c.textContent.split(/(\s+)/).forEach(p => {
+        if (!p) return;
+        if (/^\s+$/.test(p)) f.appendChild(document.createTextNode(p));
+        else { const s = document.createElement('span'); s.className = 'w'; s.textContent = p; f.appendChild(s); }
+      });
+      c.replaceWith(f);
+    } else if (c.nodeType === 1 && c.tagName !== 'BR' && !c.classList.contains('box')) walk(c);
+  });
+  walk(el);
+  return [...el.querySelectorAll('.w, .box')];
+}
+const words = (list, t, start, step = .1) => list.forEach((w, i) => pop(w, t, start + i * step, .6, 50));
+const W = {};
+['s1a', 's2b', 's3b', 's6b', 's7a', 's8a', 's8b', 's9b'].forEach(id => W[id] = splitWords($(id)));
+
+// scene windows (cuts land on the 120-bpm grid of the soundtrack)
+const S = { s1: [0, 3], s2: [3, 6], s3: [6, 9], s4: [9, 13], s5: [13, 16], s6: [16, 20], s7: [20, 23], s8: [23, 26], s9: [26, 30] };
+// in: quick fade; out: zoom forward + blur (like the reference transitions)
+function scene(id, t) {
+  const [a, b] = S[id], el = $(id);
+  const i = P(t, a, .35), o = P(t, b - .35, .35, E.inOut);
+  const last = id === 's9';
+  css(el, { o: last ? i : Math.min(i, 1 - o), s: last ? 1 : 1 + o * .12, b: last ? 0 : o * 18 });
+  return t >= a - .01 && t <= b + .01;
+}
+
+function render(t) {
+  // living background
+  const mv = (id, x, y) => $(id).style.transform = `translate(${x}px,${y}px)`;
+  mv('g1', Math.sin(t * .35) * 120, Math.cos(t * .3) * 90);
+  mv('g2', Math.cos(t * .28) * 140, Math.sin(t * .33) * 80);
+  mv('g3', Math.sin(t * .22 + 1) * 160, Math.cos(t * .25) * 140);
+  $('grid').style.transform = `translateY(${(t * 14) % 120}px)`;
+
+  if (scene('s1', t)) {
+    words(W.s1a, t, .25, .25);
+    pop($('s1b'), t, 1.0);
+  }
+  if (scene('s2', t)) {
+    pop($('s2c'), t, 3.1, .8, -120);
+    pop($('s2a'), t, 3.7);
+    words(W.s2b, t, 3.9, .12);
+  }
+  if (scene('s3', t)) {
+    pop($('s3a'), t, 6.05);
+    pop($('s3c0'), t, 6.3, .8, 0, -500);
+    pop($('s3c1'), t, 6.7, .8, 0, 500);
+    words(W.s3b, t, 7.4, .2);
+  }
+  if (scene('s4', t)) {
+    const k = P(t, 9.05, .9, E.back);
+    css($('s4p'), { o: P(t, 9.05, .4), y: (1 - k) * 160, s: .85 + .15 * k, r: (1 - k) * -4 });
+    $('s4i').style.transform = `scale(${1.05 + (t - 9) * .03})`;
+    pop($('s4a'), t, 9.9);
+    pop($('s4c'), t, 10.3, .8, 120);
+  }
+  if (scene('s5', t)) {
+    pop($('s5a'), t, 13.05);
+    pop($('s5c0'), t, 13.3, .8, 0, 500);
+    pop($('s5c1'), t, 13.8, .8, 0, -500);
+  }
+  if (scene('s6', t)) {
+    const k = P(t, 16.05, .9, E.back);
+    css($('s6p'), { o: P(t, 16.05, .4), y: (1 - k) * 160, s: .85 + .15 * k, r: (1 - k) * 4 });
+    $('s6i').style.transform = `scale(${1.15 - (t - 16) * .03})`;
+    // stamp slam
+    const sk = P(t, 17.0, .35, E.out);
+    css($('s6s'), { o: P(t, 17.0, .12), s: 2.2 - 1.2 * sk, r: -6 });
+    pop($('s6a'), t, 17.6);
+    words(W.s6b, t, 17.9, .15);
+  }
+  // white flash on the stamp hit
+  $('flash').style.opacity = t > 17.3 && t < 17.6 ? (1 - (t - 17.3) / .3) * .35 : 0;
+  if (scene('s7', t)) {
+    words(W.s7a, t, 20.05, .12);
+    [0, 1].forEach(i => {
+      pop($('s7c' + i), t, 20.5 + i * .5, .8, 120);
+      $('s7c' + i).querySelector('.tick').style.strokeDashoffset = 22 * (1 - P(t, 21.0 + i * .5, .4));
+    });
+  }
+  if (scene('s8', t)) {
+    const k = P(t, 23.05, .8, E.back);
+    css($('s8i'), { o: P(t, 23.05, .3), s: (.3 + .7 * k) * (1 + .06 * Math.sin((t - 23) * 6)) });
+    words(W.s8a, t, 23.5, .14);
+    pop($('s8b'), t, 24.3);
+  }
+  if (scene('s9', t)) {
+    const k = P(t, 26.1, .9, E.back);
+    css($('s9l'), { o: P(t, 26.1, .3), s: .4 + .6 * k, r: (1 - k) * -30 });
+    $('s9r').style.strokeDashoffset = 1288 * (1 - P(t, 26.4, 1.4, E.inOut));
+    pop($('s9a'), t, 26.8);
+    words(W.s9b, t, 27.0, .15);
+    pop($('s9c'), t, 27.8, .8, 60);
+  }
+  $('black').style.opacity = P(t, 29.5, .5, E.lin);
+}
+
+window.render = render;
+window.DUR = DUR;
+if (!location.search.includes('render')) {
+  const t0 = performance.now();
+  (function loop() { render(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); })();
+} else render(0);
+</script>
+</body>
+</html>
