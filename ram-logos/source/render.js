@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
-const dir = path.join(__dirname, 'out');
+const dir = path.join(__dirname, process.env.OUT || 'out');
 const fontsCss = fs.readFileSync(path.join(__dirname, 'fonts', 'fonts.css'), 'utf8')
   .replace(/url\(([^)]+\.ttf)\)/g, (m, f) => `url(file://${path.join(__dirname, 'fonts', f)})`);
 const only = process.argv[2];
