@@ -25,22 +25,26 @@ ASSETS = os.path.join(ROOT, "assets")
 OUT = os.path.join(ROOT, "out")
 
 W, H, FPS = 1080, 1920, 30
-DUR = 8.0
+DUR = 7.0
 SR = 48000
 N = int(DUR * FPS)
 SCALE = H / 1536          # artwork 1024x1536 -> cover 1920 tall
 CROP_X = (round(1024 * SCALE) - W) // 2
 
 # Timeline (seconds): (start, end) of each layer's trim path
-T_LAYERS = [(0.35, 1.35),   # top ribbon
-            (1.00, 2.55),   # second ribbon -> ring -> arrow head -> outer crescent
-            (2.20, 2.85)]   # grey inner crescent
-T_HIT = 2.9                 # logo complete: shine + accent
-T_BAR = 3.15                # divider bar grows, names slide out of it
-T_SUB = 3.75                # subtitle
-T_SOON0, T_SOON1 = 4.55, 5.55   # "قريباً"
-T_GLINT = 6.05
-T_OUT = 7.45
+# Timeline (seconds): (start, end) of each layer's outline stroke.  Like the
+# reference, the outline traces first and the fill chases it FILL_LAG behind.
+T_LAYERS = [(0.30, 0.95),   # top ribbon
+            (0.48, 1.38),   # second ribbon -> ring -> arrow head -> outer crescent
+            (0.78, 1.20)]   # grey inner crescent
+FILL_LAG = 0.14
+FILL_SPEED = 1.15           # fill runs a bit faster than the stroke, closing the gap
+T_HIT = 1.62                # logo complete: shine + accent
+T_BAR = 1.90                # divider bar grows, names slide out of it
+T_SUB = 2.45                # subtitle
+T_SOON0, T_SOON1 = 3.15, 4.05   # "قريباً"
+T_GLINT = 4.55
+T_OUT = 6.45
 
 rng = np.random.default_rng(7)
 PREVIEW = None  # set of frame indices -> PNGs instead of video
@@ -173,7 +177,10 @@ def render_video(path_noaudio):
         taken |= md
         ys, xs = np.nonzero(m)
         k = np.argmin(ys)
-        layers.append((md, geodesic(md, (ys[k], xs[k]))))
+        # outline band hugging the layer's contour (the trim-path stroke)
+        edge = nd.binary_dilation(m, iterations=2) & ~nd.binary_erosion(m, iterations=2)
+        edge = nd.gaussian_filter(edge.astype(np.float32), 0.6)
+        layers.append((md, geodesic(md, (ys[k], xs[k])), edge))
     logo_mask = taken
     ys, xs = np.nonzero(logo_mask)
     cx, cy = xs.mean(), ys.mean()
@@ -216,16 +223,23 @@ def render_video(path_noaudio):
 
         # ---- logo layers: trim path along each layer, one after another
         reveal = np.zeros((H, W), np.float32)
+        stroke = np.zeros((H, W), np.float32)
         head = np.zeros((H, W), np.float32)
-        for (md, dist), (t0, t1) in zip(layers, T_LAYERS):
-            p = ease_io((t - t0) / (t1 - t0))
-            if p <= 0:
+        for (md, dist, edge), (t0, t1) in zip(layers, T_LAYERS):
+            ps = ease_out((t - t0) / (t1 - t0))
+            if ps <= 0:
                 continue
-            p *= 1.02
-            reveal += clamp01((p - dist) / 0.012) * md
-            if p < 1.02:
-                head += np.exp(-((dist - p) / 0.025) ** 2) * md * (dist <= p + 0.005)
+            ps *= 1.02
+            f0 = t0 + FILL_LAG
+            pf = ease_io((t - f0) / ((t1 - t0) / FILL_SPEED)) * 1.03
+            done = f0 + (t1 - t0) / FILL_SPEED
+            s_alpha = 1 - ease_io((t - done) / 0.25)
+            stroke += clamp01((ps - dist) / 0.01) * edge * s_alpha
+            reveal += clamp01((pf - dist) / 0.018) * md * clamp01(0.35 + pf * 1.3)
+            if ps < 1.02:
+                head += np.exp(-((dist - ps) / 0.02) ** 2) * edge * (dist <= ps + 0.005)
         reveal = nd.gaussian_filter(clamp01(reveal), 0.7)
+        frame = over(frame, navy, clamp01(stroke))
         # soft contact shadow gives the layers depth while they draw
         sh = np.roll(nd.gaussian_filter(reveal, 8), 8, 0) * (1 - reveal)
         frame *= 1 - (sh * 0.12)[..., None]
@@ -234,7 +248,7 @@ def render_video(path_noaudio):
         # light streak riding each trim head
         if head.any():
             hl = nd.gaussian_filter(head, 1.5)
-            frame += (hl * 0.6 * reveal)[..., None] * (1 - frame)
+            frame += (hl * 0.6 * clamp01(stroke + reveal))[..., None] * (1 - frame)
             frame += blur(hl, 12)[..., None] * 0.30 * np.array([0.5, 0.65, 1.0]) * (1 - frame)
 
         # shine sweep across the finished logo
@@ -490,7 +504,7 @@ def main():
     global PREVIEW
     os.makedirs(OUT, exist_ok=True)
     if "--preview" in sys.argv:
-        PREVIEW = set(range(0, N, 15))
+        PREVIEW = set(range(9, 54, 3)) | set(range(60, N, 15))
         render_video(None)
         return
     wav = os.path.join(OUT, "sfx.wav")
