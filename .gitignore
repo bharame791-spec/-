@@ -1,0 +1,3 @@
+out/*
+!out/coming_soon.mp4
+__pycache__/
