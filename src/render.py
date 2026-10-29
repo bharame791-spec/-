@@ -1,13 +1,16 @@
-"""RAM logo: layer-by-layer trim-path reveal + "قريباً", with synthesized sound design.
+"""RAM logo reveal in the style of the Al Jazeera "قريباً" reference, with sound design.
 
-The logo is split into its real layers straight from the artwork (by colour and
-connectivity).  Each layer is drawn on along its own path: the reveal follows the
-geodesic distance inside the layer from its tip, so the front always cuts across
-the ribbon like an After Effects Trim Path on a stroked shape.
+Scene: a blue card floating over a dark purple backdrop (with a huge blurred logo
+behind it, like the reference).  The logo is rebuilt in glowing white from the
+clean artwork, split into its real layers.  The camera starts pushed in on the
+card and keeps creeping in while every layer trim-paths on (thin white stroke
+first, fill chasing it, sparks at the heads).  When the logo completes, the
+camera snaps back out with motion blur and the logo flashes and blooms; the
+quotes pop in and "قريباً" types in right to left.
 
 Usage:
     python3 src/render.py            -> out/coming_soon.mp4
-    python3 src/render.py --preview  -> out/preview_###.png every 0.5s
+    python3 src/render.py --preview  -> out/preview_###.png
 """
 import heapq
 import os
@@ -28,26 +31,30 @@ W, H, FPS = 1080, 1920, 30
 DUR = 7.0
 SR = 48000
 N = int(DUR * FPS)
-SCALE = H / 1536          # artwork 1024x1536 -> cover 1920 tall
-CROP_X = (round(1024 * SCALE) - W) // 2
 
-# Timeline (seconds): (start, end) of each layer's trim path
-# Timeline (seconds): (start, end) of each layer's outline stroke.  Like the
-# reference, the outline traces first and the fill chases it FILL_LAG behind.
-T_LAYERS = [(0.30, 0.95),   # top ribbon
-            (0.48, 1.38),   # second ribbon -> ring -> arrow head -> outer crescent
-            (0.78, 1.20)]   # grey inner crescent
-FILL_LAG = 0.14
-FILL_SPEED = 1.15           # fill runs a bit faster than the stroke, closing the gap
-T_HIT = 1.62                # logo complete: shine + accent
-T_BAR = 1.90                # divider bar grows, names slide out of it
-T_SUB = 2.45                # subtitle
-T_SOON0, T_SOON1 = 3.15, 4.05   # "قريباً"
-T_GLINT = 4.55
-T_OUT = 6.45
+# ---- timeline (seconds)
+# (start, end) of each layer's outline stroke; the fill chases it FILL_LAG behind
+T_LAYERS = [(0.15, 0.80),   # top ribbon
+            (0.30, 1.15),   # second ribbon -> ring -> arrow head -> outer crescent
+            (0.55, 1.00)]   # grey inner crescent
+FILL_LAG = 0.12
+FILL_SPEED = 1.2
+T_FLASH = 1.30              # logo complete: flash + camera snaps out
+T_ZOOM_OUT = (1.22, 1.95)
+T_QUOTES = 1.95
+T_SOON0, T_SOON1 = 2.10, 2.90   # "قريباً" types in
+T_GLINT = 3.6
+T_OUT = 6.35
+
+# ---- layout (world space == output frame at zoom 1)
+CARD = (110, 330, 970, 1530)    # x0, y0, x1, y1
+CARD_R = 34
+LOGO_H = 540                    # logo height on the card
+LOGO_CY = 800
+SOON_CY = 1225
 
 rng = np.random.default_rng(7)
-PREVIEW = None  # set of frame indices -> PNGs instead of video
+PREVIEW = None
 
 
 def clamp01(x):
@@ -63,6 +70,15 @@ def ease_io(x):
     return x * x * (3 - 2 * x)
 
 
+def ease_out_expo(x):
+    x = clamp01(x)
+    return np.where(x >= 1, 1.0, 1 - 2 ** (-10 * x))
+
+
+def ease_in(x):
+    return clamp01(x) ** 2
+
+
 def blur(a, r):
     if r < 0.3:
         return a
@@ -71,33 +87,57 @@ def blur(a, r):
     return nd.gaussian_filter(a, r)
 
 
-# ---------------------------------------------------------------- artwork
-def load_art():
-    src = Image.open(os.path.join(ASSETS, "logo_clean.png")).convert("RGB")
-    src = src.resize((round(src.width * SCALE), H), Image.LANCZOS)
-    return np.asarray(src, np.float32)[:, CROP_X:CROP_X + W] / 255
+def bloom(img, r, f=4):
+    """Wide blur via downscale (cheap glow)."""
+    small = img[::f, ::f]
+    b = blur(small, r / f)
+    up = np.repeat(np.repeat(b, f, 0), f, 1)
+    return up[:img.shape[0], :img.shape[1]]
 
 
-def segment(art):
-    r, g, b = art[..., 0] * 255, art[..., 1] * 255, art[..., 2] * 255
+def over(frame, color, alpha):
+    a = alpha[..., None] if alpha.ndim == 2 else alpha
+    return frame * (1 - a) + color * a
+
+
+# ---------------------------------------------------------------- logo from artwork
+def extract_logo():
+    """Masks + shading of the three logo layers, scaled and placed in world space."""
+    art = np.asarray(Image.open(os.path.join(ASSETS, "logo_clean.png")).convert("RGB"), np.float32)
+    r, g, b = art[..., 0], art[..., 1], art[..., 2]
     lum = (r + g + b) / 3
     blue = (b - r > 40) & (lum < 200)
     grey = (np.abs(b - r) < 60) & (lum < 190) & (lum > 100) & ~blue
-    yy = np.arange(H)[:, None]
-    logo_zone = yy < 920 * SCALE
-    lab, n = nd.label(blue & logo_zone)
+    zone = np.arange(art.shape[0])[:, None] < 920
+    lab, n = nd.label(blue & zone)
     sizes = nd.sum(np.ones_like(lab), lab, range(1, n + 1))
     order = np.argsort(sizes)[::-1]
     comps = [lab == order[k] + 1 for k in range(2)]
-    comps.sort(key=lambda m: np.nonzero(m)[0].min())  # top ribbon first
-    glab, gn = nd.label(grey & logo_zone)
-    gs = nd.sum(np.ones_like(glab), glab, range(1, gn + 1))
-    comps.append(glab == np.argmax(gs) + 1)
+    comps.sort(key=lambda m: np.nonzero(m)[0].min())
+    glab, gn = nd.label(grey & zone)
+    comps.append(glab == np.argmax(nd.sum(np.ones_like(glab), glab, range(1, gn + 1))) + 1)
 
-    text = (blue | grey) & (yy >= 920 * SCALE) & (yy < 1080 * SCALE)
-    title = text & (yy < 1015 * SCALE)
-    subtitle = text & (yy >= 1015 * SCALE)
-    return comps, title, subtitle
+    allm = comps[0] | comps[1] | comps[2]
+    ys, xs = np.nonzero(allm)
+    pad = 6
+    y0, y1, x0, x1 = ys.min() - pad, ys.max() + pad, xs.min() - pad, xs.max() + pad
+    s = LOGO_H / (y1 - y0)
+    tw, th = round((x1 - x0) * s), round((y1 - y0) * s)
+    ox, oy = W // 2 - tw // 2 + round(12 * s), LOGO_CY - th // 2
+
+    def place(a, resample=Image.BILINEAR):
+        im = Image.fromarray(a[y0:y1, x0:x1].astype(np.float32), "F").resize((tw, th), resample)
+        out = np.zeros((H, W), np.float32)
+        out[oy:oy + th, ox:ox + tw] = np.asarray(im)
+        return out
+
+    masks = [clamp01(place(nd.gaussian_filter(m.astype(np.float32), 0.7))) for m in comps]
+    # shading: lighter bands of the original read whiter, darker bands slightly blue
+    shade = np.zeros_like(lum)
+    for m, (lo, hi) in zip(comps, [(25, 110), (25, 110), (120, 190)]):
+        shade[m] = clamp01((lum[m] - lo) / (hi - lo))
+    shade = place(nd.grey_dilation(shade, size=3))
+    return masks, shade
 
 
 def geodesic(mask, seed):
@@ -131,84 +171,134 @@ def geodesic(mask, seed):
     return full
 
 
-def clean_plate(art, ink):
-    """Background with every logo/text pixel removed (normalised-convolution inpaint)."""
-    hole = nd.binary_dilation(ink, iterations=10)
-    keep = (~hole).astype(np.float32)
-    out = art.copy()
-    todo = hole.copy()
-    for r in (8, 20, 45, 90):
-        fill = blur(art * keep[..., None], r) / (nd.gaussian_filter(keep, r)[..., None] + 1e-6)
-        ok = todo & (nd.gaussian_filter(keep, r) > 0.05)
-        out[ok] = fill[ok]
-        todo &= ~ok
-    soft = nd.gaussian_filter(hole.astype(np.float32), 2)[..., None]
-    return blur(out, 6) * soft + art * (1 - soft)
+# ---------------------------------------------------------------- scene pieces
+def make_backdrop(logo_union):
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    base = np.array([0.07, 0.05, 0.16]) * (1 - yy / H * 0.5)[..., None]
+    # huge blurred magenta logo behind the card (as in the reference)
+    big = Image.fromarray(logo_union, "F").resize((W * 2, H * 2), Image.BILINEAR)
+    big = np.asarray(big)[int(H * 0.55):int(H * 0.55) + H, W // 2:W // 2 + W]
+    big = nd.gaussian_filter(big, 28)
+    mag = np.array([0.85, 0.22, 0.55])
+    base = base + big[..., None] * mag * 0.55
+    # red horizon band low in frame
+    band = np.exp(-((yy - H * 0.62) / 160) ** 2) * 0.35
+    base = base + band[..., None] * np.array([0.75, 0.05, 0.12])
+    vign = clamp01(1 - ((xx - W / 2) ** 2 / (W * 0.9) ** 2 + (yy - H / 2) ** 2 / (H * 0.7) ** 2))
+    return base * (0.45 + 0.55 * vign[..., None])
+
+
+def make_card():
+    x0, y0, x1, y1 = CARD
+    img = Image.new("L", (W * 2, H * 2), 0)
+    ImageDraw.Draw(img).rounded_rectangle((x0 * 2, y0 * 2, x1 * 2, y1 * 2), CARD_R * 2, fill=255)
+    alpha = np.asarray(img.resize((W, H), Image.LANCZOS), np.float32) / 255
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    # royal blue, lighter where the logo glows
+    d = np.sqrt(((xx - W / 2) / 700) ** 2 + ((yy - LOGO_CY) / 900) ** 2)
+    col = np.array([0.17, 0.31, 0.88])[None, None] + clamp01(1 - d)[..., None] * np.array([0.08, 0.10, 0.05])
+    # rim light on the top edge + thin edge highlight
+    edge = alpha - nd.gaussian_filter(alpha, 1.2) * (alpha > 0.99)
+    edge = clamp01(nd.gaussian_filter(np.abs(alpha - nd.binary_erosion(alpha > 0.5, iterations=2)), 1.0))
+    top = clamp01(1 - (yy - y0) / 40) * (yy >= y0 - 2)
+    rim = edge * (0.25 + 0.75 * top)
+    shadow = np.roll(nd.gaussian_filter(alpha, 40), 30, 0) * 0.6
+    return alpha, col, rim, shadow
 
 
 def render_text(word, size):
     ar = ImageFont.truetype(os.path.join(ASSETS, "cairo-arabic-800-normal.woff"), size)
     qf = ImageFont.truetype("DejaVuSans-Bold.ttf", int(size * 0.62))
-    img = Image.new("L", (W, size * 2), 0)
-    d = ImageDraw.Draw(img)
+    word_img = Image.new("L", (W, size * 2), 0)
+    q_img = Image.new("L", (W, size * 2), 0)
+    d = ImageDraw.Draw(word_img)
     d.text((W // 2, size), word, font=ar, fill=255, anchor="mm", direction="rtl", language="ar")
     l, t, r, b = d.textbbox((W // 2, size), word, font=ar, anchor="mm", direction="rtl", language="ar")
-    d.text((r + size * 0.03, t + size * 0.02), '"', font=qf, fill=255, anchor="lt")
-    d.text((l - size * 0.03, t + size * 0.02), '"', font=qf, fill=255, anchor="rt")
-    return np.asarray(img, np.float32) / 255
+    dq = ImageDraw.Draw(q_img)
+    dq.text((r + size * 0.05, t + size * 0.02), '"', font=qf, fill=255, anchor="lt")
+    dq.text((l - size * 0.05, t + size * 0.02), '"', font=qf, fill=255, anchor="rt")
+    return (np.asarray(word_img, np.float32) / 255, np.asarray(q_img, np.float32) / 255, l, r)
 
 
-def over(frame, color, alpha):
-    a = alpha[..., None]
-    return frame * (1 - a) + color * a
+class Sparks:
+    def __init__(self):
+        self.p = np.zeros((0, 7), np.float32)  # x y vx vy life maxlife size
+
+    def emit(self, xs, ys, n, speed=3.0, life=(0.3, 0.9), size=(1.0, 3.0)):
+        if n <= 0 or len(xs) == 0:
+            return
+        idx = rng.integers(0, len(xs), n)
+        ang = rng.uniform(0, 2 * np.pi, n)
+        sp = rng.uniform(0.2, 1, n) * speed
+        lf = rng.uniform(*life, n)
+        new = np.stack([xs[idx] + rng.normal(0, 3, n), ys[idx] + rng.normal(0, 3, n),
+                        np.cos(ang) * sp, np.sin(ang) * sp + 0.8, lf, lf,
+                        rng.uniform(*size, n)], 1).astype(np.float32)
+        self.p = np.concatenate([self.p, new])
+
+    def step(self, dt):
+        p = self.p
+        p[:, 0] += p[:, 2]
+        p[:, 1] += p[:, 3]
+        p[:, 2] *= 0.93
+        p[:, 3] = p[:, 3] * 0.93 + 0.12
+        p[:, 4] -= dt
+        self.p = p[p[:, 4] > 0]
+
+    def draw(self):
+        layer = np.zeros((H, W), np.float32)
+        p = self.p
+        if len(p):
+            a = (p[:, 4] / p[:, 5]) ** 1.2 * rng.uniform(0.5, 1, len(p))
+            xi = np.clip(p[:, 0].astype(int), 0, W - 1)
+            yi = np.clip(p[:, 1].astype(int), 0, H - 1)
+            np.add.at(layer, (yi, xi), a * p[:, 6] * 2.5)
+        return clamp01(nd.gaussian_filter(layer, 1.1) * 1.8) + bloom(layer, 8) * 4
 
 
 # ---------------------------------------------------------------- frames
-def render_video(path_noaudio):
-    art = load_art()
-    comps, title, subtitle = segment(art)
-    plate = clean_plate(art, comps[0] | comps[1] | comps[2] | title | subtitle)
+def camera(t):
+    """Zoom and focus point: push in while drawing, snap out at the flash, then drift."""
+    z_draw = 1.30 + 0.32 * ease_in(t / T_ZOOM_OUT[0])
+    zo = ease_out_expo((t - T_ZOOM_OUT[0]) / (T_ZOOM_OUT[1] - T_ZOOM_OUT[0]))
+    z = z_draw + (1.06 - z_draw) * zo
+    z -= 0.05 * ease_io((t - T_ZOOM_OUT[1]) / (DUR - T_ZOOM_OUT[1]))
+    fy = LOGO_CY - 140 + 140 * ease_io(t / 1.2)          # follow the drawing down
+    fy = fy + ((CARD[1] + CARD[3]) / 2 - fy) * zo        # recentre on the card
+    return z, W / 2, fy
 
-    # per-layer reveal fields; masks are dilated so anti-aliased edges come along
+
+def render_video(path_noaudio):
+    masks, shade = extract_logo()
+    union = clamp01(sum(masks))
     layers = []
     taken = np.zeros((H, W), bool)
-    for m in comps:
-        md = nd.binary_dilation(m, iterations=3) & ~taken
-        taken |= md
-        ys, xs = np.nonzero(m)
+    for m in masks:
+        mb = (m > 0.02) & ~taken
+        taken |= mb
+        ys, xs = np.nonzero(m > 0.5)
         k = np.argmin(ys)
-        # outline band hugging the layer's contour (the trim-path stroke)
-        edge = nd.binary_dilation(m, iterations=2) & ~nd.binary_erosion(m, iterations=2)
-        edge = nd.gaussian_filter(edge.astype(np.float32), 0.6)
-        layers.append((md, geodesic(md, (ys[k], xs[k])), edge))
-    logo_mask = taken
-    ys, xs = np.nonzero(logo_mask)
-    cx, cy = xs.mean(), ys.mean()
-    navy = np.median(art[comps[1]], 0)
+        dist = geodesic(mb, (ys[k], xs[k]))
+        hard = m > 0.5
+        edge = nd.binary_dilation(hard, iterations=2) & ~nd.binary_erosion(hard, iterations=1)
+        layers.append((m, dist, nd.gaussian_filter(edge.astype(np.float32), 0.6)))
+    ys, xs = np.nonzero(union > 0.5)
+    lcx, lcy = xs.mean(), ys.mean()
+    logo_rgb = (np.array([0.90, 0.94, 1.0])[None, None] * (1 - shade[..., None])
+                + np.array([1.0, 1.0, 1.0])[None, None] * shade[..., None])
+    logo_rgb[masks[2] > 0.1] = logo_rgb[masks[2] > 0.1] * 0.92
 
-    # title split at the divider bar
-    tys, txs = np.nonzero(title)
-    cols = np.nonzero(title.sum(0))[0]
-    groups = np.split(cols, np.nonzero(np.diff(cols) > 3)[0] + 1)
-    mid = (txs.min() + txs.max()) / 2
-    bar = min(groups, key=lambda g: abs(g.mean() - mid) + 1000 * (len(g) > 25))
-    bar_x0, bar_x1 = bar.min() - 2, bar.max() + 3
-    bar_y0, bar_y1 = tys.min(), tys.max()
-    title_d = nd.binary_dilation(title, iterations=2).astype(np.float32)
-    sub_d = nd.binary_dilation(subtitle, iterations=2).astype(np.float32)
-    _, sxs = np.nonzero(subtitle)
-    sub_x0, sub_x1 = sxs.min(), sxs.max()
+    backdrop = make_backdrop(union)
+    c_alpha, c_col, c_rim, c_shadow = make_card()
+    card_rgb = c_col * np.ones((H, W, 3))
 
-    soon = render_text("قريباً", 112)
-    s_h = soon.shape[0]
-    soon_y = int(1165 * SCALE) - s_h // 2
-    scols = np.nonzero(soon.max(0) > 0.05)[0]
-    sx0, sx1 = scols.min(), scols.max()
-
+    word, quotes, wl, wr = render_text("قريباً", 118)
+    t_h = word.shape[0]
+    t_y = SOON_CY - t_h // 2
+    cols = np.arange(W, dtype=np.float32)
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
-    colsx = np.arange(W, dtype=np.float32)
-    rows = np.arange(H, dtype=np.float32)
 
+    sparks = Sparks()
     proc = None
     if PREVIEW is None:
         proc = subprocess.Popen(
@@ -217,15 +307,18 @@ def render_video(path_noaudio):
              "-preset", "slow", "-crf", "16", "-pix_fmt", "yuv420p", path_noaudio],
             stdin=subprocess.PIPE)
 
+    dt = 1 / FPS
     for i in range(N):
         t = i / FPS
-        frame = plate.copy()
+        # ---- card on backdrop (world space)
+        world = backdrop * (1 - c_shadow[..., None])
+        world = over(world, card_rgb, c_alpha)
 
-        # ---- logo layers: trim path along each layer, one after another
-        reveal = np.zeros((H, W), np.float32)
+        # ---- logo: per layer, white stroke traces first, fill chases it
+        fill = np.zeros((H, W), np.float32)
         stroke = np.zeros((H, W), np.float32)
         head = np.zeros((H, W), np.float32)
-        for (md, dist, edge), (t0, t1) in zip(layers, T_LAYERS):
+        for (m, dist, edge), (t0, t1) in zip(layers, T_LAYERS):
             ps = ease_out((t - t0) / (t1 - t0))
             if ps <= 0:
                 continue
@@ -233,84 +326,99 @@ def render_video(path_noaudio):
             f0 = t0 + FILL_LAG
             pf = ease_io((t - f0) / ((t1 - t0) / FILL_SPEED)) * 1.03
             done = f0 + (t1 - t0) / FILL_SPEED
-            s_alpha = 1 - ease_io((t - done) / 0.25)
-            stroke += clamp01((ps - dist) / 0.01) * edge * s_alpha
-            reveal += clamp01((pf - dist) / 0.018) * md * clamp01(0.35 + pf * 1.3)
+            stroke += clamp01((ps - dist) / 0.01) * edge * (1 - ease_io((t - done) / 0.2))
+            fill += clamp01((pf - dist) / 0.015) * m
             if ps < 1.02:
-                head += np.exp(-((dist - ps) / 0.02) ** 2) * edge * (dist <= ps + 0.005)
-        reveal = nd.gaussian_filter(clamp01(reveal), 0.7)
-        frame = over(frame, navy, clamp01(stroke))
-        # soft contact shadow gives the layers depth while they draw
-        sh = np.roll(nd.gaussian_filter(reveal, 8), 8, 0) * (1 - reveal)
-        frame *= 1 - (sh * 0.12)[..., None]
-        frame = over(frame, art, reveal)
+                h_ = np.exp(-((dist - ps) / 0.018) ** 2) * edge * (dist <= ps + 0.004)
+                head += h_
+                hy, hx = np.nonzero(h_[::3, ::3] > 0.4)
+                sparks.emit(hx * 3.0, hy * 3.0, 14, speed=4.0)
+        fill = clamp01(fill)
+        logo_a = clamp01(fill + stroke)
+        logo_col = over(np.ones((H, W, 3)), logo_rgb, fill / np.maximum(logo_a, 1e-4))
 
-        # light streak riding each trim head
+        # glow: steady halo + flash bloom at completion
+        fl = np.exp(-max(t - T_FLASH, 0) * 3.2) * (t >= T_FLASH)
+        pre = ease_in((t - 0.9) / (T_FLASH - 0.9)) * (t < T_FLASH)
+        glow_amt = 0.95 + 0.9 * fl + 0.6 * pre
+        src = logo_a[..., None] * logo_col
+        world += bloom(src, 18) * 0.55 * glow_amt * np.array([0.75, 0.85, 1.0])
+        world += bloom(src, 60) * 0.65 * glow_amt * np.array([0.55, 0.70, 1.0])
+        world = over(world, logo_col, logo_a)
+        if fl > 0.01:  # overexposed core during the flash
+            world += src * fl * 1.2
+            world += bloom(src, 40) * fl * 1.6 * np.array([0.75, 0.85, 1.0])
+            world += bloom(src, 120) * fl * 0.9 * np.array([0.6, 0.72, 1.0])
         if head.any():
-            hl = nd.gaussian_filter(head, 1.5)
-            frame += (hl * 0.6 * clamp01(stroke + reveal))[..., None] * (1 - frame)
-            frame += blur(hl, 12)[..., None] * 0.30 * np.array([0.5, 0.65, 1.0]) * (1 - frame)
+            world += bloom(head[..., None] * np.ones(3), 10) * 3.0 * np.array([0.8, 0.9, 1.0])
+            world += nd.gaussian_filter(head, 1.2)[..., None] * 1.2
 
-        # shine sweep across the finished logo
-        gp = (t - T_HIT) / 0.75
-        if 0 < gp < 1:
-            band = (xx - cx) * 0.55 + (yy - cy) * 0.85
-            pos = -420 + gp * 900
-            sw = np.exp(-((band - pos) / 28) ** 2) * logo_mask
-            frame += (nd.gaussian_filter(sw, 1.5) * 0.45)[..., None] * (1 - frame)
+        # sparks: from the trim heads, plus a burst at the flash
+        if abs(t - T_FLASH) < dt / 2 + 1e-6:
+            ey, ex = np.nonzero(union[::4, ::4] > 0.5)
+            sparks.emit(ex * 4.0, ey * 4.0, 700, speed=8, life=(0.5, 1.4), size=(0.8, 2.4))
+        if t > T_FLASH and i % 2 == 0:  # floating dust on the card
+            sparks.emit(np.array([lcx]), np.array([lcy]), 1, speed=0, life=(1.2, 2.2), size=(0.5, 1.3))
+            sparks.p[-1, 0] = rng.uniform(CARD[0] + 40, CARD[2] - 40)
+            sparks.p[-1, 1] = rng.uniform(CARD[1] + 60, CARD[3] - 60)
+            sparks.p[-1, 3] = rng.uniform(-1.0, -0.3)
+        sparks.step(dt)
+        world += sparks.draw()[..., None] * np.array([0.85, 0.92, 1.0]) * c_alpha[..., None]
 
-        # ---- title: the divider grows, then the names slide out from behind it
-        bp = ease_out((t - T_BAR) / 0.35)
-        if bp > 0:
-            ymid = (bar_y0 + bar_y1) / 2
-            half = (bar_y1 - bar_y0) / 2 * bp
-            band_y = clamp01(half + 1 - np.abs(rows - ymid))[:, None]
-            bm = np.zeros((H, W), np.float32)
-            bm[:, bar_x0:bar_x1] = 1
-            frame = over(frame, art, bm * band_y * title_d)
-        npg = ease_out((t - T_BAR - 0.2) / 0.75)
-        if npg > 0:
-            shift = int(round((1 - npg) * 150))
-            fade_in = clamp01(npg * 1.8)
-            for side, sgn in ((xx >= bar_x1, -1), (xx < bar_x0, 1)):
-                m = np.roll(title_d * side, sgn * shift, 1) * side * fade_in
-                frame = over(frame, np.roll(art, sgn * shift, 1), m)
-
-        # ---- subtitle: right-to-left soft wipe
-        sp = (t - T_SUB) / 0.8
-        if sp > 0:
-            edge = sub_x1 + 20 - (sub_x1 - sub_x0 + 120) * ease_io(sp)
-            frame = over(frame, art, clamp01((colsx - edge) / 50)[None, :] * sub_d)
-
-        # ---- "قريباً": RTL reveal, blur -> sharp, rise, then glint
+        # ---- quotes pop, then "قريباً" types in right to left
+        qp = ease_out((t - T_QUOTES) / 0.25)
+        if qp > 0:
+            ql = np.zeros((H, W), np.float32)
+            ql[t_y:t_y + t_h] = quotes * qp
+            world += bloom(ql[..., None] * np.ones(3), 14) * 0.6 * np.array([0.6, 0.75, 1.0])
+            world = over(world, np.ones(3), ql)
         tp = (t - T_SOON0) / (T_SOON1 - T_SOON0)
         if tp > 0:
-            e = ease_out(tp)
-            edge = sx1 + 10 - (sx1 - sx0 + 90) * ease_io(tp * 1.1)
-            wipe = clamp01((colsx - edge) / 45)[None, :]
-            y0 = soon_y + int((1 - e) * 30)
+            edge_x = wr - (wr - wl + 30) * clamp01(tp)
+            wipe = clamp01((cols - edge_x) / 18)[None, :]
             tl = np.zeros((H, W), np.float32)
-            tl[y0:y0 + s_h] = blur(soon, (1 - e) * 8) * wipe * clamp01(tp * 2.5)
-            frame *= 1 - (np.roll(nd.gaussian_filter(tl, 6), 6, 0) * 0.12)[..., None]
-            frame = over(frame, navy, tl)
-            gp2 = (t - T_GLINT) / 0.6
-            if 0 < gp2 < 1:
-                pos = sx0 - 60 + (sx1 - sx0 + 120) * gp2
-                sw = np.exp(-((colsx - pos) / 26) ** 2)[None, :] * tl
-                frame += (sw * 0.6)[..., None] * (1 - frame)
+            tl[t_y:t_y + t_h] = word * wipe
+            lead = np.zeros((H, W), np.float32)
+            lead[t_y:t_y + t_h] = blur(word, 2) * np.exp(-((cols - edge_x) / 14) ** 2)[None, :] * (tp < 1)
+            world += bloom((tl + lead * 2)[..., None] * np.ones(3), 16) * 1.0 * np.array([0.6, 0.75, 1.0])
+            world = over(world, np.ones(3), tl)
+            world += lead[..., None] * 0.8
+            if 0 < tp < 1:
+                ly = np.nonzero(word.max(1) > 0.3)[0]
+                sparks.emit(np.full(3, edge_x), t_y + rng.choice(ly, 3).astype(np.float32), 6,
+                            speed=2.5, life=(0.3, 0.7))
+            gp = (t - T_GLINT) / 0.6
+            if 0 < gp < 1:  # light sweep over logo and word
+                band = (xx - W / 2) * 0.5 + (yy - LOGO_CY) * 0.86
+                pos = -420 + gp * 1100
+                sw = np.exp(-((band - pos) / 30) ** 2)
+                world += (sw * (union + tl) * 0.6)[..., None] * np.array([0.9, 0.95, 1.0])
 
-        # ---- camera: gentle push-in with a small settle bump at the hit
-        z = 1.06 - 0.06 * ease_out(t / 3.2) + 0.010 * clamp01((t - 3.2) / 4.8)
-        z += 0.012 * np.exp(-max(t - T_HIT, 0) * 6) * (t >= T_HIT)
-        fade = ease_io(t / 0.3) * (1 - ease_io((t - T_OUT) / (DUR - T_OUT)))
-        frame = np.clip(frame, 0, 1) * fade + (1 - fade)  # fade from / to white
+        world += c_rim[..., None] * np.array([0.8, 0.85, 1.0]) * 0.9
 
-        img = Image.fromarray((frame * 255).astype(np.uint8))
-        img = img.transform((W, H), Image.AFFINE,
-                            (1 / z, 0, cx - cx / z, 0, 1 / z, cy - cy / z),
-                            resample=Image.BICUBIC, fillcolor=(235, 236, 240))
-        arr = np.asarray(img, np.int16) + rng.integers(-1, 2, (H, W, 1))
-        arr = np.clip(arr, 0, 255).astype(np.uint8)
+        # ---- camera (with motion blur while it snaps out)
+        world = np.clip(world, 0, None)  # soft shoulder only above 0.8
+        world = np.where(world < 0.8, world, 0.8 + 0.2 * (1 - np.exp(-(world - 0.8) / 0.2)))
+        wimg = Image.fromarray((np.clip(world, 0, 1) * 255).astype(np.uint8))
+        z0, fx, fy = camera(t)
+        z1, _, fy1 = camera(t + dt * 0.8)
+        nsub = 1 + int(min(abs(z1 - z0) / z0 * 40, 7))
+        acc = np.zeros((H, W, 3), np.float32)
+        for k in range(nsub):
+            a = k / max(nsub - 1, 1) if nsub > 1 else 0
+            z = z0 + (z1 - z0) * a
+            f = fy + (fy1 - fy) * a
+            sh = rng.normal(0, 1, 2) * 6 * np.exp(-max(t - T_FLASH, 0) * 10) * (t >= T_FLASH)
+            im = wimg.transform((W, H), Image.AFFINE,
+                                (1 / z, 0, fx - (W / 2) / z + sh[0], 0, 1 / z, f - (H / 2) / z + sh[1]),
+                                resample=Image.BICUBIC, fillcolor=(14, 10, 34))
+            acc += np.asarray(im, np.float32)
+        frame = acc / nsub
+        # white flash over the whole frame for a few frames
+        if fl > 0.01:
+            frame = frame + (255 - frame) * (fl ** 4) * 0.10
+        fade = ease_io(t / 0.25) * (1 - ease_io((t - T_OUT) / (DUR - T_OUT)))
+        arr = np.clip(frame * fade + rng.normal(0, 1.6, (H, W, 1)), 0, 255).astype(np.uint8)
         if proc is None:
             if i in PREVIEW:
                 Image.fromarray(arr).save(os.path.join(OUT, f"preview_{i:03d}.png"))
@@ -401,88 +509,89 @@ def make_reverb(seconds=2.6):
     return ir / np.sqrt((ir ** 2).sum(0))
 
 
+
+
 def render_audio(path):
     n = int((DUR + 0.3) * SR)
     dry = np.zeros((n, 2))
     send = np.zeros((n, 2))
 
-    # bed: soft airy pad swelling in, low drone rising into the logo hit
-    t = secs(T_HIT)
-    f = 49 * 2 ** (t / T_HIT)
+    # tension: low drone + riser climbing into the flash
+    t = secs(T_FLASH)
+    f = 55 * 2 ** (t / T_FLASH)
     drone = np.sin(2 * np.pi * np.cumsum(f) / SR) + 0.4 * np.sin(2 * np.pi * np.cumsum(f * 1.5) / SR)
-    place(dry, drone * (t / T_HIT) ** 2 * 0.16, 0)
-    riser = bp_sweep(rng.normal(0, 1, len(t)), 250, 5000, q=3) * (t / T_HIT) ** 3
-    place(dry, riser, 0, pan=-0.25, gain=0.25)
-    place(send, riser, 0, pan=0.25, gain=0.3)
+    place(dry, drone * (t / T_FLASH) ** 1.5 * 0.18, 0)
+    riser = bp_sweep(rng.normal(0, 1, len(t)), 300, 7000, q=3) * (t / T_FLASH) ** 2.5
+    place(dry, riser, 0, pan=-0.25, gain=0.32)
+    place(send, riser, 0, pan=0.25, gain=0.35)
 
-    # one whoosh per trim-path layer, panned along the stroke's travel
+    # a fast whoosh per trim-path layer, panned along the stroke, with glitter
     for (t0, t1), (f0, f1), pans in zip(
-            T_LAYERS, [(3200, 700), (2600, 450), (4200, 1500)],
+            T_LAYERS, [(3500, 800), (2800, 500), (4500, 1600)],
             [(-0.2, 0.6), (0.5, -0.6), (0.4, -0.3)]):
-        d = t1 - t0 + 0.15
-        w = whoosh(d, f0, f1)
+        d = t1 - t0 + 0.2
+        w = whoosh(d, f0, f1, shape=1.2)
         pan = np.linspace(*pans, len(w))
-        place(dry, w, t0 - 0.05, pan=pan, gain=0.42)
-        place(send, w, t0 - 0.05, pan=-pan, gain=0.22)
-        # tiny "lock" tick when each layer lands
-        tk = hp(rng.normal(0, 1, int(0.03 * SR)), 2500) * env(int(0.03 * SR), 0.0005, 0.006)
-        place(dry, tk, t1, pan=pans[1], gain=0.25)
-        place(send, tk, t1, gain=0.3)
-        for s in np.sort(rng.uniform(t0, t1, 14)):
-            p = ping(rng.uniform(4500, 9500), amp=rng.uniform(0.012, 0.03))
-            place(send, p, s, pan=rng.uniform(-0.8, 0.8))
+        place(dry, w, t0 - 0.03, pan=pan, gain=0.45)
+        place(send, w, t0 - 0.03, pan=-pan, gain=0.25)
+        for s_ in np.sort(rng.uniform(t0, t1 + 0.1, 26)):
+            p = ping(rng.uniform(4000, 10000), dur=0.2, amp=rng.uniform(0.015, 0.045))
+            place(dry, p, s_, pan=rng.uniform(-0.9, 0.9))
+            place(send, p, s_, pan=rng.uniform(-0.9, 0.9), gain=0.8)
 
-    # logo hit: reverse swell, sub boom, punch, bell shimmer
-    t = secs(0.55)
-    place(dry, bp_sweep(rng.normal(0, 1, len(t)), 700, 4000, q=1.2) * (t / 0.55) ** 4,
-          T_HIT - 0.55, gain=0.35)
-    t = secs(2.4)
-    fsub = 42 + 100 * np.exp(-t / 0.045)
-    sub = np.sin(2 * np.pi * np.cumsum(fsub) / SR) * env(len(t), 0.002, 0.6)
-    place(dry, np.tanh(sub * 2.0) * 0.7, T_HIT)
-    crack = hp(rng.normal(0, 1, int(0.3 * SR)), 1200) * env(int(0.3 * SR), 0.001, 0.045)
-    place(dry, crack, T_HIT, gain=0.22)
-    place(send, crack, T_HIT, gain=0.5)
+    # FLASH: reverse swell -> sub boom + crack + bell shimmer, big whoosh for the zoom out
+    t = secs(0.5)
+    place(dry, bp_sweep(rng.normal(0, 1, len(t)), 600, 5000, q=1.2) * (t / 0.5) ** 4,
+          T_FLASH - 0.5, gain=0.4)
+    t = secs(2.6)
+    fsub = 40 + 110 * np.exp(-t / 0.05)
+    sub = np.sin(2 * np.pi * np.cumsum(fsub) / SR) * env(len(t), 0.002, 0.7)
+    place(dry, np.tanh(sub * 2.2) * 0.8, T_FLASH)
+    crack = hp(rng.normal(0, 1, int(0.4 * SR)), 900) * env(int(0.4 * SR), 0.001, 0.06)
+    place(dry, crack, T_FLASH, gain=0.32)
+    place(send, crack, T_FLASH, gain=0.6)
     shim = bell([(523.25, 1.4, .30), (784, 1.1, .22), (1046.5, 0.9, .18),
-                 (1567.98, 0.7, .12), (2093, 0.5, .08), (2637, 0.4, .05)], 3.0)
-    place(dry, shim, T_HIT, pan=-0.1, gain=0.2)
-    place(send, shim, T_HIT, pan=0.1, gain=0.4)
-    g = whoosh(0.75, 5000, 11000, q=4, shape=3)            # shine sweep "shing"
-    place(dry, g, T_HIT, pan=np.linspace(-0.5, 0.5, len(g)), gain=0.16)
-    place(send, g, T_HIT, gain=0.2)
+                 (1567.98, 0.7, .12), (2093, 0.5, .08), (2637, 0.4, .06)], 3.2)
+    place(dry, shim, T_FLASH, pan=-0.1, gain=0.22)
+    place(send, shim, T_FLASH, pan=0.1, gain=0.45)
+    d = T_ZOOM_OUT[1] - T_ZOOM_OUT[0] + 0.3
+    zw = whoosh(d, 1800, 220, q=1.0, shape=0.8) * np.exp(-secs(d) / 0.35)
+    place(dry, zw, T_ZOOM_OUT[0], pan=-0.3, gain=0.6)
+    place(dry, whoosh(d, 1700, 200, q=1.0, shape=0.8) * np.exp(-secs(d) / 0.35),
+          T_ZOOM_OUT[0], pan=0.3, gain=0.6)
+    place(send, zw, T_ZOOM_OUT[0], gain=0.3)
+    t = secs(DUR - T_FLASH)                                  # low tail
+    place(dry, lp(rng.normal(0, 1, len(t)), 180) * np.exp(-t / 1.5), T_FLASH, gain=0.35)
 
-    # divider: soft mechanical tick + stereo split swish as the names slide out
-    tk = lp(hp(rng.normal(0, 1, int(0.05 * SR)), 1500), 6000) * env(int(0.05 * SR), 0.0005, 0.01)
-    place(dry, tk, T_BAR, gain=0.35)
-    place(send, tk, T_BAR, gain=0.35)
-    sw = whoosh(0.7, 5500, 1800, q=2, shape=2)
-    place(dry, sw, T_BAR + 0.15, pan=np.linspace(0, -0.8, len(sw)), gain=0.2)
-    place(dry, whoosh(0.7, 5200, 1700, q=2, shape=2), T_BAR + 0.15,
-          pan=np.linspace(0, 0.8, len(sw)), gain=0.2)
-    place(send, sw, T_BAR + 0.15, gain=0.15)
-    sw = whoosh(0.8, 7000, 3000, q=2.5, shape=2)           # subtitle wipe
-    place(dry, sw, T_SUB, pan=np.linspace(0.6, -0.6, len(sw)), gain=0.12)
+    # quotes: two soft pops
+    for k, pan in enumerate((0.5, -0.5)):
+        pp = np.sin(2 * np.pi * 900 * secs(0.08)) * env(int(0.08 * SR), 0.001, 0.015)
+        place(dry, pp, T_QUOTES + k * 0.06, pan=pan, gain=0.18)
+        place(send, pp, T_QUOTES + k * 0.06, gain=0.25)
 
-    # "قريباً": airy swish, warm pad, right-to-left chime arpeggio
+    # "قريباً": airy swish right->left, typing ticks, warm pad + chime arpeggio
     d = T_SOON1 - T_SOON0 + 0.3
-    sw = whoosh(d, 6000, 1400, q=2, shape=2)
-    place(dry, sw, T_SOON0, pan=np.linspace(0.6, -0.6, len(sw)), gain=0.22)
+    sw = whoosh(d, 6500, 1600, q=2, shape=2)
+    place(dry, sw, T_SOON0, pan=np.linspace(0.6, -0.6, len(sw)), gain=0.2)
     place(send, sw, T_SOON0, gain=0.25)
-    t = secs(3.2)
+    for k in range(6):
+        tk = hp(rng.normal(0, 1, int(0.025 * SR)), 3000) * env(int(0.025 * SR), 0.0005, 0.005)
+        place(dry, tk, T_SOON0 + k * (T_SOON1 - T_SOON0) / 6, pan=0.5 - k * 0.2, gain=0.16)
+    t = secs(3.6)
     pad = sum(np.sin(2 * np.pi * f * t) + 0.3 * np.sin(2 * np.pi * 2 * f * t + 0.4)
               for f in [130.81, 196.0, 261.63, 329.63, 392.0])
-    pad = lp(pad * np.minimum(t / 0.7, 1) * np.exp(-np.maximum(t - 1.3, 0) / 1.0), 2500)
+    pad = lp(pad * np.minimum(t / 0.7, 1) * np.exp(-np.maximum(t - 1.5, 0) / 1.1), 2500)
     place(dry, pad, T_SOON0, gain=0.03)
     place(send, pad, T_SOON0, gain=0.045)
     for k, f in enumerate([1046.5, 1318.5, 1568.0, 2093.0]):
         c = ping(f, dur=1.6, amp=0.10)
         place(dry, c, T_SOON0 + 0.1 + k * 0.17, pan=0.6 - k * 0.4)
         place(send, c, T_SOON0 + 0.1 + k * 0.17, gain=1.2)
-    g = whoosh(0.6, 4500, 11000, q=4, shape=3)             # glint on the word
+    g = whoosh(0.6, 4500, 11000, q=4, shape=3)              # glint
     place(dry, g, T_GLINT, pan=np.linspace(-0.4, 0.4, len(g)), gain=0.16)
     place(send, g, T_GLINT, gain=0.22)
-    for s in np.sort(rng.uniform(T_GLINT, T_GLINT + 0.6, 8)):
-        place(send, ping(rng.uniform(6000, 10000), amp=0.03), s, pan=rng.uniform(-1, 1))
+    for s_ in np.sort(rng.uniform(T_GLINT, T_GLINT + 0.6, 8)):
+        place(send, ping(rng.uniform(6000, 10000), amp=0.03), s_, pan=rng.uniform(-1, 1))
 
     ir = make_reverb()
     wet = np.stack([signal.fftconvolve(send[:, c], ir[:, c])[:n] for c in range(2)], 1)
@@ -504,7 +613,7 @@ def main():
     global PREVIEW
     os.makedirs(OUT, exist_ok=True)
     if "--preview" in sys.argv:
-        PREVIEW = set(range(9, 54, 3)) | set(range(60, N, 15))
+        PREVIEW = set(range(3, 60, 4)) | set(range(60, N, 15))
         render_video(None)
         return
     wav = os.path.join(OUT, "sfx.wav")
