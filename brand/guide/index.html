@@ -1,0 +1,385 @@
+<title>هوية رام البصرية</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* التخطيط: كتاب هوية بعمود واحد عريض، فصول مرقّمة، وصفحة ليلية تعكس عالم المنصة */
+:root{
+  --night:#071530; --navy:#102A62; --royal:#2F5089; --sky:#5D7FB8; --steel:#939FAD; --silver:#E9EDF3;
+  --bg:#F3F5F9; --surface:#FFFFFF; --ink:#0D1B3D; --muted:#55627A; --line:#D7DDE7; --accent:#2F5089; --chip:#E6EBF3;
+  --ok:#1F7A55; --bad:#B4372F;
+  --display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Arabic","Readex Pro",Tahoma,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#06102A; --surface:#0C1A3D; --ink:#E7ECF4; --muted:#9AA7BC; --line:#1F3060; --accent:#8FA9D6; --chip:#132656;
+  --ok:#5CC497; --bad:#F08A80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#06102A; --surface:#0C1A3D; --ink:#E7ECF4; --muted:#9AA7BC; --line:#1F3060; --accent:#8FA9D6; --chip:#132656;
+  --ok:#5CC497; --bad:#F08A80; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.75}
+.wrap{direction:rtl;max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(26px,4vw,36px);font-weight:600}
+h3{font-size:19px;font-weight:600}
+p{margin:0;max-width:68ch}
+code,.mono{font-family:var(--mono);font-size:13px;direction:ltr;unicode-bidi:isolate}
+.muted{color:var(--muted)}
+a{color:var(--accent)}
+
+/* الغلاف — دائماً ليلي لأنه يعرض الشعار المعكوس */
+.cover{position:relative;overflow:hidden;border-radius:0 0 28px 28px;color:#fff;
+  background:radial-gradient(60% 60% at 85% 10%,rgba(93,127,184,.55),transparent 70%),radial-gradient(50% 60% at 0% 100%,rgba(147,159,173,.4),transparent 70%),linear-gradient(160deg,#102A62,#071530);
+  padding-block:56px 48px;padding-inline:clamp(20px,5vw,64px);display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,5vw,64px);align-items:center}
+.cover img{height:clamp(170px,26vw,280px);width:auto}
+.cover .eyebrow{font-size:13px;letter-spacing:.06em;color:#B9C6DD}
+.cover h1{font-size:clamp(34px,6vw,60px);font-weight:700;margin-block:6px 14px}
+.cover p{color:#D2DBEA;font-size:17px}
+.cover .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.cover .meta span{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);backdrop-filter:blur(8px);border-radius:999px;padding:4px 14px;font-size:13px}
+@media (max-width:640px){.cover{grid-template-columns:1fr;text-align:center;justify-items:center}.cover .meta{justify-content:center}}
+
+nav.toc{display:flex;gap:8px;overflow-x:auto;padding-block:20px;scrollbar-width:thin}
+nav.toc a{flex:none;text-decoration:none;color:var(--ink);background:var(--chip);border-radius:999px;padding:6px 14px;font-size:14px}
+nav.toc a:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section{padding-block:44px;border-top:1px solid var(--line);display:grid;gap:22px}
+.sec-head{display:grid;gap:8px}
+.num{font-family:var(--display);color:var(--accent);font-size:14px;font-weight:600;letter-spacing:.04em}
+
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+
+/* ما تشمله الهوية */
+.scope{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 28px}
+.scope li{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;padding-block:14px;border-bottom:1px solid var(--line)}
+.scope b{font-family:var(--display);font-weight:600}
+.scope .tag{grid-row:span 2;align-self:start;font-size:12px;border-radius:6px;padding:2px 8px;white-space:nowrap;margin-top:3px}
+.tag.done{background:var(--navy);color:#fff}
+.tag.next{background:var(--chip);color:var(--muted)}
+.scope small{color:var(--muted);font-size:14px;grid-column:2}
+
+/* الشعار */
+.logo-tile{border-radius:16px;display:grid;place-items:center;padding:28px;aspect-ratio:4/3;max-width:100%;border:1px solid var(--line)}
+.logo-tile img{max-height:200px;width:auto}
+.lt-white{background:#fff}.lt-night{background:#071530}.lt-navy{background:#102A62}.lt-steel{background:#939FAD}
+.caption{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-top:10px;flex-wrap:wrap}
+
+.clear{position:relative;background:#fff;border-radius:16px;display:grid;place-items:center;padding:36px;border:1px solid var(--line)}
+.clear .box{position:relative;padding:44px;border:1.5px dashed #2F5089}
+.clear img{height:190px;display:block}
+.clear .x{position:absolute;font:600 13px var(--display);color:#2F5089;background:#fff;padding:0 4px}
+
+.donts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.dont{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px;justify-items:center;text-align:center;font-size:13px}
+.dont .stage{height:110px;width:100%;display:grid;place-items:center;border-radius:10px;background:#fff;overflow:hidden}
+.dont img{height:86px}
+.dont .x{color:var(--bad);font-weight:600}
+
+/* الألوان */
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.sw{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+.sw .chip{height:120px;display:flex;align-items:flex-end;padding:12px;font-family:var(--display);font-weight:600}
+.sw dl{margin:0;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+.sw dt{color:var(--muted)}
+.sw dd{margin:0;font-family:var(--mono);direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+.ratio{display:flex;height:56px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.ratio div{display:grid;place-items:center;font-size:13px;font-weight:600}
+.gradients{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.grad{border-radius:16px;height:150px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;font-family:var(--display);border:1px solid var(--line)}
+.grad code{color:rgba(255,255,255,.85);font-size:11.5px;line-height:1.5;text-align:left;white-space:normal;overflow-wrap:anywhere}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:right;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-family:var(--display);font-weight:600;color:var(--muted)}
+.tbl{overflow-x:auto}
+
+/* الخطوط */
+.spec{display:grid;gap:6px}
+.spec .big{font-family:var(--display);font-size:clamp(38px,6vw,64px);font-weight:700;line-height:1.2}
+.scale{display:grid;gap:10px}
+.scale div{display:grid;grid-template-columns:110px 1fr;align-items:baseline;gap:16px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.scale span{color:var(--muted);font-size:13px}
+
+/* الزجاج */
+.recipe{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:stretch}
+@media (max-width:820px){.recipe{grid-template-columns:1fr}}
+.post{position:relative;aspect-ratio:4/5;max-width:100%;border-radius:18px;overflow:hidden;color:#fff;background:#071530 center/cover no-repeat}
+.post .logo{position:absolute;top:5%;right:6%;height:12%}
+.post .date{position:absolute;top:6%;left:6%;text-align:left;font-family:var(--display);line-height:1.2}
+.post .date b{font-size:clamp(20px,3vw,30px);display:block}
+.post .date small{font-size:12px;color:#C6D1E4}
+.post .q{position:absolute;top:27%;right:16%;left:16%;font-family:var(--display);font-size:clamp(13px,1.8vw,19px);line-height:1.8;text-align:right}
+.post .q .lab{display:inline-block;font-size:12px;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:1px 12px;margin-bottom:10px;background:rgba(255,255,255,.08)}
+.post .who{position:absolute;bottom:13%;right:8%;font-family:var(--display);line-height:1.5}
+.post .who b{display:block;color:#B9C8E4;font-size:clamp(15px,2vw,21px)}
+.post .who small{color:#D5DDEA}
+.post .foot{position:absolute;bottom:4%;right:6%;left:6%;display:flex;justify-content:space-between;font-size:12px;color:#B9C6DD;direction:ltr}
+.specs{display:grid;gap:0;align-content:start}
+.specs div{display:grid;grid-template-columns:140px 1fr;gap:12px;padding-block:10px;border-bottom:1px solid var(--line);font-size:14px}
+.specs div>span:first-child{color:var(--muted)}
+
+.shapes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.shape{border-radius:14px;padding:16px 12px 12px;display:grid;gap:10px;justify-items:center;text-align:center;font-size:13px;color:#DCE4F1;
+  background:radial-gradient(80% 70% at 30% 20%,rgba(93,127,184,.7),transparent 70%),linear-gradient(160deg,#102A62,#071530)}
+.shape .st{height:96px;width:100%;display:grid;place-items:center}
+.shape img{max-height:96px;max-width:100%}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.shot{display:grid;gap:8px;min-width:0}
+.shot img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block}
+.shot b{font-family:var(--display);font-weight:600;font-size:15px}
+.shot code{font-size:11.5px;color:var(--muted);overflow-wrap:anywhere}
+
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.rules ul{margin:0;padding-inline-start:20px;display:grid;gap:6px}
+.rules h3{margin-bottom:10px}
+.yes h3{color:var(--ok)}.no h3{color:var(--bad)}
+
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.cat{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.cat .code{grid-row:span 2;font-family:var(--mono);font-size:13px;background:var(--navy);color:#fff;border-radius:8px;padding:6px 8px;direction:ltr}
+.cat b{font-family:var(--display);font-weight:600}
+.cat small{color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header class="cover">
+    <img src="assets/ram-logo-reversed.png" alt="شعار رام للشؤون العسكرية والأمنية">
+    <div>
+      <div class="eyebrow">دليل الهوية البصرية · الإصدار 1.0 · تشرين الأول 2026</div>
+      <h1>هوية رام البصرية</h1>
+      <p>المرجع الموحّد لكل ما ينشره «رام للشؤون العسكرية والأمنية»: الدراسات، المقالات، الأخبار، والمحتوى المرئي على المنصات. يحدد الدليل كيف يظهر الشعار، وما الألوان والخطوط المعتمدة، وكيف تُبنى تصاميم السوشيال ميديا بأسلوب الزجاج والتدرّجات.</p>
+      <div class="meta"><span>كحلي · فولاذي · فضي</span><span>زجاج متدرّج</span><span>عربي أولاً</span></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="فصول الدليل">
+    <a href="#scope">ما تشمله الهوية</a><a href="#logo">الشعار</a><a href="#color">الألوان</a><a href="#type">الخطوط</a><a href="#glass">أسلوب الزجاج</a><a href="#kit">خلفيات السوشيال</a><a href="#categories">تصنيفات المحتوى</a>
+  </nav>
+
+  <section id="scope">
+    <div class="sec-head">
+      <span class="num">الفصل 01</span>
+      <h2>ماذا تشمل الهوية البصرية الكاملة؟</h2>
+      <p class="muted">الهوية ليست الشعار فقط. هي مجموعة قواعد وملفات تجعل كل منشور من «رام» يُعرف من النظرة الأولى، مهما اختلف المصمم. هذه مكوّناتها لمنصة إعلامية بحثية، وما أُنجز منها في هذا الإصدار.</p>
+    </div>
+    <ul class="scope">
+      <li><span class="tag done">مُنجز</span><b>نظام الشعار</b><small>النسخ (ملوّن، معكوس، أحادي)، المساحة الآمنة، الحد الأدنى للحجم، والاستخدامات الممنوعة.</small></li>
+      <li><span class="tag done">مُنجز</span><b>لوحة الألوان</b><small>الألوان الأساسية والثانوية بقيم HEX وRGB وCMYK، ونِسب الاستخدام، والتدرّجات المعتمدة.</small></li>
+      <li><span class="tag done">مُنجز</span><b>الخطوط</b><small>خط العناوين وخط النصوص، وسلّم الأحجام، وقواعد الأرقام.</small></li>
+      <li><span class="tag done">مُنجز</span><b>أسلوب الزجاج والعناصر الجرافيكية</b><small>وصفة الزجاج، مكتبة الأشكال، اللمعات، والأقواس المستوحاة من الرمز.</small></li>
+      <li><span class="tag done">مُنجز</span><b>خلفيات السوشيال ميديا</b><small>8 خلفيات متدرجة بثلاثة مقاسات، و6 تراكيب زجاجية جاهزة.</small></li>
+      <li><span class="tag done">مُنجز</span><b>تصنيفات المحتوى</b><small>رموز موحّدة للدراسات والتقديرات والأخبار، تُستخدم في الوسوم والترقيم.</small></li>
+      <li><span class="tag next">التالي</span><b>قوالب السوشيال القابلة للتعديل</b><small>ملفات Figma/PSD لكل قالب: خبر عاجل، اقتباس، متحدث، إنفوغراف، ستوري.</small></li>
+      <li><span class="tag next">التالي</span><b>الأيقونات</b><small>مجموعة أيقونات خطية بسماكة 1.5px على شبكة 24px: دراسة، خبر، خريطة، أمن سيبراني، دفاع جوي…</small></li>
+      <li><span class="tag next">التالي</span><b>أسلوب الصور والخرائط</b><small>معالجة الصور الميدانية (ثنائي اللون الكحلي)، توثيق المصادر، وأسلوب خرائط العمليات والرسوم البيانية.</small></li>
+      <li><span class="tag next">التالي</span><b>المطبوعات والأوراق الرسمية</b><small>غلاف الدراسة PDF، ورقة رسمية، بطاقة عمل، توقيع بريد إلكتروني.</small></li>
+      <li><span class="tag next">التالي</span><b>الفيديو والموشن</b><small>مقدمة وخاتمة متحركة للشعار، شريط الاسم السفلي، العلامة المائية، وصور الغلاف المصغرة.</small></li>
+      <li><span class="tag next">التالي</span><b>واجهة الموقع</b><small>متغيرات CSS جاهزة في <code>brand/tokens.css</code>، ثم مكوّنات الموقع: بطاقة مقال، رأس الصفحة، شريط العاجل.</small></li>
+    </ul>
+  </section>
+
+  <section id="logo">
+    <div class="sec-head">
+      <span class="num">الفصل 02</span>
+      <h2>الشعار</h2>
+      <p class="muted">الرمز تكوين خطّي انسيابي من حروف «رام»، مع قوس فولاذي يحيط بالميم. يُستخدم الشعار الكامل (الرمز + الاسم + الوصف) في الأغلفة والمواد الرسمية، والرمز وحده في الصور الشخصية للحسابات والعلامة المائية.</p>
+    </div>
+    <div class="grid g4">
+      <div><div class="logo-tile lt-white"><img src="assets/ram-logo-color.png" alt="الشعار الملوّن"></div><div class="caption"><b>الملوّن</b><span class="muted">على الخلفيات الفاتحة</span></div></div>
+      <div><div class="logo-tile lt-night"><img src="assets/ram-logo-reversed.png" alt="الشعار المعكوس"></div><div class="caption"><b>المعكوس</b><span class="muted">على الكحلي والصور الداكنة</span></div></div>
+      <div><div class="logo-tile lt-steel"><img src="assets/ram-logo-mono-navy.png" alt="الشعار الأحادي الكحلي"></div><div class="caption"><b>أحادي كحلي</b><span class="muted">طباعة بلون واحد، ختم</span></div></div>
+      <div><div class="logo-tile lt-navy"><img src="assets/ram-symbol-mono-white.png" alt="الرمز الأبيض"></div><div class="caption"><b>الرمز الأبيض</b><span class="muted">صورة الحساب، علامة مائية</span></div></div>
+    </div>
+    <div class="grid g2">
+      <div class="clear">
+        <div class="box">
+          <span class="x" style="top:-10px;right:50%">X</span><span class="x" style="bottom:-10px;right:50%">X</span>
+          <span class="x" style="right:-10px;top:45%">X</span><span class="x" style="left:-10px;top:45%">X</span>
+          <img src="assets/ram-symbol-color.png" alt="الرمز مع المساحة الآمنة">
+        </div>
+      </div>
+      <div class="card" style="display:grid;gap:14px;align-content:start">
+        <h3>المساحة الآمنة والحد الأدنى</h3>
+        <p><b>X</b> = ارتفاع رأس الميم (المعيّن في أسفل الرمز). يُترك فراغ لا يقل عن X حول الشعار من كل الجهات، لا يدخله نص أو صورة أو حافة الإطار.</p>
+        <div class="tbl"><table>
+          <tr><th>النسخة</th><th>رقمي</th><th>طباعة</th></tr>
+          <tr><td>الشعار الكامل</td><td class="mono">160px</td><td class="mono">35mm</td></tr>
+          <tr><td>الرمز + RAM | رام</td><td class="mono">96px</td><td class="mono">22mm</td></tr>
+          <tr><td>الرمز وحده</td><td class="mono">32px</td><td class="mono">8mm</td></tr>
+        </table></div>
+        <p class="muted" style="font-size:14px">تحت الحد الأدنى للشعار الكامل يصبح سطر «للشؤون العسكرية والأمنية» غير مقروء، فيُستخدم الرمز وحده.</p>
+      </div>
+    </div>
+    <h3>استخدامات ممنوعة</h3>
+    <div class="donts">
+      <div class="dont"><div class="stage"><img src="assets/ram-symbol-color.png" alt="" style="transform:scaleX(1.6)"></div><span class="x">✕ لا تمطّ أو تضغط</span></div>
+      <div class="dont"><div class="stage"><img src="assets/ram-symbol-color.png" alt="" style="filter:hue-rotate(150deg) saturate(2)"></div><span class="x">✕ لا تغيّر الألوان</span></div>
+      <div class="dont"><div class="stage"><img src="assets/ram-symbol-color.png" alt="" style="transform:rotate(-25deg)"></div><span class="x">✕ لا تدوّر الشعار</span></div>
+      <div class="dont"><div class="stage"><img src="assets/ram-symbol-color.png" alt="" style="filter:drop-shadow(6px 8px 4px rgba(0,0,0,.6))"></div><span class="x">✕ لا ظلال أو توهج</span></div>
+      <div class="dont"><div class="stage" style="background:repeating-linear-gradient(45deg,#C7553A 0 14px,#E8B04B 14px 28px)"><img src="assets/ram-symbol-color.png" alt=""></div><span class="x">✕ لا خلفيات مزدحمة</span></div>
+      <div class="dont"><div class="stage" style="background:#102A62"><img src="assets/ram-symbol-color.png" alt=""></div><span class="x">✕ لا الملوّن على الكحلي</span></div>
+    </div>
+  </section>
+
+  <section id="color">
+    <div class="sec-head">
+      <span class="num">الفصل 03</span>
+      <h2>الألوان</h2>
+      <p class="muted">مستخرجة مباشرة من الشعار: كحلي عميق للسلطة والجدية، أزرق ملكي للحركة، فولاذي من القوس الرمادي، وفضي من خلفية الشعار. قيم CMYK تقريبية وتُعتمد بعد بروفة طباعة مع المطبعة.</p>
+    </div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#102A62;color:#fff">كحلي رام</div><dl><dt>الدور</dt><dd style="font-family:var(--body);direction:rtl">أساسي</dd><dt>HEX</dt><dd>#102A62</dd><dt>RGB</dt><dd>16 42 98</dd><dt>CMYK</dt><dd>84 57 0 62</dd></dl></div>
+      <div class="sw"><div class="chip" style="background:#071530;color:#fff">ليلي</div><dl><dt>الدور</dt><dd style="font-family:var(--body);direction:rtl">خلفيات داكنة</dd><dt>HEX</dt><dd>#071530</dd><dt>RGB</dt><dd>7 21 48</dd><dt>CMYK</dt><dd>85 56 0 81</dd></dl></div>
+      <div class="sw"><div class="chip" style="background:#2F5089;color:#fff">أزرق ملكي</div><dl><dt>الدور</dt><dd style="font-family:var(--body);direction:rtl">ثانوي، تمييز</dd><dt>HEX</dt><dd>#2F5089</dd><dt>RGB</dt><dd>47 80 137</dd><dt>CMYK</dt><dd>66 42 0 46</dd></dl></div>
+      <div class="sw"><div class="chip" style="background:#5D7FB8;color:#fff">سماوي</div><dl><dt>الدور</dt><dd style="font-family:var(--body);direction:rtl">إضاءات التدرّج</dd><dt>HEX</dt><dd>#5D7FB8</dd><dt>RGB</dt><dd>93 127 184</dd><dt>CMYK</dt><dd>49 31 0 28</dd></dl></div>
+      <div class="sw"><div class="chip" style="background:#939FAD;color:#071530">فولاذي</div><dl><dt>الدور</dt><dd style="font-family:var(--body);direction:rtl">مساند، فواصل</dd><dt>HEX</dt><dd>#939FAD</dd><dt>RGB</dt><dd>147 159 173</dd><dt>CMYK</dt><dd>15 8 0 32</dd></dl></div>
+      <div class="sw"><div class="chip" style="background:#E9EDF3;color:#102A62">فضي</div><dl><dt>الدور</dt><dd style="font-family:var(--body);direction:rtl">خلفيات فاتحة</dd><dt>HEX</dt><dd>#E9EDF3</dd><dt>RGB</dt><dd>233 237 243</dd><dt>CMYK</dt><dd>4 2 0 5</dd></dl></div>
+    </div>
+    <h3>نِسب الاستخدام في التصميم الواحد</h3>
+    <div class="ratio" role="img" aria-label="ليلي وكحلي 60٪، أزرق ملكي وسماوي 20٪، فولاذي 10٪، فضي وأبيض للنصوص 10٪">
+      <div style="flex:60;background:linear-gradient(90deg,#102A62,#071530);color:#fff">ليلي + كحلي 60٪</div>
+      <div style="flex:20;background:#2F5089;color:#fff">ملكي 20٪</div>
+      <div style="flex:10;background:#939FAD;color:#071530">فولاذي 10٪</div>
+      <div style="flex:10;background:#E9EDF3;color:#102A62">فضي 10٪</div>
+    </div>
+    <h3>التدرّجات المعتمدة</h3>
+    <div class="gradients">
+      <div class="grad" style="background:linear-gradient(170deg,#0B1E48,#071530)"><b>ليل عميق</b><code>linear-gradient(170deg,#0B1E48,#071530)</code></div>
+      <div class="grad" style="background:linear-gradient(150deg,#2F5089,#102A62 50%,#071530)"><b>ملكي</b><code>linear-gradient(150deg,#2F5089,#102A62 50%,#071530)</code></div>
+      <div class="grad" style="background:radial-gradient(75% 60% at 0% 100%,rgba(147,159,173,.75),transparent 70%),linear-gradient(165deg,#102A62,#071530)"><b>وهج فولاذي</b><code>radial(#939FAD 75%) + linear(#102A62→#071530)</code></div>
+      <div class="grad" style="background:linear-gradient(170deg,#F4F6FA,#E9EDF3 45%,#C9D2DF);color:#102A62"><b>فجر فضي</b><code style="color:#2F5089">linear-gradient(170deg,#F4F6FA,#E9EDF3,#C9D2DF)</code></div>
+    </div>
+    <div class="tbl"><table>
+      <tr><th>تركيبة النص والخلفية</th><th>التباين</th><th>الاستخدام</th></tr>
+      <tr><td>أبيض على كحلي رام</td><td class="mono">13.5 : 1</td><td>كل النصوص</td></tr>
+      <tr><td>أزرق ملكي على أبيض</td><td class="mono">8.3 : 1</td><td>كل النصوص</td></tr>
+      <tr><td>فولاذي على ليلي</td><td class="mono">6.7 : 1</td><td>نصوص ثانوية، تواريخ</td></tr>
+      <tr><td>فولاذي على أبيض</td><td class="mono">2.7 : 1</td><td>عناصر زخرفية فقط، ليس للنص</td></tr>
+    </table></div>
+  </section>
+
+  <section id="type">
+    <div class="sec-head">
+      <span class="num">الفصل 04</span>
+      <h2>الخطوط</h2>
+      <p class="muted">خطان مجانيان من Google Fonts، يدعمان العربية واللاتينية، ويقتربان من روح الخط الهندسي في وصف الشعار.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card spec"><span class="muted">العناوين — Readex Pro</span><div class="big">تقدير موقف</div><p style="font-family:var(--display)">خفيف 300 · عادي 400 · شبه عريض 600 · عريض 700</p></div>
+      <div class="card spec"><span class="muted">النصوص — IBM Plex Sans Arabic</span><p style="font-size:17px">تتناول هذه الدراسة تحولات منظومات الدفاع الجوي متعدد الطبقات في المنطقة، وأثر الطائرات المسيّرة منخفضة الكلفة على معادلة الاعتراض بين 2023 و2026.</p><p class="muted" style="font-size:14px">عادي 400 · متوسط 500 · شبه عريض 600</p></div>
+    </div>
+    <div class="scale">
+      <div><span>عنوان منشور 64</span><b style="font-family:var(--display);font-size:clamp(30px,5vw,64px);font-weight:700;line-height:1.2">الجلسة الثانية</b></div>
+      <div><span>عنوان مقال 36</span><b style="font-family:var(--display);font-size:clamp(24px,3.5vw,36px);font-weight:600">قراءة في العقيدة البحرية الجديدة</b></div>
+      <div><span>عنوان فرعي 22</span><b style="font-family:var(--display);font-size:22px;font-weight:600">النتائج الرئيسية</b></div>
+      <div><span>نص 17</span><span style="color:var(--ink);font-size:17px">النص الأساسي للمقالات والدراسات بارتفاع سطر 1.8.</span></div>
+      <div><span>وسم 13</span><span style="color:var(--ink);font-size:13px;letter-spacing:.04em">دراسة · RAM-ST-2026-014</span></div>
+    </div>
+    <p class="muted">الأرقام: تُستخدم الأرقام 0-9 في التواريخ والإحصاءات والترقيم المرجعي، بشكل موحّد في كل المنشورات.</p>
+  </section>
+
+  <section id="glass">
+    <div class="sec-head">
+      <span class="num">الفصل 05</span>
+      <h2>أسلوب الزجاج</h2>
+      <p class="muted">لوحات زجاجية شبه شفافة فوق تدرّجات كحلية، بإطار ضوئي يلمع من الزاوية العلوية. هذا هو الأسلوب الأساسي لتصاميم السوشيال ميديا. المثال أدناه منشور تجريبي مبني على خلفية «اقتباس» من الحزمة.</p>
+    </div>
+    <div class="recipe">
+      <div class="post" style="background-image:url('previews/ram-glass-02-quote.jpg')">
+        <img class="logo" src="assets/ram-symbol-mono-white.png" alt="">
+        <div class="date"><b>30.10</b><small>تشرين الأول 2026</small></div>
+        <div class="q"><span class="lab">تقدير موقف</span><br>«التحول الأهم في السنوات الثلاث الماضية ليس في نوع السلاح، بل في كلفة الاعتراض: صاروخ بمليون دولار أمام مسيّرة بعشرين ألفاً.»</div>
+        <div class="who"><b>د. اسم الباحث</b><small>باحث في الشؤون الدفاعية · نص تجريبي</small></div>
+        <div class="foot"><span>ram.example</span><span>@ram_mil</span></div>
+      </div>
+      <div class="card specs">
+        <h3 style="margin-bottom:8px">وصفة الزجاج</h3>
+        <div><span>التعبئة</span><span>أبيض بتدرّج 150° من 21٪ إلى 6٪ ثم 11٪</span></div>
+        <div><span>تمويه الخلفية</span><span><code>Background blur 26</code> في Figma، أو 25px في Photoshop</span></div>
+        <div><span>الإطار</span><span>2px، تدرّج أبيض من 75٪ أعلى اليمين إلى 5٪ ثم 35٪ أسفل اليسار</span></div>
+        <div><span>الزوايا</span><span>32–40px للوحات، 22٪ من الضلع للمربعات</span></div>
+        <div><span>الظل</span><span>ليلي 40٪، إزاحة 22px للأسفل، تمويه 44px</span></div>
+        <div><span>ما خلف الزجاج</span><span>وهج سماوي أو ملكي دائري، وإلا يبدو الزجاج مسطحاً</span></div>
+        <div><span>النسخة الفاتحة</span><span>تعبئة بيضاء 62٪ إلى 32٪، للخلفية «فجر فضي»</span></div>
+        <div><span>لمسة اللون</span><span>عنصر واحد فقط ممتلئ بالملكي أو الفولاذي في كل تصميم</span></div>
+      </div>
+    </div>
+    <h3>مكتبة الأشكال الزجاجية</h3>
+    <p class="muted">كل شكل متوفر SVG قابل للتعديل وPNG شفاف بدقة مضاعفة، بنسختين: للخلفية الداكنة وللفاتحة. في مجلد <code>brand/social-kit/glass-shapes</code>.</p>
+    <div class="shapes">
+      <div class="shape"><div class="st"><img src="shapes/ram-glass-panel-notched-for-dark-bg.png" alt=""></div>لوحة بدرجة</div>
+      <div class="shape"><div class="st"><img src="shapes/ram-glass-quote-bubble-for-dark-bg.png" alt=""></div>فقاعة اقتباس</div>
+      <div class="shape"><div class="st"><img src="shapes/ram-glass-photo-frame-for-dark-bg.png" alt=""></div>إطار صورة</div>
+      <div class="shape"><div class="st"><img src="shapes/ram-glass-news-banner-for-dark-bg.png" alt=""></div>شريط خبر</div>
+      <div class="shape"><div class="st"><img src="shapes/ram-glass-pill-for-dark-bg.png" alt=""></div>كبسولة وسم</div>
+      <div class="shape"><div class="st"><img src="shapes/ram-glass-tile-for-dark-bg.png" alt=""></div>مربع رقم</div>
+      <div class="shape"><div class="st"><img src="shapes/ram-glass-rhombus-for-dark-bg.png" alt=""></div>معيّن الميم</div>
+    </div>
+  </section>
+
+  <section id="kit">
+    <div class="sec-head">
+      <span class="num">الفصل 06</span>
+      <h2>خلفيات السوشيال ميديا</h2>
+      <p class="muted">كل خلفية متدرجة متوفرة بثلاثة مقاسات: منشور 1080×1350، مربع 1080×1080، ستوري 1080×1920. والتراكيب الزجاجية بمقاس المنشور 1080×1350.</p>
+    </div>
+    <h3>الخلفيات المتدرجة (8)</h3>
+    <div class="gallery">
+      <div class="shot"><img src="previews/ram-bg-01-deep-night-post.jpg" alt="خلفية ليل عميق" loading="lazy"><b>ليل عميق</b><code>ram-bg-01-deep-night</code></div>
+      <div class="shot"><img src="previews/ram-bg-02-royal-post.jpg" alt="خلفية أزرق ملكي" loading="lazy"><b>أزرق ملكي</b><code>ram-bg-02-royal</code></div>
+      <div class="shot"><img src="previews/ram-bg-03-steel-glow-post.jpg" alt="خلفية وهج فولاذي" loading="lazy"><b>وهج فولاذي</b><code>ram-bg-03-steel-glow</code></div>
+      <div class="shot"><img src="previews/ram-bg-04-silver-dawn-post.jpg" alt="خلفية فجر فضي" loading="lazy"><b>فجر فضي (فاتح)</b><code>ram-bg-04-silver-dawn</code></div>
+      <div class="shot"><img src="previews/ram-bg-05-wave-post.jpg" alt="خلفية موجة" loading="lazy"><b>موجة</b><code>ram-bg-05-wave</code></div>
+      <div class="shot"><img src="previews/ram-bg-06-grid-post.jpg" alt="خلفية شبكة إحداثيات" loading="lazy"><b>شبكة إحداثيات</b><code>ram-bg-06-grid</code></div>
+      <div class="shot"><img src="previews/ram-bg-07-symbol-post.jpg" alt="خلفية الرمز" loading="lazy"><b>الرمز</b><code>ram-bg-07-symbol</code></div>
+      <div class="shot"><img src="previews/ram-bg-08-beams-post.jpg" alt="خلفية أشعة" loading="lazy"><b>أشعة</b><code>ram-bg-08-beams</code></div>
+    </div>
+    <h3>التراكيب الزجاجية الجاهزة (6)</h3>
+    <div class="gallery">
+      <div class="shot"><img src="previews/ram-glass-01-speaker.jpg" alt="تركيب بطاقة متحدث" loading="lazy"><b>بطاقة متحدث</b><code>ram-glass-01-speaker</code></div>
+      <div class="shot"><img src="previews/ram-glass-02-quote.jpg" alt="تركيب اقتباس" loading="lazy"><b>اقتباس</b><code>ram-glass-02-quote</code></div>
+      <div class="shot"><img src="previews/ram-glass-03-breaking.jpg" alt="تركيب خبر عاجل" loading="lazy"><b>خبر عاجل</b><code>ram-glass-03-breaking</code></div>
+      <div class="shot"><img src="previews/ram-glass-04-study-cover.jpg" alt="تركيب غلاف دراسة" loading="lazy"><b>غلاف دراسة</b><code>ram-glass-04-study-cover</code></div>
+      <div class="shot"><img src="previews/ram-glass-05-infographic.jpg" alt="تركيب إنفوغراف" loading="lazy"><b>إنفوغراف / أرقام</b><code>ram-glass-05-infographic</code></div>
+      <div class="shot"><img src="previews/ram-glass-06-light-card.jpg" alt="تركيب بطاقة فاتحة" loading="lazy"><b>بطاقة فاتحة</b><code>ram-glass-06-light-card</code></div>
+    </div>
+    <div class="rules">
+      <div class="card yes"><h3>✓ افعل</h3><ul>
+        <li>الشعار المعكوس أو الرمز الأبيض في الزاوية العلوية اليمنى.</li>
+        <li>اترك 64px على الأقل بين النص وحافة التصميم.</li>
+        <li>نصوص بيضاء على الزجاج الداكن، وكحلية على الزجاج الفاتح.</li>
+        <li>اذكر مصدر الصورة الميدانية أسفل التصميم.</li>
+      </ul></div>
+      <div class="card no"><h3>✕ لا تفعل</h3><ul>
+        <li>لا تضع أكثر من ثلاث لوحات زجاجية كبيرة في تصميم واحد.</li>
+        <li>لا تستخدم الأحمر إلا لوسم «عاجل».</li>
+        <li>لا تستخدم صوراً مولّدة بالذكاء الاصطناعي لأحداث حقيقية.</li>
+        <li>لا تضع نصاً طويلاً مباشرة على الخلفية دون لوحة زجاجية.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section id="categories">
+    <div class="sec-head">
+      <span class="num">الفصل 07</span>
+      <h2>تصنيفات المحتوى</h2>
+      <p class="muted">رمز ثابت لكل نوع إصدار، يظهر في كبسولة الوسم وفي الترقيم المرجعي بصيغة <code>RAM-ST-2026-014</code>: الرمز، السنة، الرقم التسلسلي.</p>
+    </div>
+    <div class="cats">
+      <div class="cat"><span class="code">ST</span><b>دراسة</b><small>بحث معمّق، PDF مع غلاف</small></div>
+      <div class="cat"><span class="code">SA</span><b>تقدير موقف</b><small>قراءة سريعة لحدث جارٍ</small></div>
+      <div class="cat"><span class="code">OP</span><b>مقال</b><small>رأي وتحليل بتوقيع الكاتب</small></div>
+      <div class="cat"><span class="code">NW</span><b>خبر</b><small>عاجل أو متابعة</small></div>
+      <div class="cat"><span class="code">IG</span><b>إنفوغراف</b><small>أرقام، خرائط، مقارنات</small></div>
+      <div class="cat"><span class="code">TR</span><b>ترجمة</b><small>نقل عن مراكز أبحاث أجنبية</small></div>
+    </div>
+  </section>
+</div>

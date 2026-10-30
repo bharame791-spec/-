@@ -1,0 +1,40 @@
+/* متغيرات هوية رام — للاستخدام في الموقع وأي واجهة رقمية */
+:root {
+  /* الألوان */
+  --ram-night: #071530;
+  --ram-navy: #102A62;   /* الأساسي */
+  --ram-royal: #2F5089;
+  --ram-sky: #5D7FB8;
+  --ram-steel: #939FAD;
+  --ram-silver: #E9EDF3;
+  --ram-white: #FFFFFF;
+  --ram-breaking: #C8362D; /* لوسم «عاجل» فقط */
+
+  /* التدرّجات */
+  --ram-grad-night: linear-gradient(170deg, #0B1E48 0%, #071530 100%);
+  --ram-grad-royal: linear-gradient(150deg, #2F5089 0%, #102A62 50%, #071530 100%);
+  --ram-grad-steel: radial-gradient(75% 60% at 0% 100%, rgba(147,159,173,.7), transparent 70%), linear-gradient(165deg, #102A62 0%, #071530 100%);
+  --ram-grad-dawn: linear-gradient(170deg, #F4F6FA 0%, #E9EDF3 45%, #C9D2DF 100%);
+
+  /* الزجاج */
+  --ram-glass-fill: linear-gradient(150deg, rgba(255,255,255,.21), rgba(255,255,255,.06) 55%, rgba(255,255,255,.11));
+  --ram-glass-fill-light: linear-gradient(150deg, rgba(255,255,255,.62), rgba(255,255,255,.32) 60%, rgba(255,255,255,.45));
+  --ram-glass-blur: blur(26px) saturate(150%);
+  --ram-glass-border: 1.5px solid rgba(255,255,255,.28);
+  --ram-glass-shadow: 0 22px 44px rgba(2,8,24,.4);
+  --ram-radius-panel: 36px;
+  --ram-radius-pill: 999px;
+
+  /* الخطوط */
+  --ram-font-display: "Readex Pro", "IBM Plex Sans Arabic", Tahoma, sans-serif;
+  --ram-font-body: "IBM Plex Sans Arabic", "Readex Pro", Tahoma, sans-serif;
+}
+
+.ram-glass {
+  background: var(--ram-glass-fill);
+  backdrop-filter: var(--ram-glass-blur);
+  -webkit-backdrop-filter: var(--ram-glass-blur);
+  border: var(--ram-glass-border);
+  border-radius: var(--ram-radius-panel);
+  box-shadow: var(--ram-glass-shadow);
+}
