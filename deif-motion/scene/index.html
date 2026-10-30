@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>محمد الضيف | رجل الظل</title>
+<style>
+@font-face{font-family:Lalezar;src:url(fonts/lalezar-arabic-400-normal.woff2)format('woff2'),url(fonts/lalezar-latin-400-normal.woff2)format('woff2');}
+@font-face{font-family:Cairo;font-weight:400;src:url(fonts/cairo-arabic-400-normal.woff2)format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+2010-2011,U+204F,U+2E41;}
+@font-face{font-family:Cairo;font-weight:400;src:url(fonts/cairo-latin-400-normal.woff2)format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+2022;}
+@font-face{font-family:Cairo;font-weight:700;src:url(fonts/cairo-arabic-700-normal.woff2)format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F;}
+@font-face{font-family:Cairo;font-weight:700;src:url(fonts/cairo-latin-700-normal.woff2)format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+2022;}
+@font-face{font-family:Cairo;font-weight:900;src:url(fonts/cairo-arabic-900-normal.woff2)format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F;}
+@font-face{font-family:Cairo;font-weight:900;src:url(fonts/cairo-latin-900-normal.woff2)format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+2022;}
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2)format('woff2');unicode-range:U+0600-06FF,U+FB50-FDFF,U+FE70-FEFF;}
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-arabic-latin-400-normal.woff2)format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+00B0;}
+@font-face{font-family:Plex;font-weight:600;src:url(fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2)format('woff2');unicode-range:U+0600-06FF,U+FB50-FDFF,U+FE70-FEFF;}
+@font-face{font-family:Plex;font-weight:600;src:url(fonts/ibm-plex-sans-arabic-latin-600-normal.woff2)format('woff2');unicode-range:U+0000-00FF,U+2013-2014,U+00B0;}
+
+:root{--ink:#121110;--paper:#e8e2d5;--red:#8e1b1b;--red2:#a52222;--grey:#8a857c}
+html,body{margin:0;background:#000}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:#000;font-family:Cairo,sans-serif}
+.abs{position:absolute}
+.scene{position:absolute;inset:0;overflow:hidden}
+.full{position:absolute;inset:0}
+.bg-paper{background:url(../assets/paper.jpg) center/cover}
+.bg-dark{background:url(../assets/paper_dark.jpg) center/cover}
+.bg-old{background:url(../assets/paper_old.jpg) center/cover}
+.rtl{direction:rtl}
+.title{font-family:Lalezar;color:#f2ede3;line-height:1;white-space:nowrap}
+.tape{font-family:Cairo;font-weight:900;color:var(--ink);background:url(../assets/paper_card.jpg) center/cover;padding:10px 34px 16px;white-space:nowrap;direction:rtl}
+.tape.red{background:var(--red);color:#f2ede3}
+.tape.ink{background:var(--ink);color:#f2ede3}
+.stamp{font-family:Cairo;font-weight:900;color:var(--red2);border:8px solid var(--red2);padding:0 26px 8px;line-height:1.15;white-space:nowrap;mix-blend-mode:multiply;
+  -webkit-mask:url(../assets/grain_2.png) center/220%;}
+.stamp.light{mix-blend-mode:normal;color:#c83232;border-color:#c83232;-webkit-mask:none;opacity:.92}
+.clip{background:#000 url(../assets/paper_card.jpg) center/cover;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.clip img{display:block;width:100%;height:100%;object-fit:cover;filter:contrast(1.15) brightness(.98)}
+.news{background:url(../assets/paper_old.jpg) center/cover;color:var(--ink);padding:26px 30px;box-shadow:0 14px 34px rgba(0,0,0,.4);direction:rtl}
+.news h3{font-family:Cairo;font-weight:900;margin:0 0 12px;line-height:1.15}
+.news .meta{font-family:Plex;font-size:20px;color:#5b554c;border-bottom:2px solid #3a3530;padding-bottom:6px;margin-bottom:14px;display:flex;justify-content:space-between}
+.cols{display:grid;gap:18px}
+.cols i{display:block;height:100%;
+  background:repeating-linear-gradient(to bottom,#4a4540 0 7px,transparent 7px 19px);
+  -webkit-mask:linear-gradient(to left,#000 0 85%,rgba(0,0,0,.6) 100%);opacity:.75}
+.redact{background:#0c0b0a}
+.mono{font-family:Plex;color:#6d675e;letter-spacing:2px}
+.info{font-family:Plex;font-weight:600;color:var(--ink);direction:rtl}
+.overlay{position:absolute;inset:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="main.js"></script>
+</body>
+</html>
