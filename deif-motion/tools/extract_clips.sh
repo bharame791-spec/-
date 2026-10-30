@@ -11,7 +11,7 @@ clip(){ # name start duration
 clip silhouette 241 6
 clip alley      36 4
 clip camp       40 7
-clip university 64 9
+clip university 65 8
 clip arrest89   94 5
 clip street     84 3
 clip checkpoint 116.6 4.4

@@ -83,3 +83,21 @@ for n in ['portrait_main','portrait_tree','portrait_interview']: halftone_sticke
 sil=ImageOps.grayscale(Image.open(SRC+'silhouette.jpg').crop((30,40,880,860)))  # drop the search-icon corner
 sil=ImageEnhance.Contrast(sil).enhance(1.4); sil.save(A+'silhouette_bw.jpg',quality=90)
 print('textures ok')
+
+# puffy cloud cutouts used around portraits and objects (like the reference collage)
+for k in range(3):
+    w,h=900,420; R=np.random.default_rng(100+k); m=np.zeros((h,w),np.float32)
+    for _ in range(26):
+        cx=R.uniform(.12,.88)*w; mid=1-abs(cx/w-.5)*2
+        r=R.uniform(.35,.6)*(60+120*mid); cy=h*.78-R.uniform(0,1)*mid*150
+        cv2.circle(m,(int(cx),int(cy)),int(r),1.0,-1,cv2.LINE_AA)
+    m[int(h*.82):]=0
+    m=cv2.GaussianBlur(m,(0,0),5)
+    occl=cv2.GaussianBlur(m,(0,0),28)
+    yy=np.mgrid[0:h,0:w][0]/h
+    dist=cv2.distanceTransform((m>.5).astype(np.uint8),cv2.DIST_L2,5)
+    rim=np.exp(-dist/14)  # darker towards the lower edges of each puff
+    shade=262-40*yy-28*(1-np.clip(occl*1.4,0,1))-30*rim*yy*2+(noise(h,w,6)-.5)*8
+    a=np.clip(m*1.6-.2,0,1)*np.clip((h*.86-np.mgrid[0:h,0:w][0])/40,0,1)
+    Image.fromarray(np.dstack([shade,shade,shade+2,a*255]).clip(0,255).astype(np.uint8)).save(A+f'cloud_{k}.png')
+print('clouds ok')

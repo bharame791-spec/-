@@ -1,47 +1,45 @@
-/* محمد الضيف | رجل الظل — deterministic collage animation.
-   window.seek(t) renders the frame at time t (seconds). render.mjs drives it frame by frame. */
+/* محمد الضيف | رجل الظل — collage motion graphic, one shot per voice-over line.
+   window.seek(t) renders the frame at time t (seconds); render.mjs drives it frame by frame. */
 const W = 1080, H = 1920, FPS = 25, DURATION = 76;
 const A = '../assets/', CLIPS = '../build/clips/';
 const stage = document.getElementById('stage');
 
-/* ---------- helpers ---------- */
+/* ================= helpers ================= */
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const lerp = (a, b, p) => a + (b - a) * p;
 const E = {
   lin: p => p,
   out: p => 1 - Math.pow(1 - p, 3),
+  out5: p => 1 - Math.pow(1 - p, 5),
   in: p => p * p * p,
   io: p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2,
-  back: p => { const c = 1.6; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); },
+  expo: p => p === 0 ? 0 : p === 1 ? 1 : p < .5 ? Math.pow(2, 20 * p - 10) / 2 : (2 - Math.pow(2, -20 * p + 10)) / 2,
+  back: p => { const c = 1.7; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); },
 };
-// progress of t inside [a,b], eased
 const pr = (t, a, b, e = E.out) => e(clamp((t - a) / (b - a)));
-// keyframes: [[t,v],...]
 function kf(t, keys, e = E.io) {
   if (t <= keys[0][0]) return keys[0][1];
-  for (let i = 1; i < keys.length; i++) {
-    if (t <= keys[i][0]) {
-      const [t0, v0] = keys[i - 1], [t1, v1] = keys[i];
-      return lerp(v0, v1, e((t - t0) / (t1 - t0)));
-    }
+  for (let i = 1; i < keys.length; i++) if (t <= keys[i][0]) {
+    const [t0, v0] = keys[i - 1], [t1, v1] = keys[i];
+    return lerp(v0, v1, e((t - t0) / (t1 - t0)));
   }
   return keys[keys.length - 1][1];
 }
-function rand(seed) { // mulberry32
+function rand(seed) {
   let a = seed >>> 0;
   return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
 function el(parent, cls = '', css = {}, html = '') {
   const d = document.createElement('div');
   if (cls) d.className = cls;
-  Object.assign(d.style, css);
+  Object.assign(d.style, { position: 'absolute' }, css);
   if (html) d.innerHTML = html;
   parent.appendChild(d);
   return d;
 }
-function img(parent, src, css = {}, cls = '') {
+function img(parent, src, css = {}) {
   const i = document.createElement('img');
-  i.src = src; if (cls) i.className = cls;
+  i.src = src;
   Object.assign(i.style, { position: 'absolute', display: 'block' }, css);
   parent.appendChild(i);
   return i;
@@ -52,392 +50,796 @@ function tf(node, { x = 0, y = 0, s = 1, r = 0, o = 1, sx, sy } = {}) {
   node.style.opacity = o;
   node.style.visibility = o <= 0.001 ? 'hidden' : 'visible';
 }
-// torn-paper polygon in % (jagged on every side)
 function tornPoly(seed, jag = 1.6, steps = 26) {
-  const R = rand(seed), pts = [];
-  const j = () => (R() * jag);
+  const R = rand(seed), pts = [], j = () => R() * jag;
   for (let i = 0; i <= steps; i++) pts.push([i / steps * 100, j()]);
   for (let i = 0; i <= steps; i++) pts.push([100 - j(), i / steps * 100]);
   for (let i = steps; i >= 0; i--) pts.push([i / steps * 100, 100 - j()]);
   for (let i = steps; i >= 0; i--) pts.push([j(), i / steps * 100]);
   return `polygon(${pts.map(p => `${p[0].toFixed(2)}% ${p[1].toFixed(2)}%`).join(',')})`;
 }
-// tear reveal: everything above a jagged, slightly tilted line is visible
-function tearReveal(p, seed, tilt = 120) {
-  const R = rand(seed), N = 34, pts = [];
-  const base = lerp(-tilt - 60, H + tilt + 60, p);
-  pts.push([0, 0], [W, 0]);
-  for (let i = N; i >= 0; i--) {
-    const x = i / N * W;
-    pts.push([x, base + (x / W - .5) * tilt * 2 + (R() - .5) * 46]);
+
+/* go(): entrance (spring), idle float, optional exit — one call per element per frame.
+   from/to: {x,y,s,r}; idle: float amplitude multiplier */
+function go(node, t, { t0 = 0, dur = .6, from = {}, to = {}, ease = E.back, idle = 1, seed = 1, t1 = null, out = {}, outDur = .35, fade = .25 }) {
+  const p = pr(t, t0, t0 + dur, ease);
+  const v = k => lerp(from[k] ?? to[k] ?? (k === 's' ? 1 : 0), to[k] ?? (k === 's' ? 1 : 0), p);
+  let x = v('x'), y = v('y'), s = v('s'), r = v('r');
+  let o = t < t0 ? 0 : clamp((t - t0) / (dur * fade + .001));
+  if (idle) {
+    x += Math.sin(t * .9 + seed * 2.1) * 5 * idle;
+    y += Math.cos(t * .75 + seed * 1.3) * 8 * idle;
+    r += Math.sin(t * .55 + seed) * .7 * idle;
   }
-  return `polygon(${pts.map(q => `${q[0].toFixed(1)}px ${q[1].toFixed(1)}px`).join(',')})`;
+  if (t1 !== null && t > t1) {
+    const q = pr(t, t1, t1 + outDur, E.in);
+    x += (out.x || 0) * q; y += (out.y || 0) * q; s *= lerp(1, out.s ?? 1, q); r += (out.r || 0) * q;
+    if (out.fade !== false) o *= 1 - q;
+  }
+  tf(node, { x, y, s, r, o });
+}
+// right-to-left wipe reveal (Arabic reading direction)
+function wipe(node, t, t0, dur = .6) {
+  const p = pr(t, t0, t0 + dur, E.io);
+  node.style.clipPath = `inset(-20% 0 -20% ${((1 - p) * 100).toFixed(2)}%)`;
+}
+function text(parent, html, css = {}, cls = 'title rtl') { return el(parent, cls, css, html); }
+function tape(parent, html, size, css = {}, kind = '', seed = 5) {
+  const n = el(parent, 'tape ' + kind, Object.assign({ fontSize: size + 'px' }, css), html);
+  n.style.clipPath = tornPoly(seed, 2.4);
+  return n;
+}
+function stampEl(parent, html, size, css = {}, light = false) {
+  return el(parent, 'stamp' + (light ? ' light' : ''), Object.assign({ fontSize: size + 'px' }, css), html);
+}
+function slam(node, t, t0, { r = -6, x = 0, y = 0, from = 2.3 } = {}) {
+  const p = pr(t, t0, t0 + .22, E.in), st = pr(t, t0 + .22, t0 + .55, E.out);
+  tf(node, { x, y, r, s: t < t0 ? from : lerp(from, 1, p) * (1 + .05 * Math.sin(st * Math.PI)), o: t < t0 ? 0 : clamp(p * 3) });
+}
+function cloud(parent, k, css) { return img(parent, `${A}cloud_${k}.png`, Object.assign({ width: '620px' }, css)); }
+function circle(parent, d, color, css = {}) { return el(parent, '', Object.assign({ width: d + 'px', height: d + 'px', borderRadius: '50%', background: color }, css)); }
+function newsClip(parent, { head = '', meta = ['', ''], cols = 2, w = 420, h = 360, size = 44, seed = 3, redact = [] }, css = {}) {
+  const n = el(parent, 'news', Object.assign({ width: w + 'px', height: h + 'px', boxSizing: 'border-box' }, css));
+  n.style.clipPath = tornPoly(seed, 2.2);
+  el(n, 'meta', { position: 'relative' }, `<span>${meta[0]}</span><span>${meta[1]}</span>`);
+  if (head) el(n, '', { position: 'relative', fontFamily: 'Cairo', fontWeight: 900, fontSize: size + 'px', lineHeight: 1.15, marginBottom: '12px' }, head);
+  const c = el(n, 'cols', { position: 'relative', gridTemplateColumns: `repeat(${cols},1fr)`, height: `calc(100% - ${head ? size * 1.3 + 70 : 60}px)` });
+  for (let i = 0; i < cols; i++) el(c, '', { position: 'relative' }, '<i></i>');
+  redact.forEach(([x, y, rw, rh]) => el(n, 'redact', { left: x + '%', top: y + '%', width: rw + '%', height: rh + 'px' }));
+  return n;
 }
 
-/* ---------- reusable components ---------- */
+/* media frames: 'stamp' (perforated), 'polaroid', 'torn', 'circle'. src: clip name or image path */
 const pending = [];
-function clipPlayer(parent, name, frames, css, { seed = 1, speed = 1, start = 0, freezeAt = null, pad = 16, tilt = 0 } = {}) {
-  const box = el(parent, 'abs clip', Object.assign({ padding: pad + 'px' }, css));
-  box.style.clipPath = tornPoly(seed, 1.2);
-  const im = img(box, `${CLIPS}${name}/0001.jpg`, { position: 'relative', width: '100%', height: '100%', objectFit: 'cover' });
+function frame(parent, css, { kind = 'stamp', clip = null, frames = 1, src = null, speed = 1, start = 0, freezeAt = null, seed = 1, red = false, fit = 'cover', pos = '50% 50%' } = {}) {
+  const wrap = el(parent, 'pwrap', css);
+  let inner;
+  if (kind === 'stamp') inner = el(wrap, 'pstamp' + (red ? ' red' : ''), { position: 'relative' });
+  else if (kind === 'polaroid') inner = el(wrap, 'polaroid', { position: 'relative' });
+  else if (kind === 'circle') inner = el(wrap, '', { position: 'relative', width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden' });
+  else { inner = el(wrap, 'clip', { position: 'relative', width: '100%', height: '100%', boxSizing: 'border-box' }); inner.style.clipPath = tornPoly(seed, 1.2); }
+  const media = el(inner, 'media', { position: 'relative' });
+  const im = img(media, clip ? `${CLIPS}${clip}/0001.jpg` : src, { objectPosition: pos, objectFit: fit });
   let cur = 1;
   return {
-    box, im,
-    update(t) { // t = global time
+    wrap, im,
+    update(t) {
+      if (!clip) return;
       let lt = t - start;
       if (freezeAt !== null) lt = Math.min(lt, freezeAt - start);
-      const f = clamp(Math.floor(lt * FPS * speed) + 1, 1, frames);
-      if (f !== cur) {
-        cur = f; im.src = `${CLIPS}${name}/${String(f).padStart(4, '0')}.jpg`;
-        pending.push(im.decode().catch(() => { }));
-      }
-      // freeze-frame turns into a printed photo: warmer, more contrast
-      const fz = freezeAt !== null ? pr(t, freezeAt, freezeAt + .5) : 0;
-      im.style.filter = `contrast(${1.15 + fz * .25}) brightness(${.98 + fz * .06}) sepia(${fz * .35})`;
+      const f = clamp(Math.floor(Math.max(0, lt) * FPS * speed) + 1, 1, frames);
+      if (f !== cur) { cur = f; im.src = `${CLIPS}${clip}/${String(f).padStart(4, '0')}.jpg`; pending.push(im.decode().catch(() => { })); }
+      const fz = freezeAt !== null ? pr(t, freezeAt, freezeAt + .4) : 0;
+      im.style.filter = `contrast(${1.15 + fz * .25}) sepia(${fz * .3})`;
     }
   };
 }
-function newsClip(parent, { head, meta = ['', ''], cols = 2, w = 420, h = 360, size = 44, seed = 3, redact = [] }, css = {}) {
-  const n = el(parent, 'abs news', Object.assign({ width: w + 'px', height: h + 'px' }, css));
-  n.style.clipPath = tornPoly(seed, 2.2);
-  el(n, 'meta', {}, `<span>${meta[0]}</span><span>${meta[1]}</span>`);
-  if (head) { const hh = document.createElement('h3'); hh.style.fontSize = size + 'px'; hh.innerHTML = head; n.appendChild(hh); }
-  const c = el(n, 'cols', { gridTemplateColumns: `repeat(${cols},1fr)`, height: `calc(100% - ${head ? size * 1.3 + 70 : 60}px)` });
-  for (let i = 0; i < cols; i++) el(c, '', {}, '<i></i>');
-  redact.forEach(([x, y, rw, rh]) => el(n, 'abs redact', { left: x + '%', top: y + '%', width: rw + '%', height: rh + 'px' }));
-  return n;
-}
-function stamp(parent, text, size, css = {}, cls = 'stamp') {
-  return el(parent, 'abs ' + cls, Object.assign({ fontSize: size + 'px' }, css), text);
-}
-// slam-in animation: big -> normal with slight rotation, then settle
-function slam(node, t, t0, { r = -6, x = 0, y = 0, from = 2.2 } = {}) {
-  const p = pr(t, t0, t0 + .28, E.in);
-  const settle = pr(t, t0 + .28, t0 + .6, E.out);
-  const s = t < t0 ? from : lerp(from, 1, p) * (1 + .04 * Math.sin(settle * Math.PI));
-  tf(node, { x, y, s, r, o: t < t0 ? 0 : clamp(p * 3) });
-}
-function words(parent, text, css = {}, cls = 'title rtl') {
-  const wrap = el(parent, 'abs ' + cls, Object.assign({ display: 'flex', gap: '0.25em', flexDirection: 'row' }, css));
-  const ws = text.split(' ').map(w => el(wrap, '', { display: 'inline-block' }, w));
-  return { wrap, ws };
-}
+function flash(parent) { return el(parent, '', { inset: 0, background: '#fff', mixBlendMode: 'screen', zIndex: 20 }); }
+const flashAt = (node, t, times) => { const v = Math.max(0, ...times.map(t0 => t >= t0 ? 1 - pr(t, t0, t0 + .28, E.out) : 0)); node.style.opacity = v * .85; };
 
-/* ---------- scenes ---------- */
-const scenes = [];
-function scene(start, end, cls, build, transIn = null) {
-  const root = el(stage, 'scene ' + cls);
-  const s = { start, end, root, transIn };
-  s.update = build(root, s);
-  scenes.push(s);
-}
-/* Cue points (seconds) aligned to sources/voiceover.mp3 — see tools/align_vo.py.
-   Shift a value here to move every animation tied to that line of the VO. */
-const C = {
-  // 1 — الاسم بلا وجه
-  news: 1.36, face: 3.67, few: 5.6, voice: 6.78,
-  // 2 — البدايات
-  s2: 8.45, born: 8.62, y65: 11.3, camp: 13.57, south: 15.73, uni: 17.35, joined: 19.51, arrest: 22.15, y89: 24.1,
-  // 3 — من الظل
-  s3: 26.0, y02: 26.2, lead: 27.66, wing: 29.73, buses: 31.6, y96: 36.4, hidden: 39.45, audio: 41.26, absent: 43.35,
-  // 4 — المطاردة
-  s4: 45.5, years: 45.72, attempts: 47.72, hurt: 50.66, each: 52.06, back: 53.19,
-  // 5 — الإعلان
-  s5: 54.35, jul: 54.6, mawasi: 56.59, war: 59.1, jan: 61.79, conf: 63.82,
-  // 6 — رحل كما عاش
-  s6: 64.9, lived: 64.9, faceless: 67.43, left: 70.08, name: 71.9, end: 76,
-};
+/* ================= cue points (seconds), aligned to sources/voiceover.mp3 ================= */
+const C = [0, 1.36, 3.67, 5.60, 6.78, 8.62, 10.90, 13.57, 15.73, 17.35, 19.51, 22.15, 26.20, 27.66, 29.73, 31.60, 34.57,
+  39.45, 41.26, 43.35, 45.72, 47.72, 50.66, 52.06, 53.19, 54.60, 56.59, 59.10, 61.79, 63.82, 64.90, 67.43, 70.08, 71.71];
 
-/* SCENE 1 — الاسم بلا وجه */
-scene(0, C.s2 + .8, 'bg-dark', (root) => {
-  const numsR = rand(11), rows = [];
-  for (let i = 0; i < 24; i++) {
-    const txt = Array.from({ length: 6 }, () => ['1965', '1989', '1996', '2002', '2014', '31.34°N', '34.30°E', '07:42', 'NO.' + Math.floor(numsR() * 900 + 100)][Math.floor(numsR() * 9)]).join('   ·   ');
-    rows.push(el(root, 'abs mono', { left: '-40px', top: (i * 86) + 'px', fontSize: '26px', whiteSpace: 'nowrap', color: '#3b3732' }, txt));
+/* ================= shot system ================= */
+const shots = [];
+const world = el(stage, '', { inset: 0 });
+// enter: how the camera arrives — L/R/U/D whip pans, Z push-through, F fade
+function shot(i, bg, enter, build, { push = .045 } = {}) {
+  const t0 = C[i], t1 = i + 1 < C.length ? C[i + 1] : DURATION;
+  const root = el(world, 'scene bg-' + bg, { inset: 0 });
+  const cam = el(root, 'cam');
+  const s = { i, t0, t1, root, cam, enter, push };
+  s.update = build(cam, t0, t1, s);
+  shots.push(s);
+}
+const TR = .5; // transition length
+
+/* ---------- 1. لعقودٍ طويلة ---------- */
+shot(0, 'dark', 'F', (cam, t0, t1) => {
+  const R0 = rand(11), rows = [];
+  for (let i = 0; i < 26; i++) {
+    const txt = Array.from({ length: 7 }, () => ['1965', '1989', '1996', '2002', '2014', '2024', '31.34°N', '34.30°E', 'NO.' + Math.floor(R0() * 900 + 100)][Math.floor(R0() * 9)]).join('   ·   ');
+    rows.push(el(cam, 'mono', { left: '-60px', top: (i * 76) + 'px', fontSize: '24px', whiteSpace: 'nowrap', color: '#3b3732' }, txt));
   }
-  const staticLayer = el(root, 'full');
-  const bars = Array.from({ length: 14 }, () => el(staticLayer, 'abs', { left: 0, width: W + 'px', background: '#d8d2c6' }));
-
-  const n1 = newsClip(root, { head: 'من هو؟', meta: ['أرشيف', '—'], w: 430, h: 420, size: 60, seed: 21, redact: [[8, 42, 70, 26], [20, 62, 60, 26]] }, { left: '40px', top: '140px' });
-  const n2 = newsClip(root, { head: '<span class="redact" style="color:transparent">الاسم الكامل</span>', meta: ['ملف', '???'], w: 380, h: 330, size: 46, seed: 22, cols: 2, redact: [[10, 70, 50, 22]] }, { left: '650px', top: '220px' });
-  const n3 = newsClip(root, { head: 'صورة نادرة', meta: ['—', '—'], w: 400, h: 300, size: 50, seed: 23, redact: [[30, 50, 60, 24]] }, { left: '60px', top: '1380px' });
-  const n4 = newsClip(root, { head: '', meta: ['أرشيف', 'رقم 07'], w: 360, h: 380, seed: 24, cols: 2, redact: [[5, 30, 80, 30], [5, 55, 50, 30]] }, { left: '680px', top: '1330px' });
-
-  const frame = el(root, 'abs clip', { left: '150px', top: '520px', width: '780px', height: '780px', padding: '18px' });
-  frame.style.clipPath = tornPoly(31, 1.1);
-  const sil = img(frame, A + 'silhouette_bw.jpg', { position: 'relative', width: '100%', height: '100%', objectFit: 'cover' });
-
-  const redBar = el(root, 'abs', { left: '90px', top: '1225px', width: '900px', height: '150px', background: 'var(--red)', transformOrigin: 'right center' });
-  const name = words(root, 'محمد الضيف', { right: '0', left: '0', top: '1180px', justifyContent: 'center', fontSize: '200px' });
-  const sub = el(root, 'abs tape', { left: '330px', top: '1430px', fontSize: '74px' }, 'رجل الظل');
-  sub.style.clipPath = tornPoly(41, 2.5);
-
+  const bars = Array.from({ length: 16 }, () => el(cam, '', { left: 0, width: W + 'px', background: '#d8d2c6' }));
+  const t1a = text(cam, 'لعقودٍ', { left: 0, right: 0, top: '700px', textAlign: 'center', fontSize: '230px' });
+  const t1b = text(cam, 'طويلة', { left: 0, right: 0, top: '930px', textAlign: 'center', fontSize: '230px', color: '#a52222' });
   return (t) => {
-    const fr = Math.round(t * FPS);
-    rows.forEach((r, i) => tf(r, { x: ((i % 2 ? -1 : 1) * t * 14) - (i % 2 ? 0 : 120), y: -t * 6, o: kf(t, [[0, 0], [1.2, .9], [7.5, .9], [9, .5]]) }));
-    const R = rand(fr * 7 + 3);
-    const burst = t < 1.2 ? 1 : (Math.abs(t - C.few) < .12 || Math.abs(t - C.voice) < .08) ? .7 : 0;
-    bars.forEach(b => { b.style.top = (R() * H) + 'px'; b.style.height = (2 + R() * 30) + 'px'; b.style.opacity = burst * R() * .5; });
-    root.style.filter = `brightness(${t < 1.2 ? .4 + R() * .6 : 1})`;
-
-    const drift = (n, t0, dx, dy, r) => tf(n, { x: dx * (1 - pr(t, t0, t0 + 1.0)) + t * 3, y: dy * (1 - pr(t, t0, t0 + 1.0)) - t * 4, r, o: pr(t, t0, t0 + .35) * kf(t, [[C.few - .3, 1], [C.few + .4, .45]]) });
-    drift(n1, C.news, -500, -80, -7); drift(n2, C.news + .35, 500, -60, 6); drift(n3, C.news + .7, -500, 80, 4); drift(n4, C.news + 1.05, 500, 60, -5);
-
-    const flick = t < C.face + 1.5 ? (R() > .25 ? 1 : .5) : 1;
-    tf(frame, { s: kf(t, [[C.face, 1.1], [C.few, 1], [9, .97]]), y: kf(t, [[C.few - .4, 0], [C.few + .4, -160]]), r: -1.5, o: pr(t, C.face, C.face + 1.4, E.io) * flick });
-    sil.style.filter = `contrast(1.2) brightness(${kf(t, [[C.face, .2], [C.face + 1.8, 1]])})`;
-
-    name.ws.forEach((w, i) => slam(w, t, C.few + i * .22, { r: 0, from: 1.8 }));
-    tf(redBar, { sx: pr(t, C.few - .15, C.few + .35, E.io), sy: 1, o: 1 });
-    tf(sub, { x: 140 * (1 - pr(t, C.voice + .2, C.voice + .7)), r: -3, o: pr(t, C.voice + .2, C.voice + .5) });
+    const R = rand(Math.round(t * FPS) * 7 + 3);
+    rows.forEach((r, i) => tf(r, { x: (i % 2 ? -1 : 1) * t * 40 - (i % 2 ? 0 : 160), o: .9 }));
+    bars.forEach(b => { b.style.top = (R() * H) + 'px'; b.style.height = (2 + R() * 34) + 'px'; b.style.opacity = (t < .5 ? 1 : .25) * R() * .55; });
+    go(t1a, t, { t0: .15, from: { s: 1.4 }, ease: E.out5, idle: .5, seed: 1 }); wipe(t1a, t, .15, .45);
+    go(t1b, t, { t0: .45, from: { s: 1.4 }, ease: E.out5, idle: .5, seed: 2 }); wipe(t1b, t, .45, .45);
   };
 });
 
-/* SCENE 2 — البدايات */
-scene(C.s2, C.s3 + .8, 'bg-paper', (root) => {
-  const head = el(root, 'abs tape ink', { right: '60px', top: '90px', fontSize: '46px' }, 'البدايات');
-  const mapWrap = el(root, 'abs', { left: '60px', top: '150px', width: '700px', height: '1200px' });
-  mapWrap.innerHTML = `<svg width="700" height="1200" viewBox="0 0 700 1200" style="overflow:visible">
-    <path id="mo" fill="#cfc6b4" stroke="#1a1816" stroke-width="3.5" stroke-linejoin="round"/>
-    <path id="mg" fill="#8e1b1b" stroke="#1a1816" stroke-width="2"/>
-    <circle id="ky" r="9" fill="#f2ede3" stroke="#8e1b1b" stroke-width="4"/>
-    <circle id="kr" r="9" fill="none" stroke="#8e1b1b" stroke-width="3"/></svg>`;
-  const mapLabel = el(root, 'abs tape red', { left: '120px', top: '780px', fontSize: '50px' }, 'مخيم خان يونس');
-  mapLabel.style.clipPath = tornPoly(52, 2.5);
-  const mapSub = el(root, 'abs info', { left: '130px', top: '880px', fontSize: '34px', color: '#3a3530' }, 'جنوبي قطاع غزة');
-  const s65 = stamp(root, '1965', 170, { left: '560px', top: '280px' });
-  const card = el(root, 'abs news', { left: '480px', top: '1240px', width: '540px', height: '330px', padding: '30px 36px' });
-  card.style.clipPath = tornPoly(53, 1.5);
-  card.innerHTML = `<div class="meta"><span>ملف أرشيفي</span><span>رقم 1965/08</span></div>
-    <div class="info" style="font-size:30px;line-height:1.9">الاسم: محمد دياب إبراهيم المصري<br>المواليد: 1965<br>المكان: مخيم خان يونس للاجئين</div>`;
-  const camp = clipPlayer(root, 'camp', 175, { left: '50px', top: '1270px', width: '520px', height: '440px' }, { seed: 61, start: C.camp, speed: .8 });
-  const campTag = el(root, 'abs tape', { left: '90px', top: '1690px', fontSize: '36px' }, 'المخيم');
-  const uni = clipPlayer(root, 'university', 225, { left: '90px', top: '210px', width: '900px', height: '720px' }, { seed: 62, start: C.uni, speed: .9, freezeAt: C.arrest - .5 });
-  const uniTag = el(root, 'abs tape red', { left: '330px', top: '880px', fontSize: '48px' }, 'الجامعة الإسلامية — غزة');
-  uniTag.style.clipPath = tornPoly(63, 2);
-  const intif = newsClip(root, { head: 'الانتفاضة الأولى', meta: ['1987', 'غزة'], w: 470, h: 300, size: 50, seed: 64 }, { left: '70px', top: '960px' });
-  const arrest = clipPlayer(root, 'arrest89', 125, { left: '440px', top: '930px', width: '600px', height: '500px' }, { seed: 65, start: C.arrest, freezeAt: C.y89 + .4 });
-  const s89 = stamp(root, '1989', 130, { left: '620px', top: '1450px' });
-  const arrestTag = el(root, 'abs tape ink', { left: '200px', top: '1300px', fontSize: '44px' }, 'الاعتقال الأول');
+/* ---------- 2. كان اسمه يتردّد في نشرات الأخبار ---------- */
+shot(1, 'dark', 'U', (cam, t0) => {
+  const n1 = newsClip(cam, { head: 'المطلوب الأول', meta: ['أرشيف', '—'], w: 560, h: 470, size: 72, seed: 21 }, { left: '60px', top: '330px' });
+  const n2 = newsClip(cam, { head: 'اسمٌ في كل نشرة', meta: ['أخبار', '—'], w: 500, h: 400, size: 54, seed: 22, cols: 3 }, { left: '500px', top: '760px' });
+  const n3 = newsClip(cam, { head: 'من هو؟', meta: ['ملف', '???'], w: 440, h: 380, size: 70, seed: 23, redact: [[10, 62, 70, 26]] }, { left: '90px', top: '1150px' });
+  const tick = el(cam, '', { left: 0, top: '1640px', width: W + 'px', height: '96px', background: 'var(--red)', overflow: 'hidden' });
+  const ttxt = el(tick, 'rtl', { top: '6px', right: 0, whiteSpace: 'nowrap', fontFamily: 'Cairo', fontWeight: 900, fontSize: '56px', color: '#f2ede3' }, 'عاجل  ●  عاجل  ●  عاجل  ●  عاجل  ●  عاجل  ●  عاجل  ●  عاجل  ●  عاجل');
+  const lab = el(tick, '', { left: 0, top: 0, height: '96px', width: '230px', background: '#121110', color: '#f2ede3', fontFamily: 'Cairo', fontWeight: 900, fontSize: '50px', textAlign: 'center', lineHeight: '92px' }, 'أخبار');
+  return (t) => {
+    go(n1, t, { t0: t0 + .1, from: { x: -700, r: -25 }, to: { r: -5 }, seed: 3, dur: .55 });
+    go(n2, t, { t0: t0 + .45, from: { x: 700, r: 25 }, to: { r: 4 }, seed: 4, dur: .55 });
+    go(n3, t, { t0: t0 + .8, from: { y: 700, r: -10 }, to: { r: -3 }, seed: 5, dur: .55 });
+    go(tick, t, { t0: t0 + .2, from: { x: W }, ease: E.out5, idle: 0 });
+    tf(ttxt, { x: (t - t0) * 260 - 900 }); tf(lab, {});
+  };
+});
 
-  let mo, mg, ky, kr, len = 0;
+/* ---------- 3. بينما بقي وجهه مجهولًا ---------- */
+shot(2, 'dark', 'Z', (cam, t0) => {
+  const q = text(cam, '؟', { left: 0, right: 0, top: '220px', textAlign: 'center', fontSize: '1100px', color: '#3a1414', lineHeight: 1 });
+  const f = frame(cam, { left: '190px', top: '470px', width: '700px', height: '760px' }, { kind: 'polaroid', src: A + 'silhouette_bw.jpg' });
+  const bar = el(cam, '', { left: '250px', top: '640px', width: '580px', height: '110px', background: '#0c0b0a', transformOrigin: 'right center' });
+  const lab = text(cam, 'وجهٌ مجهول', { left: 0, right: 0, top: '1330px', textAlign: 'center', fontSize: '130px' });
+  const c = cloud(cam, 1, { left: '230px', top: '1100px' });
+  return (t) => {
+    go(q, t, { t0: t0, from: { s: 1.3 }, ease: E.out5, idle: .5, seed: 7 });
+    go(f.wrap, t, { t0: t0 + .15, from: { s: .6, r: 12 }, to: { r: -3 }, seed: 8 });
+    go(bar, t, { t0: t0 + .55, from: {}, idle: 0 }); bar.style.transform += ` rotate(-3deg) scaleX(${pr(t, t0 + .55, t0 + .8, E.out)})`;
+    go(lab, t, { t0: t0 + .7, from: { y: 40 }, ease: E.out, idle: .4 }); wipe(lab, t, t0 + .7, .5);
+    go(c, t, { t0: t0 + .3, from: { y: 60, s: .7 }, idle: 1.5, seed: 9 });
+  };
+});
+
+/* ---------- 4. صورٌ قليلة ---------- */
+shot(3, 'paper', 'L', (cam, t0) => {
+  const fl = flash(cam);
+  const pics = [
+    frame(cam, { left: '90px', top: '420px', width: '470px', height: '560px' }, { kind: 'polaroid', src: A + 'portrait_main_bw.png', fit: 'contain' }),
+    frame(cam, { left: '520px', top: '560px', width: '470px', height: '560px' }, { kind: 'polaroid', src: A + 'portrait_interview_bw.png', fit: 'contain' }),
+    frame(cam, { left: '300px', top: '880px', width: '470px', height: '560px' }, { kind: 'polaroid', src: A + 'portrait_tree_bw.png', fit: 'contain' }),
+  ];
+  pics.forEach(p => { p.im.style.background = '#cfc8ba'; });
+  const lab = text(cam, 'صورٌ قليلة', { left: 0, right: 0, top: '170px', textAlign: 'center', fontSize: '150px', color: 'var(--ink)' });
+  const rs = [-8, 7, -2];
+  return (t) => {
+    pics.forEach((p, i) => go(p.wrap, t, { t0: t0 + .05 + i * .28, from: { y: -900, r: rs[i] * 4 }, to: { r: rs[i] }, dur: .5, seed: 10 + i }));
+    flashAt(fl, t, [t0 + .3, t0 + .58, t0 + .86]);
+    go(lab, t, { t0: t0 + .1, from: { y: 30 }, ease: E.out, idle: .3 }); wipe(lab, t, t0 + .1, .4);
+  };
+});
+
+/* ---------- 5. وصوتٌ من خلف الظل (title) ---------- */
+shot(4, 'dark', 'R', (cam, t0) => {
+  const ring = circle(cam, 820, 'var(--red)', { left: '130px', top: '300px' });
+  const sil = frame(cam, { left: '240px', top: '380px', width: '600px', height: '600px' }, { kind: 'circle', src: A + 'silhouette_bw.jpg' });
+  const wave = el(cam, '', { left: '120px', top: '1060px', width: '840px', height: '150px', display: 'flex', alignItems: 'center', gap: '7px' });
+  const bars = Array.from({ length: 44 }, () => el(wave, 'wbar', { position: 'relative', background: '#f2ede3' }));
+  const name = text(cam, 'محمد الضيف', { left: 0, right: 0, top: '1250px', textAlign: 'center', fontSize: '210px' });
+  const sub = tape(cam, 'رجل الظل', 84, { left: '330px', top: '1520px' }, 'red', 41);
+  return (t) => {
+    go(ring, t, { t0: t0, from: { s: 0 }, dur: .6, idle: .3, seed: 1 });
+    go(sil.wrap, t, { t0: t0 + .1, from: { s: .5 }, dur: .6, idle: .6, seed: 2 });
+    const amp = pr(t, t0 + .2, t0 + .5);
+    const R = rand(Math.round(t * FPS));
+    bars.forEach((b, i) => { const v = Math.abs(Math.sin(t * 10 + i * .6) * Math.sin(t * 3.3 + i * 1.7)) * .8 + R() * .2; b.style.height = (8 + v * 140 * amp) + 'px'; });
+    go(name, t, { t0: t0 + .35, from: { s: 1.5 }, ease: E.out5, dur: .45, idle: .4 }); wipe(name, t, t0 + .35, .5);
+    go(sub, t, { t0: t0 + .9, from: { x: 300, r: 8 }, to: { r: -3 }, seed: 3 });
+  };
+});
+
+/* ---------- 6. وُلد محمد دياب إبراهيم المصري ---------- */
+shot(5, 'paper', 'U', (cam, t0) => {
+  const card = el(cam, 'news', { left: '90px', top: '520px', width: '900px', height: '600px', boxSizing: 'border-box', padding: '40px 50px' });
+  card.style.clipPath = tornPoly(53, 1.2);
+  el(card, 'meta', { position: 'relative', fontSize: '28px' }, '<span>بطاقة تعريف · أرشيف</span><span>رقم 1965/08</span>');
+  const photo = frame(card, { left: '40px', top: '120px', width: '250px', height: '330px' }, { kind: 'stamp', src: A + 'portrait_main_bw.png', fit: 'cover', pos: '50% 20%' });
+  const lines = ['الاسم: محمد دياب إبراهيم المصري', 'الشهرة: محمد الضيف', 'مكان الولادة: خان يونس'];
+  const ls = lines.map((l, i) => el(card, 'info', { right: '50px', top: (150 + i * 95) + 'px', fontSize: '34px', whiteSpace: 'nowrap' }, l));
+  const clipEl = el(cam, '', { left: '760px', top: '470px', width: '40px', height: '130px', border: '8px solid #7a7570', borderRadius: '22px' });
+  const big = text(cam, 'وُلد', { right: '90px', top: '200px', fontSize: '210px', color: 'var(--ink)' });
+  const st = stampEl(cam, 'أرشيف', 90, { left: '120px', top: '1180px' });
+  return (t) => {
+    go(card, t, { t0: t0 + .05, from: { y: 600, r: 8 }, to: { r: -2 }, seed: 4 });
+    go(photo.wrap, t, { t0: t0 + .4, from: { s: 0, r: -20 }, to: { r: -4 }, idle: 0 });
+    ls.forEach((l, i) => wipe(l, t, t0 + .45 + i * .35, .5));
+    go(clipEl, t, { t0: t0 + .4, from: { y: -200 }, to: { r: 8 }, seed: 5 });
+    go(big, t, { t0: t0, from: { x: 120 }, ease: E.out5, idle: .4 }); wipe(big, t, t0, .45);
+    slam(st, t, t0 + 1.5, { r: -10 });
+  };
+});
+
+/* ---------- 7. عام 1965 ---------- */
+shot(6, 'paper', 'L', (cam, t0) => {
+  const ring = circle(cam, 760, 'var(--red)', { left: '160px', top: '420px' });
+  const alley = frame(cam, { left: '230px', top: '490px', width: '620px', height: '620px' }, { kind: 'circle', clip: 'alley', frames: 100, start: t0, speed: .8 });
+  const year = text(cam, 'عام', { right: '120px', top: '150px', fontSize: '150px', color: 'var(--ink)' });
+  // odometer digits
+  const od = el(cam, '', { left: '140px', top: '1180px', width: '800px', height: '300px', display: 'flex', direction: 'ltr', justifyContent: 'center', gap: '6px' });
+  const digits = '1965'.split('').map((d, i) => {
+    const win = el(od, '', { position: 'relative', width: '190px', height: '300px', overflow: 'hidden' });
+    const col = el(win, '', { left: 0, top: 0, width: '190px', fontFamily: 'Cairo', fontWeight: 900, fontSize: '280px', lineHeight: '300px', color: 'var(--ink)', textAlign: 'center' }, Array.from({ length: 30 }, (_, k) => (k % 10)).join('<br>'));
+    return { col, target: 20 + Number(d), i };
+  });
+  const c = cloud(cam, 0, { left: '230px', top: '980px' });
+  const st = stampEl(cam, 'عام الميلاد', 70, { left: '90px', top: '1520px' });
+  return (t) => {
+    go(ring, t, { t0: t0, from: { s: 0 }, idle: .3 });
+    go(alley.wrap, t, { t0: t0 + .1, from: { s: .4 }, idle: .5, seed: 2 }); alley.update(t);
+    go(year, t, { t0: t0 + .1, from: { y: -40 }, ease: E.out, idle: .3 }); wipe(year, t, t0 + .1, .4);
+    digits.forEach(({ col, target, i }) => { const p = pr(t, t0 + .2, t0 + 1.1 + i * .25, E.out5); col.style.transform = `translateY(${-p * target * 300}px)`; });
+    go(c, t, { t0: t0 + .2, from: { y: 80, s: .6 }, idle: 1.4, seed: 3 });
+    slam(st, t, t0 + 1.7, { r: -6 });
+  };
+});
+
+/* ---------- 8. في مخيم خان يونس للاجئين ---------- */
+shot(7, 'paper', 'U', (cam, t0) => {
+  const f1 = frame(cam, { left: '80px', top: '360px', width: '700px', height: '560px' }, { kind: 'stamp', clip: 'camp', frames: 175, start: t0, speed: .9 });
+  const f2 = frame(cam, { left: '470px', top: '860px', width: '520px', height: '440px' }, { kind: 'stamp', red: true, clip: 'camp', frames: 175, start: t0 - 3, speed: .7 });
+  const lab = tape(cam, 'مخيم خان يونس للاجئين', 66, { right: '80px', top: '1420px' }, 'ink', 52);
+  const c = cloud(cam, 2, { left: '-60px', top: '1050px' });
+  const pin = text(cam, '●', { left: '660px', top: '250px', fontSize: '60px', color: 'var(--red2)' });
+  return (t) => {
+    go(f1.wrap, t, { t0: t0, from: { x: -600, r: -20 }, to: { r: -4 }, seed: 1 }); f1.update(t);
+    go(f2.wrap, t, { t0: t0 + .3, from: { x: 600, r: 20 }, to: { r: 5 }, seed: 2 }); f2.update(t);
+    go(lab, t, { t0: t0 + .7, from: { y: 120 }, to: { r: -2 }, seed: 3 });
+    go(c, t, { t0: t0 + .4, from: { x: -200 }, idle: 1.5, seed: 4 });
+    go(pin, t, { t0: t0 + .5, from: { s: 0 }, idle: 0 });
+  };
+});
+
+/* ---------- 9. جنوبي قطاع غزة (map) ---------- */
+shot(8, 'paper', 'Z', (cam, t0) => {
+  const mapWrap = el(cam, '', { left: '190px', top: '330px', width: '700px', height: '1200px' });
+  mapWrap.innerHTML = `<svg width="700" height="1200" viewBox="0 0 700 1200" style="overflow:visible">
+    <path class="mo" fill="#cfc6b4" stroke="#1a1816" stroke-width="3.5" stroke-linejoin="round"/>
+    <path class="mg" fill="#8e1b1b" stroke="#1a1816" stroke-width="2"/>
+    <circle class="kr" r="9" fill="none" stroke="#8e1b1b" stroke-width="3"/>
+    <circle class="ky" r="9" fill="#f2ede3" stroke="#8e1b1b" stroke-width="4"/></svg>`;
+  const lab = tape(cam, 'جنوبي قطاع غزة', 70, { left: '90px', top: '1500px' }, 'red', 61);
+  const lab2 = tape(cam, 'خان يونس', 48, { left: '560px', top: '880px' }, 'ink', 62);
+  let mo, mg, ky, kr, len;
   return (t) => {
     if (!mo) {
-      const d = window.MAP; mo = root.querySelector('#mo'); mg = root.querySelector('#mg'); ky = root.querySelector('#ky'); kr = root.querySelector('#kr');
+      const d = window.MAP; [mo, mg, ky, kr] = ['.mo', '.mg', '.ky', '.kr'].map(q => mapWrap.querySelector(q));
       mo.setAttribute('d', d.outline); mg.setAttribute('d', d.gaza);
       [ky, kr].forEach(c => { c.setAttribute('cx', d.khanYunis[0]); c.setAttribute('cy', d.khanYunis[1]); });
       len = mo.getTotalLength(); mo.style.strokeDasharray = len;
       mapWrap.style.transformOrigin = `${d.gazaCenter[0]}px ${d.gazaCenter[1]}px`;
     }
-    const s = C.s2, out1 = pr(t, C.uni - .2, C.uni + .3);
-    tf(head, { x: 200 * (1 - pr(t, s + .5, s + 1)), o: pr(t, s + .5, s + .8) });
-    mo.style.strokeDashoffset = len * (1 - pr(t, s + .4, s + 2.0, E.io));
-    mo.style.fillOpacity = pr(t, s + 1.6, s + 2.4);
-    mg.style.opacity = pr(t, s + 2.2, s + 2.6);
-    const z = kf(t, [[C.camp - 1.6, 1], [C.camp + .1, 3.1]]);
-    tf(mapWrap, { s: z, x: kf(t, [[C.camp - 1.6, 0], [C.camp + .1, 190]]), y: kf(t, [[C.camp - 1.6, 0], [C.camp + .1, -150]]), o: 1 - out1 });
+    mo.style.strokeDashoffset = len * (1 - pr(t, t0, t0 + .7, E.io));
+    mo.style.fillOpacity = pr(t, t0 + .4, t0 + .8);
+    mg.style.opacity = pr(t, t0 + .6, t0 + .8);
+    const z = kf(t, [[t0 + .7, 1], [t0 + 1.4, 1.9]], E.expo);
+    tf(mapWrap, { s: z, x: kf(t, [[t0 + .7, 0], [t0 + 1.4, 160]], E.expo), y: kf(t, [[t0 + .7, 0], [t0 + 1.4, -40]], E.expo) });
     mo.style.strokeWidth = 3.5 / z; mg.style.strokeWidth = 2 / z;
-    ky.style.opacity = pr(t, C.camp, C.camp + .2); ky.setAttribute('r', 9 / z * 1.6);
-    const pulse = (((t - C.camp) % 1.2) + 1.2) % 1.2 / 1.2;
-    kr.style.opacity = t > C.camp ? 1 - pulse : 0; kr.setAttribute('r', (10 + pulse * 30) / z * 1.6);
-    tf(mapLabel, { x: -60 * (1 - pr(t, C.camp + .1, C.camp + .5)), r: -2, o: pr(t, C.camp + .1, C.camp + .3) * (1 - out1) });
-    tf(mapSub, { o: pr(t, C.south, C.south + .5) * (1 - out1) });
-    slam(s65, t, C.y65, { r: -9 });
-    s65.style.opacity = (t < C.y65 ? 0 : 1) * (1 - out1);
-    tf(card, { y: 420 * (1 - pr(t, C.born, C.born + .7)), r: 2, o: pr(t, C.born, C.born + .3) * (1 - pr(t, C.arrest - .3, C.arrest)) });
-    camp.update(t);
-    tf(camp.box, { y: 500 * (1 - pr(t, C.camp + .3, C.camp + 1, E.back)), r: -3, o: pr(t, C.camp + .3, C.camp + .5) * (1 - out1) });
-    tf(campTag, { r: 4, o: pr(t, C.camp + 1.1, C.camp + 1.4) * (1 - out1) });
-    uni.update(t);
-    const fz = C.arrest - .5;
-    tf(uni.box, { y: -60 * (1 - pr(t, C.uni - .1, C.uni + .6)), s: kf(t, [[C.uni - .1, 1.08], [C.uni + .6, 1], [fz, 1], [fz + .6, .82]]), x: kf(t, [[fz, 0], [fz + .6, -120]]), r: kf(t, [[fz, 0], [fz + .6, -5]]), o: pr(t, C.uni - .1, C.uni + .2) });
-    tf(uniTag, { x: 120 * (1 - pr(t, C.uni + .5, C.uni + .9)), r: -2, o: pr(t, C.uni + .5, C.uni + .7) * (1 - pr(t, fz, fz + .2)) });
-    tf(intif, { x: -500 * (1 - pr(t, C.joined, C.joined + .6)), r: -4, o: pr(t, C.joined, C.joined + .2) });
-    arrest.update(t);
-    tf(arrest.box, { x: 600 * (1 - pr(t, C.arrest, C.arrest + .6, E.back)), r: 4, o: pr(t, C.arrest, C.arrest + .2) });
-    slam(s89, t, C.y89, { r: -8 });
-    tf(arrestTag, { r: -2, o: pr(t, C.y89 + .5, C.y89 + .8) });
-    root.style.transform = `scale(${1 + (t - s) * .002})`;
+    const pulse = (((t - t0) % .9) + .9) % .9 / .9;
+    ky.setAttribute('r', 14 / z); ky.style.opacity = pr(t, t0 + 1.2, t0 + 1.3);
+    kr.setAttribute('r', (14 + pulse * 40) / z); kr.style.opacity = t > t0 + 1.2 ? 1 - pulse : 0;
+    go(lab, t, { t0: t0 + .3, from: { x: -400 }, to: { r: -2 }, seed: 2 });
+    go(lab2, t, { t0: t0 + 1.25, from: { s: 0 }, to: { r: 3 }, seed: 3 });
   };
-}, 'tear');
+}, { push: .02 });
 
-/* SCENE 3 — من الظل */
-scene(C.s3, C.s4 + .8, 'bg-dark', (root) => {
-  const big = el(root, 'abs', { left: '0', right: '0', top: '120px', textAlign: 'center', fontFamily: 'Cairo', fontWeight: 900, fontSize: '420px', color: 'transparent', WebkitTextStroke: '4px #8e1b1b', lineHeight: 1 }, '2002');
-  const circle = el(root, 'abs', { left: '160px', top: '520px', width: '760px', height: '760px', borderRadius: '50%', background: 'var(--red)' });
-  const portrait = img(root, A + 'portrait_main_ht.png', { left: '170px', top: '470px', width: '740px' });
-  const tear = el(root, 'abs', { left: '-20px', top: '1290px', width: '1120px', height: '260px', background: 'url(../assets/paper.jpg) center/cover' });
-  tear.style.clipPath = tornPoly(71, 9, 40);
-  const lab = el(root, 'abs tape ink', { right: '70px', top: '1330px', fontSize: '54px' }, 'قيادة الجناح العسكري لحماس');
-  const lab2 = el(root, 'abs info', { right: '80px', top: '1440px', fontSize: '34px', color: '#3a3530' }, 'كتائب القسام · منذ 2002');
-
-  const nA = newsClip(root, { head: 'سلسلة تفجيرات تستهدف حافلات', meta: ['فبراير – مارس', '1996'], w: 560, h: 520, size: 58, seed: 72 }, { left: '30px', top: '170px' });
-  const nB = newsClip(root, { head: 'القدس · عسقلان · تل أبيب', meta: ['1996', ''], w: 480, h: 300, size: 40, seed: 73 }, { left: '560px', top: '330px' });
-  const s96 = stamp(root, '1996', 120, { left: '640px', top: '160px' }, 'stamp light');
-  const street = clipPlayer(root, 'street', 75, { left: '520px', top: '640px', width: '500px', height: '420px' }, { seed: 74, start: C.buses + .5, speed: .9, freezeAt: C.buses + 2.6 });
-
-  const silBox = el(root, 'abs clip', { left: '190px', top: '470px', width: '700px', height: '700px', padding: '16px' });
-  silBox.style.clipPath = tornPoly(75, 1);
-  const sil = img(silBox, A + 'silhouette_bw.jpg', { position: 'relative', width: '100%', height: '100%', objectFit: 'cover' });
-  const wave = el(root, 'abs', { left: '140px', top: '1180px', width: '800px', height: '160px', display: 'flex', alignItems: 'center', gap: '6px' });
-  const wbars = Array.from({ length: 50 }, () => el(wave, '', { flex: 1, background: '#f2ede3', borderRadius: '3px' }));
-  const vTag = el(root, 'abs tape red', { left: '330px', top: '1400px', fontSize: '50px' }, 'تسجيلات صوتية فقط');
-  vTag.style.clipPath = tornPoly(76, 2);
-  const absent = el(root, 'abs title rtl', { left: 0, right: 0, top: '1290px', textAlign: 'center', fontSize: '84px', color: '#f2ede3' }, 'غيابه جزء من صورته');
-
+/* ---------- 10. درس العلوم في الجامعة الإسلامية ---------- */
+shot(9, 'paper', 'R', (cam, t0) => {
+  const f = frame(cam, { left: '70px', top: '420px', width: '940px', height: '720px' }, { kind: 'stamp', clip: 'university', frames: 200, start: t0, speed: .9 });
+  const lab = tape(cam, 'الجامعة الإسلامية — غزة', 64, { right: '70px', top: '1210px' }, 'red', 63);
+  const sci = text(cam, 'درس العلوم', { right: '100px', top: '190px', fontSize: '140px', color: 'var(--ink)' });
+  const c = cloud(cam, 1, { left: '520px', top: '1020px' });
   return (t) => {
-    const R = rand(Math.round(t * FPS) + 99);
-    const actOut = pr(t, C.buses - .3, C.buses + .2);
-    tf(big, { y: kf(t, [[C.y02, 60], [C.buses, 0]]), o: pr(t, C.y02, C.y02 + .5) * (1 - actOut), s: kf(t, [[C.y02, 1.15], [C.buses, 1]]) });
-    const pOut = pr(t, C.hidden, C.hidden + .8, E.io);
-    const mx = kf(t, [[C.buses - .3, 0], [C.buses + .4, -170]]), my = kf(t, [[C.buses - .3, 0], [C.buses + .4, 240]]), ms = kf(t, [[C.buses - .3, 1], [C.buses + .4, .78]]);
-    tf(circle, { x: mx, y: my, s: ms * pr(t, C.y02 + .1, C.y02 + .8, E.back) * (1 - pOut), o: 1 });
-    tf(portrait, { y: 140 * (1 - pr(t, C.lead - .4, C.lead + .4, E.back)) + my, s: ms, x: mx, o: pr(t, C.lead - .4, C.lead) * (1 - pOut) });
-    tf(tear, { y: 300 * (1 - pr(t, C.wing - .4, C.wing + .2)), o: 1 - actOut });
-    tf(lab, { x: 200 * (1 - pr(t, C.wing, C.wing + .5)), r: -1.5, o: pr(t, C.wing, C.wing + .2) * (1 - actOut) });
-    tf(lab2, { o: pr(t, C.wing + .7, C.wing + 1.2) * (1 - actOut) });
-    const clipsOut = pr(t, C.hidden - .3, C.hidden + .3, E.in);
-    tf(nA, { x: -600 * (1 - pr(t, C.buses, C.buses + .5, E.back)) - 700 * clipsOut, r: -5, o: pr(t, C.buses, C.buses + .2) });
-    tf(nB, { x: 600 * (1 - pr(t, C.buses + .6, C.buses + 1.1, E.back)) + 700 * clipsOut, r: 4, o: pr(t, C.buses + .6, C.buses + .8) });
-    s96.style.opacity = 0; if (t > C.y96) { slam(s96, t, C.y96, { r: 8 }); s96.style.opacity *= (1 - clipsOut); }
-    street.update(t);
-    tf(street.box, { y: 500 * (1 - pr(t, C.buses + .5, C.buses + 1, E.back)) + 1500 * clipsOut, r: kf(t, [[C.buses + 2.6, 0], [C.buses + 3, -4]]), s: kf(t, [[C.buses + 2.6, 1], [C.buses + 3, .94]]), o: pr(t, C.buses + .5, C.buses + .7) });
-    const vIn = pr(t, C.hidden + .3, C.hidden + 1.1, E.io), vShrink = pr(t, C.absent - .3, C.absent + .9, E.io);
-    tf(silBox, { s: lerp(1.06, 1, vIn) * lerp(1, .5, vShrink), y: lerp(0, -120, vShrink), o: vIn * (R() > .1 || t > C.audio ? 1 : .6) });
-    sil.style.filter = `contrast(1.25) brightness(${.6 + vIn * .4})`;
-    const amp = pr(t, C.audio - .1, C.audio + .3) * (1 - pr(t, C.absent - .4, C.absent));
-    wbars.forEach((b, i) => { const v = Math.abs(Math.sin(t * 9 + i * .7) * Math.sin(t * 3.1 + i * 1.9)) * .8 + R() * .2; b.style.height = (6 + v * 150 * amp) + 'px'; });
-    tf(wave, { o: amp });
-    tf(vTag, { y: 60 * (1 - pr(t, C.audio + .3, C.audio + .7)), r: -2, o: pr(t, C.audio + .3, C.audio + .5) * (1 - pr(t, C.absent - .4, C.absent - .1)) });
-    tf(absent, { y: kf(t, [[C.absent, 40], [C.absent + .8, -280]]), o: pr(t, C.absent, C.absent + .6) });
+    go(f.wrap, t, { t0: t0, from: { s: .7, r: 10 }, to: { r: -2 }, seed: 1 }); f.update(t);
+    go(lab, t, { t0: t0 + .5, from: { x: 400 }, to: { r: -2 }, seed: 2 });
+    go(sci, t, { t0: t0 + .1, from: { y: -30 }, ease: E.out, idle: .4 }); wipe(sci, t, t0 + .1, .5);
+    go(c, t, { t0: t0 + .3, from: { x: 300 }, idle: 1.5, seed: 3 });
   };
-}, 'tear');
+});
 
-/* SCENE 4 — المطاردة */
-scene(C.s4, C.s5 + .8, 'bg-paper', (root) => {
-  const head = el(root, 'abs tape ink', { right: '60px', top: '90px', fontSize: '46px' }, 'محاولات الاغتيال');
-  const pw = 600, ph = 523, px = 400, py = 560, N = 6;
-  const strips = Array.from({ length: N }, (_, i) => el(root, 'abs', {
-    left: (px + i * pw / N) + 'px', top: py + 'px', width: (pw / N + 1) + 'px', height: ph + 'px',
-    background: `url(../assets/portrait_interview_bw.png) ${-i * pw / N}px 0/${pw}px ${ph}px no-repeat`
-  }));
-  const dark = el(root, 'full', { background: 'radial-gradient(circle at 62% 42%, transparent 0, transparent 22%, #0d0c0b 48%)' });
-  const years = ['2001', '2002', '2003', '2006', '2014'];
-  const ys = years.map((y, i) => {
-    const d = el(root, 'abs', { left: '70px', top: (300 + i * 230) + 'px', fontFamily: 'Cairo', fontWeight: 900, fontSize: '150px', color: 'var(--ink)', lineHeight: 1 }, y);
-    const strike = el(d, 'abs', { left: '-10px', right: '-10px', top: '52%', height: '16px', background: 'var(--red2)', transformOrigin: 'left center' });
-    return { d, strike };
+/* ---------- 11. وانضم إلى حركة حماس في سنواتها الأولى ---------- */
+shot(10, 'old', 'U', (cam, t0) => {
+  const n = newsClip(cam, { head: 'الانتفاضة الأولى', meta: ['ديسمبر 1987', 'غزة'], w: 760, h: 560, size: 96, seed: 64, cols: 3 }, { left: '160px', top: '380px' });
+  const f = frame(cam, { left: '80px', top: '980px', width: '520px', height: '420px' }, { kind: 'stamp', clip: 'street', frames: 75, start: t0, speed: .8 });
+  const st = stampEl(cam, '1987', 140, { left: '600px', top: '1080px' });
+  const lab = tape(cam, 'حماس · السنوات الأولى', 60, { right: '80px', top: '1480px' }, 'ink', 65);
+  return (t) => {
+    go(n, t, { t0: t0, from: { y: -700, r: -14 }, to: { r: -3 }, seed: 1 });
+    go(f.wrap, t, { t0: t0 + .35, from: { x: -600, r: -15 }, to: { r: 4 }, seed: 2 }); f.update(t);
+    slam(st, t, t0 + .9, { r: 8 });
+    go(lab, t, { t0: t0 + 1.2, from: { x: 400 }, to: { r: -2 }, seed: 3 });
+  };
+});
+
+/* ---------- 12. واعتقلته إسرائيل عام 1989 ---------- */
+shot(11, 'dark', 'L', (cam, t0, t1) => {
+  const f = frame(cam, { left: '90px', top: '440px', width: '900px', height: '760px' }, { kind: 'stamp', clip: 'arrest89', frames: 125, start: t0, freezeAt: t0 + 2.6 });
+  const barsBox = el(cam, '', { left: '110px', top: '460px', width: '860px', height: '720px', overflow: 'hidden' });
+  const bars = Array.from({ length: 7 }, (_, i) => el(barsBox, '', { left: (40 + i * 125) + 'px', top: 0, width: '22px', height: '720px', background: 'linear-gradient(90deg,#111,#555 40%,#111)' }));
+  const lab = text(cam, 'الاعتقال الأول', { right: '90px', top: '200px', fontSize: '140px' });
+  const st = stampEl(cam, '1989', 190, { left: '330px', top: '1300px' }, true);
+  return (t) => {
+    go(f.wrap, t, { t0: t0, from: { s: .75, r: -8 }, to: { r: -1.5 }, seed: 1 }); f.update(t);
+    bars.forEach((b, i) => tf(b, { y: -760 * (1 - pr(t, t0 + .9 + i * .06, t0 + 1.3 + i * .06, E.back)) }));
+    go(lab, t, { t0: t0 + .15, from: { x: 150 }, ease: E.out5, idle: .4 }); wipe(lab, t, t0 + .15, .5);
+    slam(st, t, t1 - 1.6, { r: -8 });
+  };
+});
+
+/* ---------- 13. عام 2002 ---------- */
+shot(12, 'dark', 'Z', (cam, t0) => {
+  const ring = circle(cam, 900, 'var(--red)', { left: '90px', top: '500px' });
+  const n = el(cam, '', { left: 0, right: 0, top: '650px', textAlign: 'center', fontFamily: 'Cairo', fontWeight: 900, fontSize: '400px', lineHeight: 1, color: '#f2ede3' }, '2002');
+  const ghost = el(cam, '', { left: 0, right: 0, top: '120px', textAlign: 'center', fontFamily: 'Cairo', fontWeight: 900, fontSize: '400px', lineHeight: 1, color: 'transparent', WebkitTextStroke: '3px #5a2222' }, '2002');
+  const lab = text(cam, 'عام', { left: 0, right: 0, top: '1450px', textAlign: 'center', fontSize: '120px' });
+  return (t) => {
+    go(ring, t, { t0: t0, from: { s: 0 }, dur: .5, idle: .3 });
+    go(n, t, { t0: t0 + .15, from: { s: 2.4 }, ease: E.out5, dur: .4, idle: .4 });
+    go(ghost, t, { t0: t0 + .3, from: { y: 80 }, ease: E.out, idle: .3, seed: 3 });
+    go(lab, t, { t0: t0 + .2, from: { y: 40 }, ease: E.out, idle: .3 });
+  };
+});
+
+/* ---------- 14. تولّى قيادة كتائب القسام ---------- */
+shot(13, 'dark', 'U', (cam, t0) => {
+  const ring = circle(cam, 820, 'var(--red)', { left: '130px', top: '420px' });
+  const p = img(cam, A + 'portrait_main_ht.png', { left: '170px', top: '360px', width: '740px' });
+  const c1 = cloud(cam, 0, { left: '-80px', top: '1000px', width: '760px' });
+  const c2 = cloud(cam, 2, { left: '420px', top: '1040px', width: '700px' });
+  const lab = tape(cam, 'قيادة كتائب القسام', 76, { right: '80px', top: '1420px' }, 'red', 71);
+  return (t) => {
+    go(ring, t, { t0: t0, from: { s: 0 }, idle: .3 });
+    go(p, t, { t0: t0 + .1, from: { y: 300, s: .8 }, dur: .6, idle: .6, seed: 2 });
+    go(c1, t, { t0: t0 + .2, from: { x: -300 }, idle: 1.6, seed: 3 });
+    go(c2, t, { t0: t0 + .25, from: { x: 300 }, idle: 1.6, seed: 4 });
+    go(lab, t, { t0: t0 + .6, from: { x: 400, r: 6 }, to: { r: -2 }, seed: 5 });
+  };
+});
+
+/* ---------- 15. الجناح العسكري لحماس ---------- */
+shot(14, 'paper', 'L', (cam, t0) => {
+  const b1 = el(cam, 'tape ink', { left: '340px', top: '380px', fontSize: '90px', width: '400px', textAlign: 'center', boxSizing: 'border-box' }, 'حماس');
+  const svg = el(cam, '', { left: 0, top: 0, width: W + 'px', height: H + 'px' });
+  svg.innerHTML = `<svg width="${W}" height="${H}" style="overflow:visible"><path class="ln" d="M540 540 L540 880" stroke="#1a1816" stroke-width="8" fill="none" stroke-dasharray="12 12"/>
+    <path class="mk" d="M250 1000 C 180 1150, 420 1260, 640 1210 C 900 1160, 900 960, 640 930 C 450 905, 260 950, 240 1060" stroke="#a52222" stroke-width="10" fill="none" stroke-linecap="round"/></svg>`;
+  const b2 = el(cam, 'tape red', { left: '230px', top: '960px', fontSize: '84px', width: '620px', textAlign: 'center', boxSizing: 'border-box' }, 'الجناح العسكري');
+  const sub = el(cam, 'info', { left: 0, right: 0, top: '1320px', textAlign: 'center', fontSize: '46px', color: '#3a3530' }, 'كتائب عز الدين القسام');
+  const sticker = img(cam, A + 'portrait_main_ht.png', { left: '700px', top: '1380px', width: '300px' });
+  let ln, mk, L1, L2;
+  return (t) => {
+    if (!ln) { ln = svg.querySelector('.ln'); mk = svg.querySelector('.mk'); L2 = mk.getTotalLength(); mk.style.strokeDasharray = L2; }
+    go(b1, t, { t0: t0, from: { y: -300 }, to: { r: -2 }, seed: 1 });
+    ln.style.opacity = pr(t, t0 + .3, t0 + .6); ln.style.transform = `scaleY(${pr(t, t0 + .3, t0 + .7)})`; ln.style.transformOrigin = '540px 540px';
+    go(b2, t, { t0: t0 + .55, from: { s: 0 }, to: { r: 1.5 }, seed: 2 });
+    mk.style.strokeDashoffset = L2 * (1 - pr(t, t0 + .9, t0 + 1.4, E.io));
+    go(sub, t, { t0: t0 + 1.0, from: { y: 20 }, ease: E.out, idle: .3 }); wipe(sub, t, t0 + 1.0, .5);
+    go(sticker, t, { t0: t0 + 1.2, from: { s: 0, r: 30 }, to: { r: 8 }, seed: 3 });
+  };
+});
+
+/* ---------- 16. وارتبط اسمه قبل ذلك بسلسلة تفجيرات ---------- */
+shot(15, 'old', 'U', (cam, t0) => {
+  const n1 = newsClip(cam, { head: 'سلسلة تفجيرات', meta: ['عاجل', '1996'], w: 820, h: 520, size: 110, seed: 72, cols: 3 }, { left: '130px', top: '330px' });
+  const n2 = newsClip(cam, { head: 'هجمات على حافلات', meta: ['القدس', '—'], w: 560, h: 380, size: 64, seed: 73 }, { left: '60px', top: '960px' });
+  const f = frame(cam, { left: '560px', top: '1230px', width: '460px', height: '380px' }, { kind: 'stamp', clip: 'checkpoint', frames: 110, start: t0, freezeAt: t0 + 2.2 });
+  const fl = flash(cam);
+  return (t) => {
+    go(n1, t, { t0: t0, from: { s: 2, r: 12 }, to: { r: -3 }, ease: E.out5, dur: .35, seed: 1 });
+    go(n2, t, { t0: t0 + .45, from: { s: 2, r: -12 }, to: { r: 4 }, ease: E.out5, dur: .35, seed: 2 });
+    go(f.wrap, t, { t0: t0 + .9, from: { x: 600 }, to: { r: -3 }, seed: 3 }); f.update(t);
+    flashAt(fl, t, [t0 + .35, t0 + .8]);
+  };
+});
+
+/* ---------- 17. استهدفت حافلات في إسرائيل عام 1996 ---------- */
+shot(16, 'old', 'R', (cam, t0, t1) => {
+  const strip = el(cam, '', { left: 0, top: '300px', width: '2400px', height: '1300px' });  // camera pans across this strip
+  const n = newsClip(strip, { head: 'تفجيرات تستهدف حافلات', meta: ['فبراير – مارس 1996', 'إسرائيل'], w: 900, h: 640, size: 92, seed: 81, cols: 3 }, { left: '90px', top: '60px' });
+  const places = ['القدس', 'عسقلان', 'تل أبيب'];
+  const ps = places.map((p, i) => tape(strip, p, 70, { left: (1140 + i * 330) + 'px', top: (180 + (i % 2) * 160) + 'px' }, i === 1 ? 'red' : 'ink', 82 + i));
+  const st = stampEl(strip, '1996', 210, { left: '1250px', top: '640px' });
+  const date = el(strip, 'info', { left: '1160px', top: '1000px', fontSize: '50px', color: '#3a3530' }, 'فبراير – مارس');
+  return (t) => {
+    const pan = kf(t, [[t0 + 1.4, 0], [t0 + 2.4, -1180]], E.expo);
+    tf(strip, { x: pan });
+    go(n, t, { t0: t0, from: { y: 600, r: 8 }, to: { r: -2 }, seed: 1 });
+    ps.forEach((p, i) => go(p, t, { t0: t0 + 2.3 + i * .25, from: { s: 0, r: 20 }, to: { r: [-3, 4, -2][i] }, seed: 2 + i }));
+    slam(st, t, t0 + 3.3, { r: -7 });
+    go(date, t, { t0: t0 + 3.7, from: { y: 20 }, ease: E.out, idle: .3 }); wipe(date, t, t0 + 3.7, .5);
+  };
+}, { push: .02 });
+
+/* ---------- 18. لم يظهر علنًا تقريبًا ---------- */
+shot(17, 'dark', 'Z', (cam, t0) => {
+  const fl = flash(cam);
+  const fs = [[110, 380, -6], [560, 520, 5], [300, 960, -2]].map(([x, y, r], i) => {
+    const f = el(cam, 'polaroid', { left: x + 'px', top: y + 'px', width: '420px', height: '500px' });
+    const m = el(f, '', { position: 'relative', width: '100%', height: '100%', background: '#2a2826', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Lalezar', fontSize: '260px', color: '#5e5a54' }, '؟');
+    return { f, r };
   });
-  const armor = clipPlayer(root, 'armor', 125, { left: '560px', top: '1220px', width: '460px', height: '380px' }, { seed: 81, start: C.attempts, freezeAt: C.hurt + .4 });
-  const hurt = el(root, 'abs tape red', { left: '520px', top: '1560px', fontSize: '50px' }, 'إصابات بالغة');
-  hurt.style.clipPath = tornPoly(82, 2);
-  const back = el(root, 'abs title rtl', { left: 0, right: 0, top: '1340px', textAlign: 'center', fontSize: '110px' }, 'يعود إلى الظل');
-
-  const beats = [C.years + .3, C.years + 1.2, C.attempts + .2, C.attempts + 1.1, C.attempts + 2.0];
+  const lab = text(cam, 'لم يظهر علنًا', { left: 0, right: 0, top: '1540px', textAlign: 'center', fontSize: '140px' });
   return (t) => {
-    const R = rand(Math.round(t * FPS) + 5);
-    const out = pr(t, C.each - .1, C.each + .3);
-    tf(head, { x: 200 * (1 - pr(t, C.years, C.years + .5)), o: pr(t, C.years, C.years + .3) * (1 - out) });
-    const lastBeat = beats.filter(b => t >= b).length;
-    const align = pr(t, C.each - .3, C.each + .2, E.io);
-    strips.forEach((s, i) => {
-      const r2 = rand(i * 31 + lastBeat * 7);
-      const jx = lastBeat ? (r2() - .5) * 60 : 0, jy = lastBeat ? (r2() - .5) * 90 : 0;
-      const kick = lastBeat ? 1 + (1 - pr(t, beats[lastBeat - 1], beats[lastBeat - 1] + .3)) * .6 : 0;
-      tf(s, { x: jx * kick * (1 - align), y: jy * kick * (1 - align), o: pr(t, C.s4 + .1, C.s4 + .5) });
-      s.style.filter = `contrast(1.2) brightness(${lerp(1, .25, pr(t, C.each + .3, C.back + .6))})`;
-    });
-    ys.forEach(({ d, strike }, i) => {
-      slam(d, t, beats[i], { r: -2, from: 1.6 });
-      strike.style.transform = `scaleX(${pr(t, beats[i] + .3, beats[i] + .55, E.io)})`;
-      d.style.opacity *= 1 - out;
-    });
-    armor.update(t);
-    tf(armor.box, { y: 500 * (1 - pr(t, C.attempts, C.attempts + .5, E.back)), r: 3, o: pr(t, C.attempts, C.attempts + .2) * (1 - out) });
-    tf(hurt, { x: -120 * (1 - pr(t, C.hurt, C.hurt + .4)), r: -3, o: pr(t, C.hurt, C.hurt + .2) * (1 - out) });
-    tf(dark, { o: pr(t, C.each + .1, C.back, E.io) });
-    tf(back, { y: 40 * (1 - pr(t, C.back, C.back + .6)), o: pr(t, C.back, C.back + .5) });
-    root.style.transform = beats.some(b => t >= b && t < b + .08) ? `translate(${(R() - .5) * 14}px,${(R() - .5) * 14}px)` : '';
-  };
-}, 'tear');
-
-/* SCENE 5 — الإعلان */
-scene(C.s5, C.s6 + .8, 'bg-old', (root) => {
-  const head = el(root, 'abs tape ink', { right: '60px', top: '90px', fontSize: '46px' }, 'خان يونس · 2024');
-  const sJul = stamp(root, 'يوليو 2024', 104, { right: '70px', top: '230px' });
-  const ruins = clipPlayer(root, 'ruins', 57, { left: '70px', top: '470px', width: '940px', height: '760px' }, { seed: 91, start: C.jul + .6, speed: .75, freezeAt: C.war - .3 });
-  const tag = el(root, 'abs tape red', { left: '100px', top: '1190px', fontSize: '50px' }, 'المواصي — خان يونس');
-  tag.style.clipPath = tornPoly(92, 2);
-  const nWar = newsClip(root, { head: 'الحرب في غزة', meta: ['2023 – 2025', ''], w: 520, h: 360, size: 64, seed: 93 }, { left: '60px', top: '1330px' });
-  const sJan = stamp(root, 'يناير 2025', 96, { left: '560px', top: '1380px' });
-  const conf = el(root, 'abs news', { left: '560px', top: '1540px', width: '440px', height: '170px', padding: '24px 30px' });
-  conf.style.clipPath = tornPoly(94, 2);
-  conf.innerHTML = '<div class="info" style="font-size:40px;font-weight:600">حماس تؤكد مقتله</div>';
-  const items = [head, sJul, tag, nWar, sJan, conf, ruins.box];
-
-  return (t) => {
-    tf(head, { x: 200 * (1 - pr(t, C.s5 + .2, C.s5 + .7)), o: pr(t, C.s5 + .2, C.s5 + .5) });
-    slam(sJul, t, C.jul + .2, { r: -6 });
-    ruins.update(t);
-    const fz = C.war - .3;
-    tf(ruins.box, { y: 120 * (1 - pr(t, C.jul + .6, C.jul + 1.2)), s: kf(t, [[C.jul + .6, 1.05], [C.jul + 1.2, 1], [fz, 1], [fz + .5, .94]]), r: kf(t, [[fz, 0], [fz + .5, -2.5]]), o: pr(t, C.jul + .6, C.jul + .9) });
-    tf(tag, { x: -150 * (1 - pr(t, C.mawasi + .8, C.mawasi + 1.2)), r: -2, o: pr(t, C.mawasi + .8, C.mawasi + 1) });
-    tf(nWar, { y: 500 * (1 - pr(t, C.war, C.war + .6, E.back)), r: -3, o: pr(t, C.war, C.war + .2) });
-    slam(sJan, t, C.jan + .3, { r: 7 });
-    tf(conf, { y: 200 * (1 - pr(t, C.conf, C.conf + .4)), r: 2, o: pr(t, C.conf, C.conf + .2) });
-    items.forEach((n, i) => {
-      const t0 = C.conf + .55 + i * .13, p = pr(t, t0, t0 + .4, E.in);
-      if (t > t0) { n.style.transform += ` translate(0px,${p * -60}px)`; n.style.opacity = (parseFloat(n.style.opacity) || 1) * (1 - p); }
-    });
+    fs.forEach(({ f, r }, i) => go(f, t, { t0: t0 + i * .25, from: { s: 1.6, r: r * 3 }, to: { r }, ease: E.out5, dur: .35, seed: i }));
+    flashAt(fl, t, [t0 + .05, t0 + .3, t0 + .55, t0 + 1.2]);
+    go(lab, t, { t0: t0 + .6, from: { y: 40 }, ease: E.out, idle: .3 }); wipe(lab, t, t0 + .6, .5);
   };
 });
 
-/* SCENE 6 — رحل كما عاش */
-scene(C.s6, C.end, 'bg-dark', (root) => {
-  const portrait = img(root, A + 'portrait_tree_bw.png', { left: '235px', top: '520px', width: '610px' });
-  const fade = el(root, 'abs', { left: '200px', top: '1100px', width: '680px', height: '260px', background: 'linear-gradient(to bottom, transparent, #161514 70%)' });
-  const silBox = el(root, 'abs', { left: '190px', top: '480px', width: '700px', height: '700px', overflow: 'hidden' });
+/* ---------- 19. واكتفى بتسجيلات صوتية ---------- */
+shot(18, 'dark', 'L', (cam, t0) => {
+  const box = el(cam, '', { left: '90px', top: '500px', width: '900px', height: '560px', border: '4px solid #f2ede3', boxSizing: 'border-box' });
+  const rec = el(box, '', { left: '40px', top: '30px', fontFamily: 'Cairo', fontWeight: 900, fontSize: '46px', color: '#f2ede3', direction: 'ltr' }, '<span class="dot" style="color:#d12f2f">●</span> REC');
+  const tc = el(box, '', { right: '40px', top: '30px', fontFamily: 'Plex', fontSize: '42px', color: '#f2ede3', direction: 'ltr' }, '00:00:00');
+  const wave = el(box, '', { left: '50px', top: '170px', width: '800px', height: '300px', display: 'flex', alignItems: 'center', gap: '6px' });
+  const bars = Array.from({ length: 48 }, (_, i) => el(wave, 'wbar', { position: 'relative', background: i % 7 === 0 ? '#c23030' : '#f2ede3' }));
+  const lab = text(cam, 'تسجيلات صوتية', { left: 0, right: 0, top: '240px', textAlign: 'center', fontSize: '150px' });
+  const sub = tape(cam, 'صوتٌ بلا صورة', 64, { left: '330px', top: '1150px' }, 'red', 91);
+  const dot = rec.querySelector('.dot');
+  return (t) => {
+    go(box, t, { t0: t0, from: { s: .6 }, seed: 1, idle: .4 });
+    const R = rand(Math.round(t * FPS) + 1);
+    const amp = pr(t, t0 + .2, t0 + .5);
+    bars.forEach((b, i) => { const v = Math.abs(Math.sin(t * 11 + i * .5) * Math.sin(t * 2.7 + i * 1.3)) * .85 + R() * .15; b.style.height = (8 + v * 280 * amp) + 'px'; });
+    dot.style.opacity = Math.floor((t - t0) * 2.5) % 2 ? .2 : 1;
+    const s = Math.floor((t - t0) * 25); tc.textContent = `00:00:${String(Math.floor(s / 25)).padStart(2, '0')}:${String(s % 25).padStart(2, '0')}`;
+    go(lab, t, { t0: t0 + .1, from: { y: -40 }, ease: E.out, idle: .3 }); wipe(lab, t, t0 + .1, .5);
+    go(sub, t, { t0: t0 + .7, from: { x: -400 }, to: { r: -2 }, seed: 2 });
+  };
+});
+
+/* ---------- 20. فصار غيابه جزءًا من صورته ---------- */
+shot(19, 'dark', 'U', (cam, t0) => {
+  const ring = el(cam, '', { left: '140px', top: '380px', width: '800px', height: '800px', borderRadius: '50%', border: '6px solid #8e1b1b', boxSizing: 'border-box' });
+  const p = img(cam, A + 'portrait_main_bw.png', { left: '210px', top: '420px', width: '660px' });
+  const silBox = el(cam, '', { left: '190px', top: '430px', width: '700px', height: '700px', borderRadius: '50%', overflow: 'hidden' });
   img(silBox, A + 'silhouette_bw.jpg', { left: 0, top: 0, width: '100%', height: '100%', objectFit: 'cover' });
-  silBox.style.webkitMask = 'radial-gradient(circle at 50% 45%, #000 45%, transparent 72%)';
-  const line = el(root, 'abs', { left: '390px', top: '1420px', width: '300px', height: '6px', background: 'var(--red)', transformOrigin: 'center' });
-  const name = el(root, 'abs title rtl', { left: 0, right: 0, top: '1290px', textAlign: 'center', fontSize: '150px' }, 'محمد الضيف');
-  const dates = el(root, 'abs', { left: 0, right: 0, top: '1460px', textAlign: 'center', fontFamily: 'Cairo', fontWeight: 400, fontSize: '56px', color: '#a49e93', letterSpacing: '6px' }, '1965 – 2024');
-  const black = el(root, 'full', { background: '#000' });
-
+  const l1 = text(cam, 'غيابه', { left: 0, right: 0, top: '1250px', textAlign: 'center', fontSize: '150px', color: '#a52222' });
+  const l2 = text(cam, 'جزءٌ من صورته', { left: 0, right: 0, top: '1420px', textAlign: 'center', fontSize: '120px' });
   return (t) => {
-    const cross = pr(t, C.left - .2, C.left + 1.6, E.io);
-    tf(portrait, { s: kf(t, [[C.s6, 1], [C.left + 1.6, 1.07]], E.lin), y: kf(t, [[C.s6, 30], [C.left + 1.6, -10]], E.lin), o: pr(t, C.s6 + .2, C.s6 + 1.4, E.io) * (1 - cross) });
-    portrait.style.filter = `contrast(1.1) brightness(${lerp(1, .3, cross)})`;
-    tf(fade, { o: 1 });
-    tf(silBox, { s: kf(t, [[C.left, 1.04], [C.name + 1, 1]], E.lin), o: cross });
-    tf(name, { y: 30 * (1 - pr(t, C.name, C.name + .8)), o: pr(t, C.name, C.name + .8) });
-    tf(line, { sx: pr(t, C.name + .6, C.name + 1.4, E.io), sy: 1, o: 1 });
-    tf(dates, { o: pr(t, C.name + 1.1, C.name + 1.9) });
-    tf(black, { o: pr(t, C.end - 1.8, C.end - .4, E.io) });
+    go(ring, t, { t0: t0, from: { s: .3 }, idle: .3 });
+    const x = pr(t, t0 + .5, t0 + 1.6, E.io);
+    go(p, t, { t0: t0, from: { s: .8 }, idle: .4, seed: 2 }); p.style.opacity *= 1 - x;
+    p.style.webkitMaskImage = `radial-gradient(circle at 50% 40%, #000 ${Math.max(0, 60 - x * 60)}%, transparent ${Math.max(5, 75 - x * 70)}%)`;
+    go(silBox, t, { t0: t0 + .5, from: { s: 1.1 }, ease: E.out, idle: .4, seed: 3 }); silBox.style.opacity = x;
+    go(l1, t, { t0: t0 + .7, from: { y: 30 }, ease: E.out, idle: .3 }); wipe(l1, t, t0 + .7, .4);
+    go(l2, t, { t0: t0 + 1.0, from: { y: 30 }, ease: E.out, idle: .3 }); wipe(l2, t, t0 + 1.0, .5);
   };
 });
 
-/* ---------- global overlays ---------- */
+/* ---------- 21. على مدى أكثر من عشرين عامًا (timeline) ---------- */
+shot(20, 'paper', 'L', (cam, t0) => {
+  const lane = el(cam, '', { left: 0, top: '820px', width: '3000px', height: '400px' });
+  const years = [2001, 2002, 2003, 2006, 2014, 2024];
+  const span = y => ({ 2001: 200, 2002: 540, 2003: 880, 2006: 1260, 2014: 1720, 2024: 2240 })[y];
+  const line = el(lane, '', { left: '100px', top: '190px', width: '2900px', height: '8px', background: '#1a1816', transformOrigin: 'left center' });
+  const ticks = years.map((y, i) => {
+    const g = el(lane, '', { left: span(y) + 'px', top: '120px' });
+    el(g, '', { left: '-14px', top: '56px', width: '36px', height: '36px', borderRadius: '50%', background: i === 5 ? '#1a1816' : 'var(--red2)', border: '6px solid #e8e2d5' });
+    el(g, '', { left: '-80px', top: (i % 2 ? 130 : -90) + 'px', width: '200px', textAlign: 'center', fontFamily: 'Cairo', fontWeight: 900, fontSize: '68px', color: 'var(--ink)' }, String(y));
+    return g;
+  });
+  const big = text(cam, 'أكثر من', { right: '90px', top: '240px', fontSize: '120px', color: 'var(--ink)' });
+  const num = el(cam, '', { right: '90px', top: '380px', fontFamily: 'Cairo', fontWeight: 900, fontSize: '260px', lineHeight: 1, color: 'var(--red2)' }, '20');
+  const unit = text(cam, 'عامًا', { left: '120px', top: '440px', fontSize: '150px', color: 'var(--ink)' });
+  return (t) => {
+    tf(line, { sx: pr(t, t0, t0 + 1.8, E.io), sy: 1 });
+    tf(lane, { x: kf(t, [[t0 + .2, 80], [t0 + 1.9, -1340]], E.io) });
+    ticks.forEach((g, i) => go(g, t, { t0: t0 + [0, .15, .3, .7, 1.1, 1.5][i], from: { s: 0 }, idle: 0 }));
+    go(big, t, { t0: t0, from: { y: -30 }, ease: E.out, idle: .3 }); wipe(big, t, t0, .4);
+    go(num, t, { t0: t0 + .2, from: { s: 1.8 }, ease: E.out5, idle: .3 }); num.textContent = String(Math.round(pr(t, t0 + .2, t0 + 1.2) * 20));
+    go(unit, t, { t0: t0 + .4, from: { x: -60 }, ease: E.out, idle: .3 });
+  };
+}, { push: .02 });
+
+/* ---------- 22. نجا من عدة محاولات اغتيال إسرائيلية ---------- */
+shot(21, 'dark', 'U', (cam, t0, t1) => {
+  const bg = frame(cam, { left: '-40px', top: '200px', width: '1160px', height: '900px' }, { kind: 'torn', clip: 'armor', frames: 125, start: t0, seed: 101 });
+  bg.wrap.style.filter = 'brightness(.35) blur(2px)';
+  const head = text(cam, 'محاولات اغتيال', { left: 0, right: 0, top: '170px', textAlign: 'center', fontSize: '140px' });
+  const years = ['2001', '2002', '2003', '2006', '2014'];
+  const cards = years.map((y, i) => {
+    const c = el(cam, 'acard', { left: '230px', top: (720 + i * 26) + 'px' });
+    el(c, 'y', { position: 'relative' }, y);
+    el(c, 'l', { position: 'relative' }, 'محاولة اغتيال');
+    const s = stampEl(c, 'نجا', 110, { left: '40px', top: '60px' });
+    return { c, s };
+  });
+  const count = el(cam, '', { left: '90px', top: '1500px', fontFamily: 'Cairo', fontWeight: 900, fontSize: '140px', color: '#f2ede3', direction: 'ltr' }, '');
+  const beats = years.map((_, i) => t0 + .25 + i * .5);
+  return (t) => {
+    bg.update(t); go(bg.wrap, t, { t0: t0, from: { s: 1.15 }, ease: E.out, idle: 0 });
+    go(head, t, { t0: t0, from: { y: -60 }, ease: E.out5, idle: .3 }); wipe(head, t, t0, .45);
+    const R = rand(Math.round(t * FPS) + 3);
+    cards.forEach(({ c, s }, i) => {
+      const rr = [-6, 5, -3, 7, -2][i];
+      go(c, t, { t0: beats[i], from: { y: -1300, r: rr * 4 }, to: { r: rr, x: (i % 2 ? 40 : -40) }, ease: E.out5, dur: .32, idle: .4, seed: i });
+      slam(s, t, beats[i] + .22, { r: -12, from: 2.6 });
+    });
+    const n = beats.filter(b => t >= b).length;
+    count.textContent = n ? '×' + n : ''; go(count, t, { t0: beats[0], from: { s: 0 }, idle: 0 });
+    cam.style.translate = beats.some(b => t >= b + .3 && t < b + .4) ? `${(R() - .5) * 22}px ${(R() - .5) * 22}px` : '0 0';
+  };
+}, { push: .02 });
+
+/* ---------- 23. وأُصيب في بعضها إصابات بالغة ---------- */
+shot(22, 'paper', 'R', (cam, t0) => {
+  // the portrait photo rips in two along a jagged line
+  const R0 = rand(5), pts = [];
+  for (let k = 0; k <= 16; k++) pts.push([48 + (R0() - .5) * 10 + (k / 16 - .5) * 12, k / 16 * 100]);
+  const left = 'polygon(0 0,' + pts.map(p => `${p[0]}% ${p[1]}%`).join(',') + ',0 100%)';
+  const right = 'polygon(100% 0,' + pts.map(p => `${p[0]}% ${p[1]}%`).join(',') + ',100% 100%)';
+  const halves = [left, right].map(cp => {
+    const h = el(cam, 'pwrap', { left: '190px', top: '440px', width: '700px', height: '820px' });
+    const pol = el(h, 'polaroid', { position: 'relative' });
+    const m = el(pol, 'media', { position: 'relative', background: '#cfc8ba' });
+    img(m, A + 'portrait_interview_bw.png', { inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: '50% 80%' });
+    pol.style.clipPath = cp;
+    return h;
+  });
+  const lab = tape(cam, 'إصابات بالغة', 90, { left: '270px', top: '1380px' }, 'red', 111);
+  const head = text(cam, 'أُصيب', { right: '100px', top: '200px', fontSize: '170px', color: 'var(--ink)' });
+  return (t) => {
+    const sp = pr(t, t0 + .6, t0 + .95, E.out5);
+    go(halves[0], t, { t0: t0, from: { y: 500, r: 10 }, to: { r: -2 }, seed: 1, idle: .5 }); halves[0].style.translate = `${-sp * 60}px ${sp * 20}px`; halves[0].style.rotate = `${-sp * 5}deg`;
+    go(halves[1], t, { t0: t0, from: { y: 500, r: 10 }, to: { r: -2 }, seed: 1, idle: .5 }); halves[1].style.translate = `${sp * 60}px ${-sp * 10}px`; halves[1].style.rotate = `${sp * 4}deg`;
+    go(lab, t, { t0: t0 + .8, from: { s: 0, r: 15 }, to: { r: -4 }, seed: 2 });
+    go(head, t, { t0: t0 + .1, from: { y: -40 }, ease: E.out, idle: .3 }); wipe(head, t, t0 + .1, .4);
+  };
+});
+
+/* ---------- 24. ومع كل محاولة (fast montage) ---------- */
+shot(23, 'dark', 'Z', (cam, t0, t1) => {
+  const years = ['2001', '2002', '2003', '2006', '2014'];
+  const items = years.map((y, i) => el(cam, '', { left: 0, right: 0, top: '700px', textAlign: 'center', fontFamily: 'Cairo', fontWeight: 900, fontSize: '360px', color: i % 2 ? 'var(--red2)' : '#f2ede3', lineHeight: 1 }, y));
+  const lab = text(cam, 'ومع كل محاولة', { left: 0, right: 0, top: '1250px', textAlign: 'center', fontSize: '110px' });
+  return (t) => {
+    const k = Math.min(years.length - 1, Math.floor((t - t0) / ((t1 - t0) / years.length)));
+    items.forEach((n, i) => tf(n, { s: i === k ? 1 + (t - t0) * .15 : 1, o: i === k ? 1 : 0 }));
+    go(lab, t, { t0: t0 + .1, from: { y: 30 }, ease: E.out, idle: .3 }); wipe(lab, t, t0 + .1, .4);
+  };
+}, { push: .08 });
+
+/* ---------- 25. كان يعود إلى الظل من جديد ---------- */
+shot(24, 'dark', 'F', (cam, t0, t1) => {
+  const p = img(cam, A + 'portrait_main_bw.png', { left: '240px', top: '420px', width: '600px' });
+  const dark = el(cam, '', { inset: 0, background: 'radial-gradient(circle at 50% 38%, transparent 0, transparent 18%, #0d0c0b 42%)' });
+  const lab = text(cam, 'يعود إلى الظل', { left: 0, right: 0, top: '1300px', textAlign: 'center', fontSize: '150px' });
+  return (t) => {
+    go(p, t, { t0: t0, from: { s: 1.1 }, ease: E.out, idle: .4 });
+    p.style.filter = `brightness(${lerp(1, .12, pr(t, t0 + .3, t1, E.io))})`;
+    dark.style.opacity = pr(t, t0, t0 + .8);
+    go(lab, t, { t0: t0 + .2, from: { y: 30 }, ease: E.out, idle: .3 }); wipe(lab, t, t0 + .2, .6);
+  };
+});
+
+/* calendar page used by the July / January shots */
+function calendar(cam, t0, month, day, year, seed) {
+  const back = el(cam, 'cal', { left: '260px', top: '560px' }, `<div class="top">${month}</div><div class="day">${day - 1}</div><div class="yr">${year}</div>`);
+  const page = el(cam, 'cal', { left: '260px', top: '560px', transformOrigin: '50% 0' }, `<div class="top">${month}</div><div class="day">${day}</div><div class="yr">${year}</div>`);
+  page.querySelector('.day').textContent = day;
+  const prev = el(cam, 'cal', { left: '260px', top: '560px', transformOrigin: '50% 0' }, `<div class="top">${month}</div><div class="day">${day - 1}</div><div class="yr">${year}</div>`);
+  back.style.visibility = 'hidden';
+  return (t) => {
+    go(page, t, { t0: t0, from: { y: -1300 }, ease: E.out5, dur: .45, idle: .3, seed });
+    go(prev, t, { t0: t0, from: { y: -1300 }, ease: E.out5, dur: .45, idle: .3, seed });
+    const tear = pr(t, t0 + .7, t0 + 1.3, E.in);
+    prev.style.transform += ` translate(${tear * 260}px,${tear * 1300}px) rotate(${tear * 35}deg)`;
+    prev.style.opacity = t < t0 ? 0 : 1 - pr(t, t0 + 1.1, t0 + 1.3);
+  };
+}
+
+/* ---------- 26. في يوليو 2024 ---------- */
+shot(25, 'paper', 'U', (cam, t0) => {
+  const cal = calendar(cam, t0, 'يوليو', 13, 2024, 3);
+  const lab = text(cam, 'في يوليو', { right: '100px', top: '220px', fontSize: '150px', color: 'var(--ink)' });
+  const c = cloud(cam, 1, { left: '220px', top: '1080px' });
+  return (t) => {
+    cal(t);
+    go(lab, t, { t0: t0, from: { y: -30 }, ease: E.out, idle: .3 }); wipe(lab, t, t0, .45);
+    go(c, t, { t0: t0 + .3, from: { y: 80 }, idle: 1.5, seed: 4 });
+  };
+});
+
+/* ---------- 27. أعلنت إسرائيل أنها قتلته في غارة على المواصي ---------- */
+shot(26, 'old', 'L', (cam, t0) => {
+  const f = frame(cam, { left: '70px', top: '420px', width: '940px', height: '760px' }, { kind: 'stamp', clip: 'ruins', frames: 57, start: t0 + .1, speed: .8, freezeAt: t0 + 2.3 });
+  const lab = tape(cam, 'غارة على المواصي', 76, { right: '70px', top: '1240px' }, 'red', 121);
+  const lab2 = tape(cam, 'خان يونس', 54, { left: '90px', top: '1370px' }, 'ink', 122);
+  const c1 = cloud(cam, 0, { left: '-100px', top: '1000px', width: '760px', filter: 'brightness(.75)' });
+  const c2 = cloud(cam, 2, { left: '480px', top: '960px', width: '720px', filter: 'brightness(.65)' });
+  const head = text(cam, 'إعلان إسرائيلي', { right: '90px', top: '200px', fontSize: '130px', color: 'var(--ink)' });
+  return (t) => {
+    go(f.wrap, t, { t0: t0, from: { s: .7, r: -10 }, to: { r: -2 }, seed: 1 }); f.update(t);
+    go(c1, t, { t0: t0 + .2, from: { x: -400 }, idle: 1.8, seed: 2 });
+    go(c2, t, { t0: t0 + .3, from: { x: 400 }, idle: 1.8, seed: 3 });
+    go(lab, t, { t0: t0 + .7, from: { x: 400 }, to: { r: -2 }, seed: 4 });
+    go(lab2, t, { t0: t0 + 1.0, from: { s: 0 }, to: { r: 3 }, seed: 5 });
+    go(head, t, { t0: t0 + .1, from: { y: -30 }, ease: E.out, idle: .3 }); wipe(head, t, t0 + .1, .5);
+  };
+});
+
+/* ---------- 28. خلال الحرب التي أعقبت هجوم السابع من أكتوبر ---------- */
+shot(27, 'old', 'U', (cam, t0) => {
+  const n = newsClip(cam, { head: 'الحرب في غزة', meta: ['2023 – 2025', ''], w: 860, h: 640, size: 120, seed: 131, cols: 3 }, { left: '110px', top: '480px' });
+  const span = el(cam, '', { left: '150px', top: '1250px', width: '780px', height: '150px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', direction: 'ltr', fontFamily: 'Cairo', fontWeight: 900, fontSize: '96px', color: 'var(--ink)' }, '<span>2023</span><span style="flex:1;height:8px;background:#a52222;margin:0 30px"></span><span>2025</span>');
+  const cs = [0, 1, 2].map(k => cloud(cam, k, { left: (k * 360 - 160) + 'px', top: (1420 + (k % 2) * 60) + 'px', width: '640px', filter: 'brightness(.6)' }));
+  return (t) => {
+    go(n, t, { t0: t0, from: { y: -800, r: -12 }, to: { r: -2 }, seed: 1 });
+    go(span, t, { t0: t0 + .5, from: { s: .3 }, idle: .3, seed: 2 });
+    cs.forEach((c, i) => go(c, t, { t0: t0 + .3 + i * .15, from: { y: 300 }, idle: 2, seed: 3 + i }));
+  };
+});
+
+/* ---------- 29. وفي يناير 2025 ---------- */
+shot(28, 'paper', 'R', (cam, t0) => {
+  const cal = calendar(cam, t0, 'يناير', 30, 2025, 6);
+  const lab = text(cam, 'وفي يناير', { right: '100px', top: '220px', fontSize: '150px', color: 'var(--ink)' });
+  return (t) => { cal(t); go(lab, t, { t0: t0, from: { y: -30 }, ease: E.out, idle: .3 }); wipe(lab, t, t0, .45); };
+});
+
+/* ---------- 30. أكّدت حماس مقتله ---------- */
+shot(29, 'old', 'U', (cam, t0, t1) => {
+  const card = el(cam, 'news', { left: '120px', top: '640px', width: '840px', height: '480px', boxSizing: 'border-box', padding: '40px 50px' });
+  card.style.clipPath = tornPoly(141, 1.3);
+  el(card, 'meta', { position: 'relative', fontSize: '28px' }, '<span>بيان</span><span>30 يناير 2025</span>');
+  const msg = el(card, 'info', { position: 'relative', fontSize: '84px', fontWeight: 600, lineHeight: 1.6 }, '');
+  const full = 'حماس تؤكد مقتله';
+  const st = stampEl(cam, 'بيان رسمي', 80, { left: '150px', top: '1200px' });
+  return (t) => {
+    go(card, t, { t0: t0, from: { y: 600, r: 6 }, to: { r: -1.5 }, ease: E.out5, dur: .4, seed: 1 });
+    const n = Math.floor(pr(t, t0 + .25, t1 - .2, E.lin) * full.length);
+    msg.textContent = full.slice(0, n) + (Math.floor(t * 4) % 2 ? '|' : ' ');
+    slam(st, t, t0 + .5, { r: -8 });
+  };
+});
+
+/* ---------- 31. عاش أكثر من ثلاثين عامًا مطاردًا ---------- */
+shot(30, 'dark', 'F', (cam, t0, t1) => {
+  const ring = el(cam, '', { left: '170px', top: '400px', width: '740px', height: '740px' });
+  ring.innerHTML = '<svg width="740" height="740"><circle cx="370" cy="370" r="360" fill="none" stroke="#8e1b1b" stroke-width="6" stroke-dasharray="2262" stroke-dashoffset="2262" transform="rotate(-90 370 370)"/></svg>';
+  const p = img(cam, A + 'portrait_tree_bw.png', { left: '240px', top: '470px', width: '600px' });
+  const c = cloud(cam, 0, { left: '220px', top: '1000px', width: '640px', filter: 'brightness(.5)' });
+  const l1 = text(cam, 'ثلاثون عامًا', { left: 0, right: 0, top: '1280px', textAlign: 'center', fontSize: '130px' });
+  const l2 = el(cam, 'info', { left: 0, right: 0, top: '1460px', textAlign: 'center', fontSize: '52px', color: '#a49e93' }, 'من المطاردة');
+  const circ = ring.querySelector('circle');
+  return (t) => {
+    circ.style.strokeDashoffset = 2262 * (1 - pr(t, t0, t1, E.io));
+    go(p, t, { t0: t0, from: { s: .92 }, ease: E.out, dur: 1.2, idle: .5 }); p.style.opacity = pr(t, t0, t0 + .9);
+    go(c, t, { t0: t0 + .3, from: { y: 60 }, ease: E.out, idle: 1.4, seed: 2 });
+    go(l1, t, { t0: t0 + .4, from: { y: 20 }, ease: E.out, idle: .3 }); wipe(l1, t, t0 + .4, .7);
+    go(l2, t, { t0: t0 + .9, from: { y: 20 }, ease: E.out, idle: .3 });
+  };
+}, { push: .03 });
+
+/* ---------- 32. بلا وجه تقريبًا ولا صوتٍ إلا من خلف الستار ---------- */
+shot(31, 'dark', 'F', (cam, t0, t1) => {
+  const sil = img(cam, A + 'silhouette_bw.jpg', { left: '140px', top: '380px', width: '800px', height: '800px', objectFit: 'cover' });
+  sil.style.webkitMaskImage = 'radial-gradient(circle at 50% 50%, #000 40%, transparent 70%)';
+  const curtains = [0, 1].map(k => el(cam, '', {
+    left: k ? '540px' : '-20px', top: '300px', width: '560px', height: '1000px',
+    background: 'repeating-linear-gradient(90deg,#3b1212 0 20px,#6b1f1f 45px,#3b1212 70px)', boxShadow: k ? '-20px 0 40px rgba(0,0,0,.6)' : '20px 0 40px rgba(0,0,0,.6)'
+  }));
+  const rod = el(cam, '', { left: '40px', top: '280px', width: '1000px', height: '24px', background: '#2b2826', borderRadius: '12px' });
+  const lab = text(cam, 'من خلف الستار', { left: 0, right: 0, top: '1400px', textAlign: 'center', fontSize: '140px' });
+  return (t) => {
+    const open = pr(t, t0 + .1, t0 + 1.2, E.io) * (1 - pr(t, t1 - .9, t1 - .1, E.io)) * .8;
+    curtains.forEach((c, k) => { tf(c, { x: (k ? 1 : -1) * open * 380, sx: 1 - open * .35, sy: 1 }); c.style.transformOrigin = k ? 'right center' : 'left center'; c.style.transform += ` skewX(${Math.sin(t * 2 + k) * 1.5}deg)`; });
+    go(sil, t, { t0: t0, from: { s: 1.05 }, ease: E.out, idle: .3 });
+    go(rod, t, {}); go(lab, t, { t0: t0 + .5, from: { y: 20 }, ease: E.out, idle: .3 }); wipe(lab, t, t0 + .5, .6);
+  };
+}, { push: .02 });
+
+/* ---------- 33. ورحل كما عاش: بعيدًا عن الكاميرات ---------- */
+shot(32, 'dark', 'Z', (cam, t0, t1) => {
+  const vfBox = el(cam, '', { left: '120px', top: '420px', width: '840px', height: '840px' });
+  const corners = [[0, 0, 'top', 'left'], [1, 0, 'top', 'right'], [0, 1, 'bottom', 'left'], [1, 1, 'bottom', 'right']].map(([x, y, v, h]) => {
+    const c = el(vfBox, 'vf', { [h]: 0, [v]: 0 }); c.style[`border${v[0].toUpperCase() + v.slice(1)}Width`] = '8px'; c.style[`border${h[0].toUpperCase() + h.slice(1)}Width`] = '8px'; return c;
+  });
+  const sil = img(vfBox, A + 'silhouette_bw.jpg', { left: '70px', top: '70px', width: '700px', height: '700px', objectFit: 'cover' });
+  const rec = el(vfBox, '', { left: '30px', top: '-80px', fontFamily: 'Cairo', fontWeight: 900, fontSize: '46px', color: '#f2ede3', direction: 'ltr' }, '<span class="d" style="color:#d12f2f">●</span> REC');
+  const plus = el(vfBox, '', { left: '400px', top: '400px', width: '40px', height: '40px', borderTop: '3px solid #f2ede3', borderLeft: '3px solid #f2ede3', transform: 'rotate(45deg)', opacity: .0 });
+  const lab = text(cam, 'بعيدًا عن الكاميرات', { left: 0, right: 0, top: '1380px', textAlign: 'center', fontSize: '120px' });
+  const d = rec.querySelector('.d');
+  return (t) => {
+    go(vfBox, t, { t0: t0, from: { s: 1.3 }, ease: E.out5, idle: .2 });
+    sil.style.opacity = 1 - pr(t, t0 + .5, t1 - .1, E.io);
+    d.style.opacity = Math.floor((t - t0) * 2.5) % 2 ? .2 : 1;
+    go(lab, t, { t0: t0 + .3, from: { y: 20 }, ease: E.out, idle: .3 }); wipe(lab, t, t0 + .3, .6);
+  };
+}, { push: .03 });
+
+/* ---------- 34. end card ---------- */
+shot(33, 'dark', 'F', (cam, t0, t1) => {
+  const name = text(cam, 'محمد الضيف', { left: 0, right: 0, top: '820px', textAlign: 'center', fontSize: '190px' });
+  const line = el(cam, '', { left: '390px', top: '1030px', width: '300px', height: '6px', background: 'var(--red)' });
+  const dates = el(cam, '', { left: 0, right: 0, top: '1070px', textAlign: 'center', fontFamily: 'Cairo', fontSize: '60px', color: '#a49e93', letterSpacing: '6px' }, '1965 – 2024');
+  const black = el(cam, '', { inset: '-200px', background: '#000' });
+  return (t) => {
+    go(name, t, { t0: t0 + .1, from: { y: 30 }, ease: E.out, dur: .9, idle: .2 }); wipe(name, t, t0 + .1, .9);
+    tf(line, { sx: pr(t, t0 + .6, t0 + 1.4, E.io), sy: 1 });
+    go(dates, t, { t0: t0 + 1.0, from: { y: 20 }, ease: E.out, dur: .8, idle: .2 });
+    tf(black, { o: pr(t, t1 - 1.6, t1 - .3, E.io) });
+  };
+}, { push: .03 });
+
+/* ================= global layers ================= */
+// foreground bokeh / dust drifting in parallax with camera moves
+const bokLayer = el(stage, '', { inset: 0, zIndex: 40, pointerEvents: 'none' });
+const BR = rand(777);
+const boks = Array.from({ length: 18 }, (_, i) => {
+  const big = i < 4, d = big ? 50 + BR() * 70 : 5 + BR() * 9;
+  const n = el(bokLayer, 'bok', { width: d + 'px', height: d + 'px', background: big ? (i % 2 ? 'rgba(165,34,34,.32)' : 'rgba(232,226,213,.3)') : 'rgba(242,237,227,.55)', filter: `blur(${big ? 10 + BR() * 8 : 1}px)` });
+  return { n, x: BR() * W, y: BR() * H, depth: big ? 1.4 + BR() : .4 + BR() * .5, sp: .5 + BR(), ph: BR() * 6 };
+});
 const grain = img(stage, A + 'grain_0.png', { left: 0, top: 0, width: W + 'px', height: H + 'px', mixBlendMode: 'overlay', zIndex: 50 });
-const vign = el(stage, 'overlay', { background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)', zIndex: 51 });
+el(stage, 'overlay', { background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)', zIndex: 51 });
+const mbx = document.getElementById('mbxg'), mby = document.getElementById('mbyg');
+
+const DIRS = { L: [1, 0], R: [-1, 0], U: [0, 1], D: [0, -1] };
+function transP(s, t) { return s.i === 0 ? 1 : pr(t, s.t0, s.t0 + TR, E.expo); }
 
 window.seek = async (t) => {
   pending.length = 0;
-  for (const s of scenes) {
-    const on = t >= s.start && t < s.end;
-    s.root.style.display = on ? 'block' : 'none';
-    if (!on) continue;
-    s.root.style.transform = '';
-    s.update(t, s);
-    if (s.transIn === 'tear') {
-      const p = pr(t, s.start, s.start + .75, E.io);
-      s.root.style.clipPath = p >= 1 ? 'none' : tearReveal(p, Math.round(s.start * 10));
-      s.root.style.filter = p < 1 ? 'drop-shadow(0 -10px 22px rgba(0,0,0,.55))' : '';
+  const cur = shots.findIndex(s => t >= s.t0 && t < s.t1);
+  const i = cur < 0 ? shots.length - 1 : cur;
+  const s = shots[i], prev = shots[i - 1];
+  const p = transP(s, t);
+  const v = s.i === 0 ? 0 : (transP(s, t + .02) - transP(s, t - .02)) / .04; // transition speed
+  let camX = 0, camY = 0;
+  shots.forEach(sh => { sh.root.style.display = 'none'; });
+  const place = (sh, x, y, sc, o, blurAxis) => {
+    sh.root.style.display = 'block';
+    sh.root.style.transform = `translate(${x}px,${y}px) scale(${sc})`;
+    sh.root.style.opacity = o;
+    sh.root.style.filter = blurAxis ? `url(#mb${blurAxis})` : '';
+    const lt = (t - sh.t0) / Math.max(.1, sh.t1 - sh.t0);
+    sh.cam.style.transform = `scale(${1 + sh.push * clamp(lt, 0, 1.3)})`;
+    sh.cam.style.translate = '0 0';
+    sh.update(t, sh);
+  };
+  const blur = Math.min(60, v * 9);
+  if (p < 1 && prev) {
+    const e = s.enter;
+    if (DIRS[e]) {
+      const [dx, dy] = DIRS[e], ax = dx ? 'x' : 'y';
+      place(prev, -dx * W * p, -dy * H * p, 1, 1, ax);
+      place(s, dx * W * (1 - p), dy * H * (1 - p), 1, 1, ax);
+      (ax === 'x' ? mbx : mby).setAttribute('stdDeviation', ax === 'x' ? `${blur} 0` : `0 ${blur}`);
+      camX = -dx * p; camY = -dy * p;
+    } else if (e === 'Z') {
+      place(prev, 0, 0, 1 + p * 2.2, 1 - p, null);
+      place(s, 0, 0, lerp(.55, 1, p), clamp(p * 1.6), null);
+    } else {
+      const q = pr(t, s.t0, s.t0 + .7, E.io);
+      place(prev, 0, 0, 1, 1, null); place(s, 0, 0, 1, q, null);
     }
-  }
-  // scene 5 -> 6: soft crossfade instead of a tear
-  const s6 = scenes[5]; s6.root.style.opacity = pr(t, C.s6, C.s6 + .7, E.io);
-  const gi = Math.floor(t * FPS) % 6; grain.src = `${A}grain_${gi}.png`;
+  } else place(s, 0, 0, 1, 1, null);
+  if (!(p < 1 && DIRS[s.enter])) { mbx.setAttribute('stdDeviation', '0 0'); mby.setAttribute('stdDeviation', '0 0'); }
+
+  // bokeh: slow drift + extra slide with the camera pan
+  const done = shots.slice(1, i + (p >= 1 ? 1 : 0)).reduce((a, sh) => { const d = DIRS[sh.enter]; if (d) { a[0] -= d[0]; a[1] -= d[1]; } return a; }, [0, 0]);
+  const gx = (done[0] + camX) * 420, gy = (done[1] + camY) * 420;
+  boks.forEach(b => {
+    const x = ((b.x + gx * b.depth + Math.sin(t * .3 * b.sp + b.ph) * 40) % (W + 200) + W + 200) % (W + 200) - 100;
+    const y = ((b.y + gy * b.depth - t * 18 * b.sp) % (H + 200) + H + 200) % (H + 200) - 100;
+    b.n.style.transform = `translate(${x}px,${y}px)`;
+  });
+  grain.src = `${A}grain_${Math.floor(t * FPS) % 6}.png`;
   pending.push(grain.decode().catch(() => { }));
   await Promise.all(pending);
 };
