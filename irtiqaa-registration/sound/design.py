@@ -274,7 +274,7 @@ def main(vo_path, out):
     sf.write(f'{out}/mix_raw.wav', mix.astype(np.float32), SR)
     sf.write(f'{out}/stem_sfx.wav', (sfx * .40).astype(np.float32), SR)
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{out}/mix_raw.wav', '-af',
-                    'loudnorm=I=-14:TP=-2.0:LRA=9', '-ar', str(SR), f'{out}/mix.wav'], check=True)
+                    'loudnorm=I=-14:TP=-2.0:LRA=9,alimiter=limit=0.79:attack=1:release=60:level=false', '-ar', str(SR), f'{out}/mix.wav'], check=True)
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
