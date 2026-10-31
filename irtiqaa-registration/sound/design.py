@@ -190,182 +190,68 @@ def drop_plop():
     bub = np.sin(2 * np.pi * np.cumsum(420 + 300 * np.exp(-t * 25)) / SR) * np.exp(-((t - .08) / .02) ** 2) * .4
     return norm(tone + splash + bub)
 
-# ------------------------------------------------------------------ SCORE
-def sizzle(t0, t1, g=.10):
-    d = t1 - t0
-    y = shaped(d, lambda u: 7000 + 2000 * np.sin(u * 9), lambda u: .6)
-    y *= smooth_env(len(y), [(0, 0), (.15, 1), (.85, .9), (1, 0)])
-    place(pan2(y, 0), t0, g, send=.5)
-    place(shimmer(d, 10, 2), t0, g * .9, send=.9)
-
-# --- S1 gate (0–5)
-place(shaped(6.0, lambda u: 70, lambda u: 1.2) * smooth_env(int(6 * SR), [(0, 0), (.25, 1), (.7, .8), (1, 0)]), 0.0, .28, send=.2)   # dark hall rumble
-rs = reverse_swell(0.85, (500, 5000)); place(rs, 0.75, .30, send=.6)
-place(shimmer(0.8, 18, 2), 0.85, .22, send=1.0)
-place(click(.08, 1450, 45, 180, 1.0, .9), 1.55, .55, send=.4)                          # latch
-gate = modal([58, 87, 131, 197, 263, 347, 452, 618, 811], [3.0, 2.6, 2.2, 1.7, 1.4, 1.1, .8, .5, .35],
-             [1, .8, .6, .55, .45, .35, .3, .22, .15], 4.5)
-place(gate, 1.6, .55, send=.55)
-place(sub_hit(3.5, 64, 30, 1.6, .2, .8), 1.6, .65, send=.35)
-place(creak(1.5, 48, 34), 1.7, .22, pan=-.35, send=.3)
-place(creak(1.5, 52, 36, (800, 1500)), 1.72, .20, pan=.35, send=.3)
-place(whoosh(1.6, 180, 900, 300, .55, 1.0, (-.7, .7), .2), 1.6, .38, send=.3)
-place(shimmer(1.8, 22, 1), 2.0, .25, send=1.0)                                            # light pouring
-sizzle(2.3, 5.0, .07)
-place(whoosh(1.5, 250, 3000, 900, .6, 1.0, (.3, -.2)), 3.45, .45)                         # camera up
-
-# --- S2 board (4.5–6.2)
-place(sub_hit(.6, 140, 80, 9, .4, .6), 4.55, .30, send=.15)                               # board settles
-for t0 in [5.0, 5.15, 5.3, 5.52, 5.72, 5.92]:
-    place(flap_flurry(rng.integers(6, 10), .2), t0, .42, pan=rng.uniform(-.25, .25), send=.12)
-place(bell(880, 2.0) * .7 + bell(1174.66, 2.0) * .5, 6.15, .22, send=.5)                 # status chime
-place(click(.04, 3200, 220, 400, .3, .5), 6.15, .25, pan=.5, send=.1)                    # lamp
-
-# --- S3 ticket (6.6–21.7)
-place(whoosh(1.7, 900, 2200, 300, .45, 1.0, (.2, -.3)), 6.5, .38)                          # camera down
-dprint = 2.0; tp = tt(dprint)
-motor = (signal.sawtooth(2 * np.pi * 96 * tp) * .4 + np.sin(2 * np.pi * 192 * tp) * .3) * (.6 + .4 * (signal.square(2 * np.pi * 22 * tp) > 0))
-motor = flt(motor, 'low', 900) * smooth_env(len(tp), [(0, 0), (.06, 1), (.9, 1), (1, 0)])
-place(norm(motor), 6.9, .16, send=.1)
-place(paper(2.0, (1200, 6000), 900) * smooth_env(int(2 * SR), [(0, 0), (.1, 1), (.9, .8), (1, 0)]), 6.9, .30, send=.15)
-place(click(.05, 1800, 120, 240, .8, .6), 8.88, .35, send=.15)                             # ticket stops
-for f in FT: place(paper(.12, (2500, 7000), 2500), f + .05, .14, pan=rng.uniform(-.3, .3), send=.1)
-sizzle(19.2, 20.1, .10)
-place(whoosh(.9, 800, 5000, 2000, .7, .8, (.8, 0)), 19.25, .30)
-punch = modal([2480, 3710, 5120, 6890], [.03, .022, .015, .01], [1, .7, .5, .3], .12)
-place(punch, 20.1, .55, send=.2); place(sub_hit(.5, 160, 90, 14, .6, .5), 20.1, .45, send=.2)
-place(paper(.18, (2000, 7000), 4000), 20.13, .3, send=.2)
-for k in range(6): place(paper(.06, (3000, 9000), 4000), 20.18 + k * .07, .08, pan=rng.uniform(-.7, .7), send=.3)
-# zoom through the hole → light
-riser = shaped(2.3, lambda u: 300 * (8000 / 300) ** (u ** 1.4), lambda u: 1.1) * np.linspace(0, 1, int(2.3 * SR)) ** 2.6
-place(pan2(norm(riser), 0), 19.45, .40, send=.5)
-place(shimmer(2.0, 30, 2, lambda u: u ** 1.5), 19.7, .30, send=1.0)
-place(reverse_swell(1.3, (1200, 9000)), 20.45, .35, send=.5)
-place(sub_hit(4.0, 52, 28, 1.1, .1, .5), 21.72, .55, send=.6)
-place(shimmer(2.5, 16, 2, lambda u: 1 - u), 21.72, .30, send=1.0)
-place(bell(587.33, 3.5) * .6 + bell(880, 3.5) * .45 + bell(1174.66, 3.5) * .3, 21.75, .22, send=.8)
-
-# --- S4 stations
-for k in range(1, 5):                                                                     # climb whooshes
-    place(whoosh(1.25, 220, 2600, 800, .55, 1.05, (.5, -.5)), TS[k] - .2, .40)
-    place(sub_hit(.8, 90, 50, 6, .05, .4), TS[k] + .95, .18, send=.3)                   # land on step
-T = TS[0]                                                                                 # Quran
-sizzle(T + 1.0, T + 2.8, .07)
-for k in range(3): place(paper(.22, (1100, 4800), 1500), T + 1.55 + k * .2, .32, pan=-.2 + .2 * k, send=.25)
-place(shimmer(1.2, 22, 2), T + 2.4, .22, send=1.0)
-place(sub_hit(.9, 120, 60, 7, .7, 1.0), T + 3.65, .62, send=.3)                          # stamp
-place(click(.06, 900, 60, 140, 1.0, .9), T + 3.65, .40, send=.2)
-place(paper(.15, (1500, 6000), 3000), T + 3.68, .18, send=.2)
-T = TS[1]                                                                                 # Aqeedah
-place(sub_hit(2.5, 75, 38, 1.8, .1, .3), T + 1.0, .32, send=.6)
-place(bell(146.83, 4.0) * .5 + bell(293.66, 4.0) * .3, T + 1.0, .22, send=.8)
-wd = 3.1; wind = shaped(wd, lambda u: 380 + 380 * np.sin(u * 7) ** 2 + 300 * u, lambda u: .75)
-whistle = shaped(wd, lambda u: 1100 + 500 * np.sin(u * 11), lambda u: .12)
-we = smooth_env(int(wd * SR), [(0, 0), (.18, .8), (.35, 1), (.55, .85), (.75, .35), (1, 0)])
-wst = np.stack([(wind + whistle * .35) * we, (np.roll(wind, 2400) + np.roll(whistle, 1800) * .35) * we], 1)
-place(norm(wst), T + 1.45, .42, send=.35)
-for i in range(4): place(whoosh(.7, 400, 1800, 500, .5, .9, (-.8 + .5 * i, .8 - .5 * i), .1), T + 1.6 + i * .42, .14)
-place(bell(587.33, 3.0) * .5 + bell(880, 3.0) * .5, T + 3.95, .25, send=.9)            # calm
-place(shimmer(1.6, 18, 2, lambda u: 1 - u), T + 3.95, .2, send=1.0)
-T = TS[2]                                                                                 # Seerah
-place(pan2(norm(shaped(1.0, lambda u: 1500, lambda u: 1.4) * env_ar(int(SR), .35, .65)), 0), T + .65, .20, send=.2)
-for j in range(5): place(paper(.14, (1500, 5500), 2200), T + 1.12 + .12 * j, .16, pan=-.4 + .2 * j, send=.2)
+# ------------------------------------------------------------------ SCORE (minimal, no tonal/bell sounds)
 def io(x): return 4 * x ** 3 if x < .5 else 1 - (-2 * x + 2) ** 3 / 2
+
+# S1 gate
+place(click(.08, 1450, 45, 180, 1.0, .9), 1.55, .35, send=.3)                            # latch
+place(sub_hit(3.0, 64, 30, 1.8, .15, .7), 1.6, .50, send=.3)                              # heavy gate
+place(whoosh(1.6, 180, 900, 300, .55, 1.0, (-.6, .6), .15), 1.6, .30, send=.25)            # doors swing
+place(whoosh(1.5, 250, 2600, 800, .6, 1.0, (.3, -.2)), 3.45, .30)                          # camera up
+# S2 board
+place(sub_hit(.6, 140, 80, 9, .3, .6), 4.55, .22, send=.1)
+for t0 in [5.0, 5.15, 5.3, 5.52, 5.72, 5.92]:
+    place(flap_flurry(rng.integers(5, 8), .2), t0, .30, pan=rng.uniform(-.2, .2), send=.1)
+# S3 ticket
+place(whoosh(1.7, 900, 2000, 300, .45, 1.0, (.2, -.3)), 6.5, .26)                          # camera down
+place(paper(1.6, (1200, 5000), 700) * smooth_env(int(1.6 * SR), [(0, 0), (.15, 1), (.85, .7), (1, 0)]), 7.1, .18, send=.1)
+place(whoosh(.9, 700, 3500, 1500, .7, .8, (.7, 0), .2), 19.25, .18)
+place(modal([2480, 3710, 5120], [.03, .02, .012], [1, .6, .4], .1), 20.1, .30, send=.15)  # punch
+place(sub_hit(.5, 160, 90, 14, .4, .5), 20.1, .35, send=.15)
+riser = shaped(2.3, lambda u: 300 * (6000 / 300) ** (u ** 1.4), lambda u: 1.1) * np.linspace(0, 1, int(2.3 * SR)) ** 2.8
+place(pan2(norm(riser), 0), 19.45, .25, send=.4)
+place(sub_hit(3.5, 52, 28, 1.3, .05, .4), 21.72, .40, send=.5)                           # into the light
+# S4 stations
+for k in range(1, 5):
+    place(whoosh(1.25, 220, 2300, 700, .55, 1.05, (.5, -.5), .2), TS[k] - .2, .26)
+T = TS[0]
+place(paper(.25, (1100, 4500), 1500), T + 1.6, .20, send=.2)
+place(sub_hit(.9, 120, 60, 7, .5, 1.0), T + 3.65, .45, send=.25)                         # stamp
+place(click(.05, 900, 60, 140, 1.0, .6), T + 3.65, .25, send=.15)
+T = TS[1]
+place(sub_hit(2.0, 75, 38, 2.2, .05, .3), T + 1.0, .22, send=.4)                          # alif
+wd = 3.1; wind = shaped(wd, lambda u: 380 + 380 * np.sin(u * 7) ** 2 + 300 * u, lambda u: .75)
+we = smooth_env(int(wd * SR), [(0, 0), (.18, .8), (.35, 1), (.55, .85), (.75, .35), (1, 0)])
+place(norm(np.stack([wind * we, np.roll(wind, 2400) * we], 1)), T + 1.45, .30, send=.3)
+T = TS[2]
+place(pan2(norm(shaped(1.0, lambda u: 1300, lambda u: 1.3) * env_ar(int(SR), .35, .65)), 0), T + .65, .12, send=.15)
 for j in range(9):
     f = .06 + .1 * j; lo, hi = 0.0, 1.0
     for _ in range(40):
         m = (lo + hi) / 2
         if io(m) < f + .02: lo = m
         else: hi = m
-    place(footstep_sand(1 - .06 * j), T + 1.6 + 2.0 * lo, .40 * (1 - .05 * j), pan=(-.25 if j % 2 else .25), send=.2)
-T = TS[3]                                                                                 # Ibadat
-sizzle(T + .9, T + 1.7, .06)
-place(drop_plop() * .4, T + 1.25, .15, send=.6)
-place(whoosh(.4, 2000, 4000, 1500, .8, .7, (0, 0), .1), T + 1.85, .10)
-place(drop_plop(), T + 2.25, .55, send=.75)
-place(sub_hit(1.2, 90, 50, 4, 0, .2), T + 2.25, .15, send=.6)
-for j, deg in enumerate([0, 2, 3, 4, 5, 7, 9, 11]):
-    place(ks_pluck(hz(deg), 2.2, .55), T + 2.6 + j * .09, .17, pan=-.5 + j * .14, send=.6)
-place(shimmer(1.5, 16, 2), T + 3.2, .17, send=1.0)
-T = TS[4]                                                                                 # Akhlaq
-place(sub_hit(.9, 100, 55, 5, .1, .9), T + .6, .25, send=.2)
-place(pan2(norm(shaped(1.0, lambda u: 600 + 500 * u, lambda u: 1.0) * env_ar(int(SR), .2, .8)), 0), T + .62, .14, send=.2)
-sizzle(T + .9, T + 1.5, .06)
-place(creak(.6, 30, 24, (250, 600)), T + 1.4, .13, send=.3)
-grow = shaped(1.1, lambda u: 200 * 15 ** u, lambda u: 1.0) * np.linspace(0, 1, int(1.1 * SR)) ** 1.5
-place(pan2(norm(grow), 0), T + 1.75, .22, send=.5)
-for i, deg in enumerate([7, 9, 10, 11, 12, 14]):
-    place(ks_pluck(hz(deg), 2.0, .7), T + 2.68 + .18 * i, .26, pan=[-.5, .5, -.4, .4, -.2, .2][i], send=.55)
-    place(paper(.08, (2000, 7000), 3000), T + 2.66 + .18 * i, .10, send=.2)
-
-# --- S5 reveal (44.4–54)
-place(whoosh(1.1, 300, 2500, 900, .55, 1.0, (.4, -.4)), 44.35, .32)
-place(whoosh(1.4, 1500, 400, 120, .2, 1.2, (-.6, .6), .5), 44.95, .42)                    # pull back
-place(reverse_swell(.75, (800, 9000)), 45.75, .45, send=.4)
-place(sub_hit(4.5, 60, 28, .9, .6, 1.0), 46.45, .85, send=.7)                             # BIG hit — logo bar
-place(bell(293.66, 5) * .5 + bell(440, 5) * .45 + bell(587.33, 5) * .4 + bell(1174.66, 5) * .2, 46.47, .30, send=.9)
-place(shimmer(2.2, 28, 2, lambda u: 1 - u * .8), 46.5, .25, send=1.0)
-sizzle(46.8, 48.1, .07)
-for t0 in [48.4, 48.6]: place(whoosh(.6, 1500, 4000, 2000, .6, .8, (.6, -.6), .4), t0, .10)
+    place(footstep_sand(1 - .06 * j), T + 1.6 + 2.0 * lo, .26 * (1 - .05 * j), pan=(-.2 if j % 2 else .2), send=.15)
+T = TS[3]
+place(drop_plop(), T + 2.25, .35, send=.6)                                                 # water drop
+T = TS[4]
+place(sub_hit(.9, 100, 55, 5, .1, .9), T + .6, .16, send=.15)                             # ground
+for i in range(6): place(paper(.08, (2000, 6000), 2500), T + 2.66 + .18 * i, .07, send=.15)
+# S5 reveal
+place(whoosh(1.4, 1500, 400, 120, .2, 1.2, (-.5, .5), .3), 44.95, .30)                     # pull back
+place(reverse_swell(.75, (600, 6000)), 45.75, .25, send=.3)
+place(sub_hit(4.0, 60, 28, 1.0, .4, 1.0), 46.45, .60, send=.5)                            # logo hit
 for i, st in enumerate([49.1, 50.55, 51.75, 53.05]):
-    wood = modal([690, 1810, 3120], [.05, .03, .015], [1, .5, .25], .2)
-    place(wood, st + .33, .30, pan=(.35 if i % 2 == 0 else -.35), send=.3)
-    place(ks_pluck(hz([4, 7, 9, 11][i]), 1.8, .45), st + .33, .14, pan=(.35 if i % 2 == 0 else -.35), send=.6)
-place(whoosh(.9, 600, 3500, 1200, .6, 1.0, (0, 0)), 53.75, .30)
-
-# --- S6 ticket flip / QR (54–60)
-place(whoosh(1.0, 300, 2000, 600, .55, 1.0, (-.2, .2)), 53.95, .38)
-place(paper(.3, (1200, 5000), 1500), 54.7, .25, send=.2)
-place(whoosh(.85, 900, 4200, 1200, .55, .7, (.7, -.7), .5), 55.2, .40)
-place(paper(.12, (2000, 7000), 3000), 55.95, .30, send=.2)
-place(bell(1174.66, 3.0) * .6 + bell(1760, 3.0) * .4, 56.0, .30, send=.9)               # QR reveal
-place(shimmer(1.4, 20, 2, lambda u: 1 - u), 56.0, .22, send=1.0)
-place(whoosh(.8, 500, 3000, 1500, .6, 1.0, (0, 0)), 59.5, .35)
-
-# --- S7 end card (59.7–67)
-place(whoosh(.7, 300, 1500, 400, .7, 1.0, (0, 0)), 59.7, .28)
-place(sub_hit(.8, 130, 70, 8, .5, .9), 60.28, .40, send=.2)
-for t0 in [60.1, 60.45]: place(flap_flurry(9, .24), t0, .42, send=.12)
-place(bell(880, 2.0) * .7 + bell(1174.66, 2.0) * .5, 60.75, .25, send=.5)
-place(click(.04, 3200, 220, 400, .3, .5), 60.75, .25, pan=.5, send=.1)
-place(shimmer(1.2, 18, 2, lambda u: 1 - u), 60.85, .2, send=1.0)
-place(whoosh(.8, 400, 1600, 600, .6, 1.0, (0, 0), .2), 61.4, .18)
-sizzle(63.2, 64.1, .10)
-place(whoosh(.9, 800, 4500, 2000, .7, .8, (.9, .1)), 63.2, .22)
-place(sub_hit(5.0, 58, 28, .8, .3, .8), 64.1, .65, send=.8)                               # final hit
-place(bell(293.66, 5) * .5 + bell(587.33, 5) * .45 + bell(880, 5) * .35 + bell(1760, 5) * .15, 64.12, .30, send=.9)
-place(shimmer(1.2, 40, 2), 64.0, .30, send=1.0)                                           # glint
-
-# ------------------------------------------------------------------ ambient bed (D Hijaz)
-def pad_note(f, d, cutoff):
-    t = tt(d); y = np.zeros((len(t), 2))
-    for c in range(2):
-        for k, det in enumerate([-7, -2.5, 2.5, 7]):
-            ff = f * 2 ** ((det + (c - .5) * 3) / 1200)
-            y[:, c] += signal.sawtooth(2 * np.pi * ff * t + rng.uniform(0, 6)) * .25
-    return flt(y, 'low', cutoff, 2)
-def pad_chord(notes, t0, t1, cutoff, g, fade=2.0):
-    d = t1 - t0 + fade
-    y = sum(pad_note(f, d, cutoff) for f in notes) / len(notes) ** .5
-    e = smooth_env(len(y), [(0, 0), (min(.45, fade / d), 1), (max(.55, 1 - fade / d), 1), (1, 0)])
-    place(y * e[:, None], t0 - fade / 2, g, bus='bed')
-D2, A2, D3, Fs3, A3, D4, G2, Bb2, G3, Bb3, C3, Eb3 = 73.42, 110.0, 146.83, 185.0, 220.0, 293.66, 98.0, 116.54, 196.0, 233.08, 130.81, 155.56
-pad_chord([D2, A2], 0.0, 21.7, 420, .55, 3.0)                                             # dark hall drone
-pad_chord([D2, A2, D3], 2.0, 21.7, 650, .30, 3.0)
-pad_chord([D2, A2, D3, Fs3, A3], 21.6, 30.75, 1600, .55, 1.6)                            # light: D major (Hijaz root)
-pad_chord([G2, D3, G3, Bb3], 30.75, 36.0, 1500, .55)                                      # Gm
-pad_chord([C3, Eb3, G3, D3 * 2], 36.0, 40.85, 1500, .50)                                  # Cm(add9)
-pad_chord([D2, A2, D3, Fs3, A3], 40.85, 46.4, 1700, .55)
-pad_chord([D2, A2, D3, Fs3, A3, D4], 46.4, 53.9, 2200, .62, 1.0)                          # reveal, open
-pad_chord([G2, D3, G3, Bb3], 53.9, 59.7, 1800, .55)
-pad_chord([D2, A2, D3, Fs3, A3, D4], 59.7, 66.0, 2300, .62, 1.6)
-# gentle pulse (plucked ostinato) through the stations, keeps the climb moving
-pat = [0, 4, 7, 4, 5, 4, 2, 4]
-t0 = 21.75; i = 0
-while t0 < 46.3:
-    deg = pat[i % 8] + (3 if 30.75 <= t0 < 36 else 0)
-    place(ks_pluck(hz(deg, -1), 1.4, .25, .993), t0, .10, pan=(-.3 if i % 2 else .3), send=.5, bus='bed')
-    t0 += .5; i += 1
+    place(modal([690, 1810], [.04, .02], [1, .4], .15), st + .33, .16, pan=(.3 if i % 2 == 0 else -.3), send=.2)
+# S6 ticket flip / QR
+place(whoosh(1.0, 300, 1800, 600, .55, 1.0, (-.2, .2)), 53.95, .26)
+place(whoosh(.85, 900, 3500, 1200, .55, .7, (.6, -.6), .3), 55.2, .28)
+place(paper(.12, (2000, 6000), 3000), 55.95, .18, send=.15)
+place(whoosh(.8, 500, 2600, 1300, .6, 1.0, (0, 0)), 59.5, .24)
+# S7 end card
+place(sub_hit(.8, 130, 70, 8, .4, .9), 60.28, .28, send=.15)
+for t0 in [60.1, 60.45]: place(flap_flurry(7, .22), t0, .30, send=.1)
+place(sub_hit(4.0, 58, 28, .9, .2, .8), 64.1, .45, send=.6)                               # final hit
 
 # ------------------------------------------------------------------ mix
 def main(vo_path, out):
@@ -375,20 +261,18 @@ def main(vo_path, out):
     V = np.zeros((N, 2)); i = int(VO_OFFSET * SR); V[i:i + len(vo)] = vo[:N - i]
     ir = make_ir()
     sfx = B['dry'] + convolve_st(B['send'], ir) * .55
-    bed = B['bed'] * .55 + convolve_st(B['bed'], make_ir(3.5, 4.0)) * .5
     # VO-driven ducking
     lvl = np.sqrt(np.convolve(V.mean(1) ** 2, np.ones(2400) / 2400, 'same'))
     on = (lvl > .02).astype(float)
     k = int(.25 * SR); on = np.convolve(on, np.ones(k) / k, 'same')
-    duck_bed = 1 - .45 * np.clip(on, 0, 1); duck_sfx = 1 - .30 * np.clip(on, 0, 1)
+    duck_bed = 1 - .45 * np.clip(on, 0, 1); duck_sfx = 1 - .40 * np.clip(on, 0, 1)
     vo_g = 10 ** (0 / 20)
-    mix = V * vo_g + sfx * .55 * duck_sfx[:, None] + bed * .16 * duck_bed[:, None]
+    mix = V * vo_g + sfx * .40 * duck_sfx[:, None]
     # tail fade
     f0 = int(65.6 * SR); mix[f0:] *= np.linspace(1, 0, N - f0)[:, None] ** 1.5
     mix = np.tanh(mix * 1.1) / 1.1
     sf.write(f'{out}/mix_raw.wav', mix.astype(np.float32), SR)
-    sf.write(f'{out}/stem_sfx.wav', (sfx * .55).astype(np.float32), SR)
-    sf.write(f'{out}/stem_bed.wav', (bed * .16).astype(np.float32), SR)
+    sf.write(f'{out}/stem_sfx.wav', (sfx * .40).astype(np.float32), SR)
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{out}/mix_raw.wav', '-af',
                     'loudnorm=I=-14:TP=-1.0:LRA=9', '-ar', str(SR), f'{out}/mix.wav'], check=True)
 
