@@ -2,7 +2,7 @@
 
 All SFX are synthesised here (modal metal, Karplus-Strong plucks, granular sand/paper,
 spectrally-shaped noise whooshes, convolution reverb) and placed on the exact animation
-timestamps from index.html. Output: mix.wav (VO + SFX + ambient bed, loudness-ready).
+timestamps from index.html. Output: mix.wav (VO + SFX only, no music, loudness-ready).
 Usage: python3 design.py <vo.mp3> <out_dir>
 """
 import sys, subprocess, numpy as np, soundfile as sf
@@ -274,7 +274,7 @@ def main(vo_path, out):
     sf.write(f'{out}/mix_raw.wav', mix.astype(np.float32), SR)
     sf.write(f'{out}/stem_sfx.wav', (sfx * .40).astype(np.float32), SR)
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{out}/mix_raw.wav', '-af',
-                    'loudnorm=I=-14:TP=-1.0:LRA=9', '-ar', str(SR), f'{out}/mix.wav'], check=True)
+                    'loudnorm=I=-14:TP=-2.0:LRA=9', '-ar', str(SR), f'{out}/mix.wav'], check=True)
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
