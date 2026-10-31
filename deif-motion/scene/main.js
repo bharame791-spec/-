@@ -1,6 +1,6 @@
 /* محمد الضيف | رجل الظل — collage motion graphic, one shot per voice-over line.
    window.seek(t) renders the frame at time t (seconds); render.mjs drives it frame by frame. */
-const W = 1080, H = 1920, FPS = 25, DURATION = 78;
+const W = 1080, H = 1920, FPS = 25, DURATION = 85;
 const A = '../assets/', CLIPS = '../build/clips/';
 const stage = document.getElementById('stage');
 
@@ -147,7 +147,7 @@ const flashAt = (node, t, times) => { times.forEach(t0 => { if (t >= t0) sfxOnce
 
 /* ================= cue points: start of each VO line (seconds), from word timestamps in sources/voiceover_words.json ================= */
 const C = [0, 1.26, 3.62, 5.54, 6.66, 8.60, 10.48, 13.54, 15.70, 17.32, 19.50, 22.14, 26.18, 27.70, 29.70, 31.52, 34.32,
-  39.30, 41.20, 43.22, 45.70, 47.66, 50.64, 53.14, 54.42, 56.60, 58.84, 63.50, 67.28, 69.88, 71.70];
+  39.30, 41.20, 43.22, 45.70, 47.66, 50.64, 53.14, 54.42, 56.60, 58.84, 63.50, 67.28, 69.88, 71.70, 77.20];
 
 /* ================= shot system ================= */
 const shots = [];
@@ -226,7 +226,7 @@ shot(3, 'paper', 'L', (cam, t0) => {
     frame(cam, { left: '300px', top: '880px', width: '470px', height: '560px' }, { kind: 'polaroid', src: A + 'portrait_tree_bw.png', fit: 'contain' }),
   ];
   pics.forEach(p => { p.im.style.background = '#cfc8ba'; });
-  const lab = text(cam, 'صورٌ قليلة', { left: 0, right: 0, top: '170px', textAlign: 'center', fontSize: '150px', color: 'var(--ink)' });
+  const lab = text(cam, 'صورٌ قليلة', { left: 0, right: 0, top: '190px', textAlign: 'center', fontSize: '130px', color: 'var(--ink)' });
   const rs = [-8, 7, -2];
   return (t) => {
     pics.forEach((p, i) => go(p.wrap, t, { t0: t0 + .05 + i * .28, from: { y: -900, r: rs[i] * 4 }, to: { r: rs[i] }, dur: .5, seed: 10 + i }));
@@ -264,7 +264,7 @@ shot(5, 'paper', 'U', (cam, t0) => {
   const lines = ['الاسم: محمد دياب إبراهيم المصري', 'الشهرة: محمد الضيف', 'مكان الولادة: خان يونس'];
   const ls = lines.map((l, i) => el(card, 'info', { right: '50px', top: (150 + i * 95) + 'px', fontSize: '34px', whiteSpace: 'nowrap' }, l));
   const clipEl = el(cam, '', { left: '760px', top: '470px', width: '40px', height: '130px', border: '8px solid #7a7570', borderRadius: '22px' });
-  const big = text(cam, 'وُلد', { right: '90px', top: '200px', fontSize: '210px', color: 'var(--ink)' });
+  const big = text(cam, 'وُلد', { right: '260px', top: '200px', fontSize: '210px', color: 'var(--ink)' });
   const st = stampEl(cam, 'أرشيف', 90, { left: '120px', top: '1180px' });
   return (t) => {
     go(card, t, { snd: 'paper', t0: t0 + .05, from: { y: 600, r: 8 }, to: { r: -2 }, seed: 4 });
@@ -280,7 +280,7 @@ shot(5, 'paper', 'U', (cam, t0) => {
 shot(6, 'paper', 'L', (cam, t0) => {
   const ring = circle(cam, 760, 'var(--red)', { left: '160px', top: '420px' });
   const alley = frame(cam, { left: '230px', top: '490px', width: '620px', height: '620px' }, { kind: 'circle', clip: 'alley', frames: 100, start: t0, speed: .8 });
-  const year = text(cam, 'عام', { right: '120px', top: '150px', fontSize: '150px', color: 'var(--ink)' });
+  const year = text(cam, 'عام', { right: '290px', top: '150px', fontSize: '150px', color: 'var(--ink)' });
   // odometer digits
   const od = el(cam, '', { left: '140px', top: '1180px', width: '800px', height: '300px', display: 'flex', direction: 'ltr', justifyContent: 'center', gap: '6px' });
   const digits = '1965'.split('').map((d, i) => {
@@ -354,7 +354,7 @@ shot(8, 'paper', 'Z', (cam, t0) => {
 shot(9, 'paper', 'R', (cam, t0) => {
   const f = frame(cam, { left: '70px', top: '420px', width: '940px', height: '720px' }, { kind: 'stamp', clip: 'university', frames: 200, start: t0, speed: .9 });
   const lab = tape(cam, 'الجامعة الإسلامية — غزة', 64, { right: '70px', top: '1210px' }, 'red', 63);
-  const sci = text(cam, 'درس العلوم', { right: '100px', top: '190px', fontSize: '140px', color: 'var(--ink)' });
+  const sci = text(cam, 'درس العلوم', { right: '270px', top: '190px', fontSize: '140px', color: 'var(--ink)' });
   const c = cloud(cam, 1, { left: '520px', top: '1020px' });
   return (t) => {
     go(f.wrap, t, { t0: t0, from: { s: .7, r: 10 }, to: { r: -2 }, seed: 1 }); f.update(t);
@@ -383,7 +383,7 @@ shot(11, 'dark', 'L', (cam, t0, t1) => {
   const f = frame(cam, { left: '90px', top: '440px', width: '900px', height: '760px' }, { kind: 'stamp', clip: 'arrest89', frames: 125, start: t0, freezeAt: t0 + 2.6 });
   const barsBox = el(cam, '', { left: '110px', top: '460px', width: '860px', height: '720px', overflow: 'hidden' });
   const bars = Array.from({ length: 7 }, (_, i) => el(barsBox, '', { left: (40 + i * 125) + 'px', top: 0, width: '22px', height: '720px', background: 'linear-gradient(90deg,#111,#555 40%,#111)' }));
-  const lab = text(cam, 'الاعتقال الأول', { right: '90px', top: '200px', fontSize: '140px' });
+  const lab = text(cam, 'الاعتقال الأول', { right: '260px', top: '200px', fontSize: '140px' });
   sfx('clank', t0 + 1.0);
   const st = stampEl(cam, '1989', 190, { left: '330px', top: '1300px' }, true);
   return (t) => {
@@ -500,7 +500,7 @@ shot(18, 'dark', 'L', (cam, t0) => {
   const tc = el(box, '', { right: '40px', top: '30px', fontFamily: 'Plex', fontSize: '42px', color: '#f2ede3', direction: 'ltr' }, '00:00:00');
   const wave = el(box, '', { left: '50px', top: '170px', width: '800px', height: '300px', display: 'flex', alignItems: 'center', gap: '6px' });
   const bars = Array.from({ length: 48 }, (_, i) => el(wave, 'wbar', { position: 'relative', background: i % 7 === 0 ? '#c23030' : '#f2ede3' }));
-  const lab = text(cam, 'تسجيلات صوتية', { left: 0, right: 0, top: '240px', textAlign: 'center', fontSize: '150px' });
+  const lab = text(cam, 'تسجيلات صوتية', { left: 0, right: 0, top: '320px', textAlign: 'center', fontSize: '120px' });
   const sub = tape(cam, 'صوتٌ بلا صورة', 64, { left: '330px', top: '1150px' }, 'red', 91);
   const dot = rec.querySelector('.dot');
   return (t) => {
@@ -546,7 +546,7 @@ shot(20, 'paper', 'L', (cam, t0) => {
     el(g, '', { left: '-80px', top: (i % 2 ? 130 : -90) + 'px', width: '200px', textAlign: 'center', fontFamily: 'Cairo', fontWeight: 900, fontSize: '68px', color: 'var(--ink)' }, String(y));
     return g;
   });
-  const big = text(cam, 'أكثر من', { right: '90px', top: '240px', fontSize: '120px', color: 'var(--ink)' });
+  const big = text(cam, 'أكثر من', { right: '260px', top: '240px', fontSize: '120px', color: 'var(--ink)' });
   const num = el(cam, '', { right: '90px', top: '380px', fontFamily: 'Cairo', fontWeight: 900, fontSize: '260px', lineHeight: 1, color: 'var(--red2)' }, '20');
   const unit = text(cam, 'عامًا', { left: '120px', top: '440px', fontSize: '150px', color: 'var(--ink)' });
   return (t) => {
@@ -563,7 +563,7 @@ shot(20, 'paper', 'L', (cam, t0) => {
 shot(21, 'dark', 'U', (cam, t0, t1) => {
   const bg = frame(cam, { left: '-40px', top: '200px', width: '1160px', height: '900px' }, { kind: 'torn', clip: 'armor', frames: 125, start: t0, seed: 101 });
   bg.wrap.style.filter = 'brightness(.35) blur(2px)';
-  const head = text(cam, 'محاولات اغتيال', { left: 0, right: 0, top: '170px', textAlign: 'center', fontSize: '140px' });
+  const head = text(cam, 'محاولات اغتيال', { left: 0, right: 0, top: '330px', textAlign: 'center', fontSize: '130px' });
   const years = ['2001', '2002', '2003', '2006', '2014'];
   const cards = years.map((y, i) => {
     const c = el(cam, 'acard', { left: '230px', top: (720 + i * 26) + 'px' });
@@ -606,7 +606,7 @@ shot(22, 'paper', 'R', (cam, t0) => {
   });
   sfx('rip', t0 + .6);
   const lab = tape(cam, 'إصابات بالغة', 90, { left: '270px', top: '1380px' }, 'red', 111);
-  const head = text(cam, 'أُصيب', { right: '100px', top: '200px', fontSize: '170px', color: 'var(--ink)' });
+  const head = text(cam, 'أُصيب', { right: '270px', top: '200px', fontSize: '170px', color: 'var(--ink)' });
   return (t) => {
     const sp = pr(t, t0 + .6, t0 + .95, E.out5);
     go(halves[0], t, { t0: t0, from: { y: 500, r: 10 }, to: { r: -2 }, seed: 1, idle: .5 }); halves[0].style.translate = `${-sp * 60}px ${sp * 20}px`; halves[0].style.rotate = `${-sp * 5}deg`;
@@ -661,7 +661,7 @@ function calendar(cam, t0, month, day, year, seed) {
 /* ---------- 26. في يوليو 2024 ---------- */
 shot(25, 'paper', 'U', (cam, t0) => {
   const cal = calendar(cam, t0, 'يوليو', 13, 2024, 3);
-  const lab = text(cam, 'في يوليو', { right: '100px', top: '220px', fontSize: '150px', color: 'var(--ink)' });
+  const lab = text(cam, 'في يوليو', { right: '270px', top: '220px', fontSize: '150px', color: 'var(--ink)' });
   const c = cloud(cam, 1, { left: '220px', top: '1080px' });
   return (t) => {
     cal(t);
@@ -677,7 +677,7 @@ shot(26, 'old', 'L', (cam, t0) => {
   const lab2 = tape(cam, 'خان يونس', 54, { left: '90px', top: '1370px' }, 'ink', 122);
   const c1 = smoke(cam, 0, { left: '-120px', top: '180px', width: '760px' });
   const c2 = smoke(cam, 1, { left: '480px', top: '120px', width: '720px' });
-  const head = text(cam, 'إعلان إسرائيلي', { right: '90px', top: '200px', fontSize: '130px', color: 'var(--ink)' });
+  const head = text(cam, 'إعلان إسرائيلي', { right: '260px', top: '210px', fontSize: '112px', color: 'var(--ink)' });
   return (t) => {
     go(f.wrap, t, { t0: t0, from: { s: .7, r: -10 }, to: { r: -2 }, seed: 1 }); f.update(t);
     go(c1, t, { t0: t0 + .2, from: { x: -400 }, idle: 1.8, seed: 2 });
@@ -703,7 +703,7 @@ shot(27, 'old', 'U', (cam, t0) => {
 /* ---------- 29. وفي يناير 2025 ---------- */
 shot(28, 'paper', 'R', (cam, t0) => {
   const cal = calendar(cam, t0, 'يناير', 30, 2025, 6);
-  const lab = text(cam, 'وفي يناير', { right: '100px', top: '220px', fontSize: '150px', color: 'var(--ink)' });
+  const lab = text(cam, 'وفي يناير', { right: '270px', top: '220px', fontSize: '150px', color: 'var(--ink)' });
   return (t) => { cal(t); go(lab, t, { t0: t0, from: { y: -30 }, ease: E.out, idle: .3 }); wipe(lab, t, t0, .45); };
 });
 
@@ -742,6 +742,20 @@ shot(30, 'dark', 'F', (cam, t0, t1) => {
   };
 }, { push: .03 });
 
+/* ---------- 32. outro: the channel logo animates in the centre ---------- */
+shot(31, 'paper', 'F', (cam, t0, t1) => {
+  sfx('swell', t0 + .1, .7);
+  const logo = img(cam, A + 'logo/c_000.png', { left: '310px', top: '500px', width: '460px' });
+  const black = el(cam, '', { inset: '-200px', background: '#000' });
+  let cur = -1;
+  return (t) => {
+    const f = Math.min(166, Math.max(0, Math.floor((t - t0 - .3) * FPS)));
+    if (f !== cur) { cur = f; logo.src = `${A}logo/c_${String(f).padStart(3, '0')}.png`; pending.push(logo.decode().catch(() => { })); }
+    tf(logo, { s: kf(t, [[t0, .96], [t1, 1.02]], E.lin) });
+    tf(black, { o: pr(t, t1 - .5, t1, E.io) });
+  };
+}, { push: 0 });
+
 /* ================= global layers ================= */
 // foreground bokeh / dust drifting in parallax with camera moves
 const bokLayer = el(stage, '', { inset: 0, zIndex: 40, pointerEvents: 'none' });
@@ -753,7 +767,7 @@ const boks = Array.from({ length: 18 }, (_, i) => {
 });
 // channel logo, top corner for the whole video: plays its reveal animation (GIF frames at 25 fps) then holds.
 // navy on paper shots, white on dark shots
-const LOGO_FRAMES = 167, LOGO_CSS = { left: '44px', top: '44px', width: '150px', zIndex: 60 };
+const LOGO_FRAMES = 167, LOGO_CSS = { right: '44px', top: '44px', width: '150px', zIndex: 60 };
 const logoC = img(stage, A + 'logo/c_000.png', LOGO_CSS), logoW = img(stage, A + 'logo/w_000.png', LOGO_CSS);
 const grain = img(stage, A + 'grain_0.png', { left: 0, top: 0, width: W + 'px', height: H + 'px', mixBlendMode: 'overlay', zIndex: 50 });
 el(stage, 'overlay', { background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)', zIndex: 51 });
@@ -814,7 +828,8 @@ window.seek = async (t) => {
   pending.push(logoC.decode().catch(() => { }), logoW.decode().catch(() => { }));
   const isDark = sh => sh.root.classList.contains('bg-dark') ? 1 : 0;
   const dark = p < 1 && prev ? lerp(isDark(prev), isDark(s), p) : isDark(s);
-  logoW.style.opacity = dark; logoC.style.opacity = 1 - dark;
+  const hide = 1 - pr(t, C[31] - 1.4, C[31] - .8);
+  logoW.style.opacity = dark * hide; logoC.style.opacity = (1 - dark) * hide;
   pending.push(grain.decode().catch(() => { }));
   await Promise.all(pending);
 };
