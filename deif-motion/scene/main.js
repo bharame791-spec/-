@@ -751,6 +751,10 @@ const boks = Array.from({ length: 18 }, (_, i) => {
   const n = el(bokLayer, 'bok', { width: d + 'px', height: d + 'px', background: big ? (i % 2 ? 'rgba(165,34,34,.32)' : 'rgba(232,226,213,.3)') : 'rgba(242,237,227,.55)', filter: `blur(${big ? 10 + BR() * 8 : 1}px)` });
   return { n, x: BR() * W, y: BR() * H, depth: big ? 1.4 + BR() : .4 + BR() * .5, sp: .5 + BR(), ph: BR() * 6 };
 });
+// channel logo, top corner for the whole video: plays its reveal animation (GIF frames at 25 fps) then holds.
+// navy on paper shots, white on dark shots
+const LOGO_FRAMES = 167, LOGO_CSS = { left: '44px', top: '44px', width: '150px', zIndex: 60 };
+const logoC = img(stage, A + 'logo/c_000.png', LOGO_CSS), logoW = img(stage, A + 'logo/w_000.png', LOGO_CSS);
 const grain = img(stage, A + 'grain_0.png', { left: 0, top: 0, width: W + 'px', height: H + 'px', mixBlendMode: 'overlay', zIndex: 50 });
 el(stage, 'overlay', { background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)', zIndex: 51 });
 const mbx = document.getElementById('mbxg'), mby = document.getElementById('mbyg');
@@ -805,6 +809,12 @@ window.seek = async (t) => {
     b.n.style.transform = `translate(${x}px,${y}px)`;
   });
   grain.src = `${A}grain_${Math.floor(t * FPS) % 6}.png`;
+  const lf = String(Math.min(LOGO_FRAMES - 1, Math.floor(t * FPS))).padStart(3, '0');
+  logoC.src = `${A}logo/c_${lf}.png`; logoW.src = `${A}logo/w_${lf}.png`;
+  pending.push(logoC.decode().catch(() => { }), logoW.decode().catch(() => { }));
+  const isDark = sh => sh.root.classList.contains('bg-dark') ? 1 : 0;
+  const dark = p < 1 && prev ? lerp(isDark(prev), isDark(s), p) : isDark(s);
+  logoW.style.opacity = dark; logoC.style.opacity = 1 - dark;
   pending.push(grain.decode().catch(() => { }));
   await Promise.all(pending);
 };
