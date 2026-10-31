@@ -101,3 +101,58 @@ for k in range(3):
     a=np.clip(m*1.6-.2,0,1)*np.clip((h*.86-np.mgrid[0:h,0:w][0])/40,0,1)
     Image.fromarray(np.dstack([shade,shade,shade+2,a*255]).clip(0,255).astype(np.uint8)).save(A+f'cloud_{k}.png')
 print('clouds ok')
+
+# torn newspaper scraps (replace the clouds under portraits / frames)
+def torn_mask(w,h,R,jag=10):
+    m=np.zeros((h,w),np.uint8)
+    pts=[]
+    for x in np.linspace(0,w,24): pts.append((x,R.uniform(0,jag)))
+    for y in np.linspace(0,h,12): pts.append((w-R.uniform(0,jag),y))
+    for x in np.linspace(w,0,24): pts.append((x,h-R.uniform(0,jag)))
+    for y in np.linspace(h,0,12): pts.append((R.uniform(0,jag),y))
+    cv2.fillPoly(m,[np.array(pts,np.int32)],255); return m
+oldp=np.array(Image.open(A+'paper_old.jpg').convert('RGB'))
+cardp=np.array(Image.open(A+'paper_card.jpg').convert('RGB'))
+for k in range(3):
+    R=np.random.default_rng(300+k); W2,H2=900,420
+    canvas=Image.new('RGBA',(W2,H2),(0,0,0,0))
+    for j in range(4):
+        w=int(R.uniform(260,460)); h=int(R.uniform(110,190))
+        src=(oldp if j%2 else cardp)[:h,:w].copy()
+        # printed lines on some pieces
+        if j!=2:
+            for yy in range(18,h-10,16):
+                e=w-14-int(R.uniform(0,80)); src[yy:yy+6,14:e]=(src[yy:yy+6,14:e]*0.5).astype(np.uint8)
+        if j==2: src[:]=(src*np.array([0.62,0.16,0.16])).astype(np.uint8)  # red piece
+        m=torn_mask(w,h,R)
+        piece=Image.fromarray(np.dstack([src,m]).astype(np.uint8)).rotate(R.uniform(-18,18),expand=True,resample=Image.BICUBIC)
+        sh=Image.new('RGBA',piece.size,(0,0,0,0)); sa=np.array(piece.split()[3]); sh.putalpha(Image.fromarray((cv2.GaussianBlur(sa,(0,0),8)*0.45).astype(np.uint8)))
+        x=int(80+j*170+R.uniform(-40,40)); y=int(H2-piece.size[1]-R.uniform(0,90))
+        canvas.alpha_composite(sh,(min(max(x+6,0),W2-piece.size[0]),min(max(y+12,0),H2-piece.size[1])))
+        canvas.alpha_composite(piece,(min(max(x,0),W2-piece.size[0]),min(max(y,0),H2-piece.size[1])))
+    canvas.save(A+f'scraps_{k}.png')
+
+# smoke plumes (airstrike / war shots)
+for k in range(2):
+    R=np.random.default_rng(400+k); w,h=900,1100
+    n=0.45*noise(h,w,160)+0.3*noise(h,w,60)+0.25*noise(h,w,20)
+    yy,xx=np.mgrid[0:h,0:w]/np.array([h,w])[:,None,None]
+    cx=0.5+0.12*np.sin(yy*5+k*2)
+    width=0.12+0.3*(1-yy)
+    cone=np.exp(-((xx-cx)/width)**2)*np.clip(yy*1.4,0,1)*np.clip((1-yy)*6,0,1)
+    a=np.clip((n*cone-0.12)*2.4,0,1)
+    a=cv2.GaussianBlur(a.astype(np.float32),(0,0),4)
+    g=(70+90*n).clip(0,255)
+    Image.fromarray(np.dstack([g,g,g*0.97,a*230]).astype(np.uint8)).save(A+f'smoke_{k}.png')
+
+# red dry-brush stroke
+R=np.random.default_rng(500); w,h=1000,260; m=np.zeros((h,w),np.float32)
+for i in range(70):
+    y0=R.uniform(60,200); th=R.uniform(3,14)
+    xs=np.linspace(R.uniform(0,60),R.uniform(880,1000),200)
+    ys=y0+np.sin(xs/180+R.uniform(0,6))*8
+    for x,y in zip(xs,ys):
+        if R.random()<0.93: cv2.circle(m,(int(x),int(y)),int(th),1.0,-1)
+m=cv2.GaussianBlur(m,(0,0),1.2)*(0.75+0.25*noise(h,w,4))
+Image.fromarray(np.dstack([np.full((h,w),142),np.full((h,w),27),np.full((h,w),27),np.clip(m,0,1)*235]).astype(np.uint8)).save(A+'brush.png')
+print('scraps/smoke/brush ok')

@@ -3,8 +3,8 @@
 //   node render.mjs --stills 5,15,30     -> build/stills/*.jpg (quick look at given seconds)
 //   node render.mjs --from 20 --to 30    -> render a time range only (no audio)
 import { createServer } from 'node:http';
-import { readFile, mkdir } from 'node:fs/promises';
-import { spawn } from 'node:child_process';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { spawn, execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -43,9 +43,8 @@ if (opt('--stills')) {
 } else {
   const from = Number(opt('--from', 0)), to = Number(opt('--to', DURATION));
   const full = from === 0 && to === DURATION;
-  const out = path.join(ROOT, 'build', full ? 'deif_shadow_man.mp4' : `range_${from}-${to}.mp4`);
+  const out = path.join(ROOT, 'build', full ? 'video_only.mp4' : `range_${from}-${to}.mp4`);
   const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS), '-i', '-',
-    ...(full ? ['-i', path.join(ROOT, 'sources/voiceover.mp3'), '-c:a', 'aac', '-b:a', '192k', '-af', 'apad', '-shortest'] : []),
     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'medium', '-movflags', '+faststart', out], { stdio: ['pipe', 'inherit', 'inherit'] });
   const n0 = Math.round(from * FPS), n1 = Math.round(to * FPS);
   for (let f = n0; f < n1; f++) {
@@ -57,6 +56,15 @@ if (opt('--stills')) {
   ff.stdin.end();
   await new Promise(r => ff.on('close', r));
   console.log('wrote', out);
+  if (full) {
+    // sound effects were logged while frames rendered; synthesize score + sfx and mix under the VO
+    const sfx = await page.evaluate(() => window.SFX);
+    await writeFile(path.join(ROOT, 'build/sfx.json'), JSON.stringify(sfx));
+    execFileSync('python3', ['-I', path.join(ROOT, 'tools/make_audio.py'), path.join(ROOT, 'build/sfx.json'), path.join(ROOT, 'sources/voiceover.mp3'), String(DURATION), path.join(ROOT, 'build')], { stdio: 'inherit' });
+    const final = path.join(ROOT, 'build/deif_shadow_man.mp4');
+    execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', out, '-i', path.join(ROOT, 'build/mix.wav'), '-c:v', 'copy', '-c:a', 'aac', '-b:a', '256k', '-shortest', final], { stdio: 'inherit' });
+    console.log('wrote', final);
+  }
 }
 await browser.close();
 server.close();
