@@ -56,8 +56,8 @@ svg{overflow:visible}
 .ticket::before{content:'';position:absolute;inset:18px;border:2px solid rgba(201,164,92,.75);border-radius:18px;pointer-events:none}
 .tk-top{padding:62px 50px 0;text-align:center}
 .tk-kicker{color:var(--goldD);font-weight:800;font-size:30px;letter-spacing:1px}
-.tk-wm{height:170px;display:flex;justify-content:center;align-items:center}
-.tk-sub{font-size:28px;color:#66736B;font-weight:500}
+.tk-wm{height:185px;display:flex;justify-content:center;align-items:center}
+.tk-sub{font-size:28px;color:#66736B;font-weight:500;margin-top:22px}
 .tk-rule{height:2px;margin:30px 60px 0;background:linear-gradient(90deg,transparent,rgba(201,164,92,.8),transparent)}
 .tk-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px;padding:30px 72px 0;text-align:right}
 .f .l,.sc .l{font-size:25px;color:var(--goldD);font-weight:700}
@@ -70,13 +70,13 @@ svg{overflow:visible}
 .target{position:absolute;left:330px;top:990px;width:100px;height:100px;border-radius:50%;border:3px dashed rgba(201,164,92,.8)}
 .hole{position:absolute;left:330px;top:990px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,#FDFBF5 0%,#F7F1E5 55%,#EDE3CF 100%);box-shadow:inset 0 7px 14px rgba(0,0,0,.38);transform:scale(0)}
 .back{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:58px}
-.bk-title{font-size:82px;color:var(--green);line-height:1.2}
-.qrbox{margin-top:18px;width:560px;height:560px;background:#fff;border-radius:26px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 3px var(--gold)}
+.bk-title{font-size:80px;color:var(--green);line-height:1.5;margin-bottom:6px}
+.qrbox{margin-top:22px;width:560px;height:560px;background:#fff;border-radius:26px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 3px var(--gold)}
 .qrbox img{width:520px;height:520px}
-.bk-l{margin-top:26px;font-size:27px;color:var(--goldD);font-weight:700}
+.bk-l{margin-bottom:6px;margin-top:30px;font-size:27px;color:var(--goldD);font-weight:700}
 .bk-phone{font-size:52px;color:var(--green);font-weight:800;direction:ltr;letter-spacing:1px}
 .bk-v{font-size:40px;color:var(--green);font-weight:800}
-.bk-s{font-size:32px;color:#5C6B62;font-weight:700}
+.bk-s{font-size:32px;color:#5C6B62;font-weight:700;margin-top:8px}
 
 /* stations */
 .station{position:absolute;width:1080px;height:1920px}
@@ -91,9 +91,9 @@ svg{overflow:visible}
 .tag::after{content:'';position:absolute;top:10px;left:192px;width:16px;height:16px;border-radius:50%;background:#E3D7BE;box-shadow:inset 0 2px 3px rgba(0,0,0,.3)}
 
 /* end */
-.card{position:absolute;left:70px;top:1360px;width:940px;height:470px;background:#FBF8F1;border-radius:30px;box-shadow:0 20px 40px rgba(70,45,10,.15),inset 0 0 0 2px rgba(201,164,92,.75);display:flex;align-items:center;justify-content:space-between;padding:0 50px}
-.card .qr{width:390px;height:390px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px var(--gold)}
-.card .qr img{width:360px;height:360px}
+.card{position:absolute;left:70px;top:1395px;width:940px;height:460px;background:#FBF8F1;border-radius:30px;box-shadow:0 20px 40px rgba(70,45,10,.15),inset 0 0 0 2px rgba(201,164,92,.75);display:flex;align-items:center;justify-content:space-between;padding:0 50px}
+.card .qr{width:370px;height:370px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px var(--gold)}
+.card .qr img{width:340px;height:340px}
 .card .info{text-align:right}
 </style>
 </head>
@@ -167,13 +167,13 @@ svg{overflow:visible}
     </div>
     <img id="eLogo" class="abs" src="assets/logo180.png" style="left:360px;top:470px;width:360px">
     <div id="eWM" class="abs ctr" style="top:880px;height:250px;display:flex;justify-content:center;align-items:center"></div>
-    <div id="eTag" class="abs ctr" style="top:1140px;font-size:44px;font-weight:700;line-height:1.5;color:var(--ink)">نرسّخ الإيمان، ونغرس القيم،<br><span style="color:var(--goldD);font-weight:800">ونرتقي بأبنائنا</span></div>
+    <div id="eTag" class="abs ctr" style="top:1185px;font-size:44px;font-weight:700;line-height:1.5;color:var(--ink)">نرسّخ الإيمان، ونغرس القيم،<br><span style="color:var(--goldD);font-weight:800">ونرتقي بأبنائنا</span></div>
     <div id="eCard" class="card">
       <div class="info">
-        <div class="disp" style="font-size:76px;color:var(--green);line-height:1.2">سجّل الآن</div>
+        <div class="disp" style="font-size:74px;color:var(--green);line-height:1.45;margin-bottom:14px">سجّل الآن</div>
         <div style="font-size:30px;font-weight:700;color:#5C6B62">امسح الرمز أو تواصل معنا</div>
-        <div style="font-size:44px;font-weight:800;color:var(--green);direction:ltr;text-align:right;margin-top:14px">00970597070041</div>
-        <div style="font-size:30px;font-weight:700;color:var(--goldD);margin-top:16px">مركز 180 درجة للتعليم<br>مدينة حمد — برج A2</div>
+        <div style="font-size:44px;font-weight:800;color:var(--green);direction:ltr;text-align:right;margin-top:22px">00970597070041</div>
+        <div style="font-size:30px;font-weight:700;color:var(--goldD);margin-top:22px;line-height:1.6">مركز 180 درجة للتعليم<br>مدينة حمد — برج A2</div>
       </div>
       <div class="qr"><img src="assets/qr.png"></div>
     </div>
@@ -508,6 +508,7 @@ window.READY=false;
 document.fonts.ready.then(()=>Promise.all(['Palestine','Lalezar','Tajawal','Amiri Quran'].map(f=>document.fonts.load(`40px "${f}"`)))).then(()=>{
   build();
   const r=WM[2].bar.getBoundingClientRect();BARY=r.top+r.height/2;
+  const e=WM[3].bar.getBoundingClientRect(),ey=e.top+e.height/2,ex=e.right-10;$('L3').setAttribute('d',`M1130 ${ey-260} C 1060 ${ey-200} 1080 ${ey-40} 1000 ${ey-10} C 940 ${ey+6} ${ex+60} ${ey} ${ex} ${ey}`);
   render(0);window.READY=true;
 });
 </script>
