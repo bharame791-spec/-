@@ -76,6 +76,17 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 .swipe .dots{order:2;display:flex;gap:7px;direction:ltr}
 .swipe .dots i{width:9px;height:9px;border-radius:50%;background:#fff}
 .swipe .dots i:nth-child(2){opacity:.6}.swipe .dots i:nth-child(3){opacity:.3}
+
+/* كتلة العنوان: متوسّطة، والسطران الرئيسيان بنفس العرض (كشيدة) */
+.tb{position:absolute;left:0;right:0;display:flex;justify-content:center;z-index:2}
+.tbi{display:flex;flex-direction:column;align-items:stretch;text-align:right}
+.kick{font-family:var(--h);font-weight:400;font-size:30px;color:var(--sky-l);line-height:1.4;margin-bottom:10px}
+.ln{font-family:var(--h);font-weight:700;font-size:var(--ts);line-height:1.3;white-space:nowrap;text-align:center}
+.ln .k{display:inline-block;padding:.12em 0 .3em;margin:-.12em 0 -.3em;background:linear-gradient(to left,#fff 0%,#fff 55%,#B8C6DE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlbox{background:linear-gradient(150deg,#5D7FB8,#2F5089 60%,#203f78);border-radius:14px;padding:0 24px 12px;margin-top:18px}
+.hlbox .k{background:none;color:#fff}
+.tail{font-family:var(--h);font-weight:400;font-size:44px;color:var(--silver);text-align:left;margin-top:14px}
+.swipe{bottom:150px!important}
 </style>
 </head>
 <body>
@@ -94,18 +105,25 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 <section class="slide" id="s1">
   <div class="photo" style="height:820px;background-image:url(photos/sidon.jpg);background-position:center 45%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
+  <div class="tag"><i></i>تقدير موقف</div>
 
-  <div class="head" style="top:270px">
-    <div class="kicker" style="font-size:36px">التهديد باحتلال مدن لبنانية وحصار الموانئ..</div>
-    <div class="title" style="margin-top:22px;font-size:86px">رسائل الردع الإسرائيلية</div>
-    <div class="title hl" style="font-size:74px;margin-top:14px">لمنع انخراط حزب الله</div>
-    <div class="sub" style="margin-top:20px;font-size:52px">في مواجهة إيران</div>
+  <div class="tb" style="top:250px">
+    <div class="tbi" style="--ts:76px">
+      <div class="kick">التهديد باحتلال مدن لبنانية وحصار الموانئ..</div>
+      <div class="ln"><span class="k">رسائل الردع الإسرائيلية</span></div>
+      <div class="ln hlbox"><span class="k">لمنع انخراط حزب الله</span></div>
+      <div class="tail">في مواجهة إيران</div>
+    </div>
   </div>
 
   <div class="swipe">
     <span class="arr"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     <span>اسحب الآن</span>
     <span class="dots"><i></i><i></i><i></i></span>
+  </div>
+  <div class="foot">
+    <div><b>قراءة: رامي أبو زبيدة</b> · محلل للشؤون العسكرية</div>
+    <div class="pg"><em>01</em> / 06</div>
   </div>
 </section>
 
@@ -115,16 +133,19 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
   <div class="tag"><i></i>تقدير موقف</div>
 
-  <div class="head" style="top:230px">
-    <div class="kicker">خطط جيش الاحتلال للجبهة اللبنانية</div>
-    <div class="title" style="margin-top:10px">ماذا كشفت «معاريف»؟</div>
+  <div class="tb" style="top:215px">
+    <div class="tbi" style="--ts:66px">
+      <div class="kick">خطط جيش الاحتلال للجبهة اللبنانية</div>
+      <div class="ln"><span class="k">ماذا كشفت</span></div>
+      <div class="ln"><span class="k">«معاريف»؟</span></div>
+    </div>
   </div>
 
-  <div class="frame" style="top:500px;height:330px"></div>
-  <div style="position:absolute;left:120px;right:120px;top:536px;text-align:center">
+  <div class="frame" style="top:520px;height:330px"></div>
+  <div style="position:absolute;left:120px;right:120px;top:556px;text-align:center">
     <div class="p">خطط معدّة لاحتلال مدن في جنوب لبنان،<br>وفرض <b>حصار بحري</b> على أهم موانئه</div>
   </div>
-  <div class="vs" style="position:absolute;left:72px;right:72px;top:710px">
+  <div class="vs" style="position:absolute;left:72px;right:72px;top:730px">
     <div><div class="dia"></div><div class="lab" style="margin-top:14px">احتلال مدن</div><div class="p" style="font-size:32px">صور · صيدا · النبطية</div></div>
     <div class="sep"></div>
     <div><div class="dia"></div><div class="lab" style="margin-top:14px">حصار بحري</div><div class="p" style="font-size:32px">ميناءا بيروت وطرابلس</div></div>
@@ -137,16 +158,19 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 
 <!-- ============ 3. الخطة لا تعني القرار ============ -->
 <section class="slide" id="s3">
-  <div class="photo" style="height:520px;background-image:url(photos/warroom.jpg);background-position:center 30%"></div>
+  <div class="photo" style="height:480px;background-image:url(photos/warroom.jpg);background-position:center 30%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
   <div class="tag"><i></i>تقدير موقف</div>
 
-  <div class="head" style="top:230px">
-    <div class="kicker">بين التخطيط والتنفيذ</div>
-    <div class="title" style="margin-top:10px;font-size:74px">الخطة لا تعني قرار الحرب</div>
+  <div class="tb" style="top:215px">
+    <div class="tbi" style="--ts:66px">
+      <div class="kick">بين التخطيط والتنفيذ</div>
+      <div class="ln"><span class="k">الخطة لا تعني</span></div>
+      <div class="ln"><span class="k">قرار الحرب</span></div>
+    </div>
   </div>
 
-  <div class="list" style="position:absolute;right:72px;left:110px;top:440px;gap:30px">
+  <div class="list" style="position:absolute;right:72px;left:110px;top:500px;gap:26px">
     <div class="li"><div class="dia"></div><div class="p">إعداد الخطط العسكرية <b>لا يعني</b> اتخاذ القرار السياسي والعسكري بتنفيذها</div></div>
     <div class="li"><div class="dia"></div><div class="p"><b>جاهزية عملياتية</b> واستعداد مسبق لسيناريوهات المواجهة</div></div>
     <div class="li"><div class="dia"></div><div class="p"><b>أداة ردع</b> للتأثير في حسابات حزب الله، مع تصاعد الحديث عن مواجهة محتملة مع إيران</div></div>
@@ -163,12 +187,15 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
   <div class="tag"><i></i>تقدير موقف</div>
 
-  <div class="head" style="top:560px">
-    <div class="kicker">بين الاستعداد والتجنّب</div>
-    <div class="title" style="margin-top:10px">المعضلة الإسرائيلية</div>
+  <div class="tb" style="top:520px">
+    <div class="tbi" style="--ts:66px">
+      <div class="kick">بين الاستعداد والتجنّب</div>
+      <div class="ln"><span class="k">المعضلة</span></div>
+      <div class="ln"><span class="k">الإسرائيلية</span></div>
+    </div>
   </div>
 
-  <div class="vs" style="position:absolute;left:72px;right:72px;top:830px">
+  <div class="vs" style="position:absolute;left:72px;right:72px;top:820px">
     <div><div class="meta">تستعد</div><div class="lab">لاحتمالات اتساع<br>المواجهة</div></div>
     <div class="sep"></div>
     <div><div class="meta">وتحاول تجنّب</div><div class="lab">الانزلاق إلى حرب<br>متعددة الجبهات</div></div>
@@ -188,12 +215,15 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 <section class="slide" id="s5">
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
   <div class="tag"><i></i>تقدير موقف</div>
-  <div class="head" style="top:230px">
-    <div class="kicker">أبعد من التوغّل الحدودي</div>
-    <div class="title" style="margin-top:10px">دلالات الأهداف</div>
+  <div class="tb" style="top:215px">
+    <div class="tbi" style="--ts:66px">
+      <div class="kick">أبعد من التوغّل الحدودي</div>
+      <div class="ln"><span class="k">دلالات</span></div>
+      <div class="ln"><span class="k">الأهداف</span></div>
+    </div>
   </div>
 
-  <svg style="position:absolute;left:0px;top:470px" width="480" height="700" viewBox="-110 -20 520 600">
+  <svg style="position:absolute;left:0px;top:490px" width="480" height="700" viewBox="-110 -20 520 600">
     <ellipse cx="150" cy="300" rx="260" ry="260" fill="url(#pglow)" opacity=".25"/>
     <use href="#lb" fill="url(#gfill)" stroke="url(#gstroke)" stroke-width="2.5"/>
     <g fill="none" stroke="#C9D2DF" stroke-width="2.5" stroke-dasharray="9 8" opacity=".85">
@@ -214,7 +244,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
     </g>
   </svg>
 
-  <div class="list" style="position:absolute;right:72px;width:540px;top:500px;gap:56px">
+  <div class="list" style="position:absolute;right:72px;width:540px;top:520px;gap:50px">
     <div>
       <div class="meta">التوغّل البرّي</div>
       <div class="lab" style="margin:6px 0 12px">صور · صيدا · النبطية</div>
@@ -236,16 +266,19 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 
 <!-- ============ 6. الخلاصة ============ -->
 <section class="slide" id="s6">
-  <div class="photo" style="height:540px;background-image:url(photos/border.jpg);background-position:center 40%"></div>
+  <div class="photo" style="height:500px;background-image:url(photos/border.jpg);background-position:center 40%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
   <div class="tag"><i></i>تقدير موقف</div>
 
-  <div class="head" style="top:230px">
-    <div class="kicker">الخلاصة</div>
-    <div class="title" style="margin-top:10px">معادلة ردع استباقية</div>
+  <div class="tb" style="top:215px">
+    <div class="tbi" style="--ts:66px">
+      <div class="kick">الخلاصة</div>
+      <div class="ln"><span class="k">معادلة ردع</span></div>
+      <div class="ln"><span class="k">استباقية</span></div>
+    </div>
   </div>
 
-  <div class="list" style="position:absolute;right:72px;left:110px;top:480px;gap:34px">
+  <div class="list" style="position:absolute;right:72px;left:110px;top:510px;gap:30px">
     <div class="li"><div class="num">01</div><div><div class="meta">الهدف</div><div class="p">منع حزب الله من <b>فتح جبهة إسناد</b> لإيران</div></div></div>
     <div class="li"><div class="num">02</div><div><div class="meta">الوسيلة</div><div class="p">التلويح بنقل الحرب إلى <b>عمق الأراضي اللبنانية</b></div></div></div>
     <div class="li"><div class="num">03</div><div><div class="meta">الخيار القائم</div><div class="p">إبقاء <b>الحرب الواسعة</b> حاضرة تحسباً لفشل الردع</div></div></div>
@@ -256,5 +289,34 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
   </div>
 </section>
 
+<script>
+// كشيدة: تمديد السطر الأقصر بالتطويل حتى يساوي عرض الأطول
+(function(){
+  const CONNECT=/[بتثجحخسشصضطظعغفقكلمنهيئـ]/, AR=/[\u0620-\u064A]/;
+  function stretch(span,target){
+    const base=span.textContent; const words=base.split(' ');
+    // مواضع مرشّحة: داخل الكلمة بعد حرف متّصل، الأفضلية لآخر حرفين متصلين في الكلمات الأطول
+    let cands=[];let off=0;
+    words.forEach(w=>{let best=-1;
+      for(let i=w.length-2;i>=1;i--){ if(CONNECT.test(w[i])&&AR.test(w[i+1])){best=i;break;} }
+      if(best<0&&w.length>1&&CONNECT.test(w[0])&&AR.test(w[1]))best=0;
+      if(best>=0)cands.push({pos:off+best,len:w.length});
+      off+=w.length+1;});
+    if(!cands.length)return;
+    cands.sort((a,b)=>b.len-a.len); cands=cands.slice(0,2);
+    const counts=cands.map(()=>0); let k=0, guard=0;
+    const build=()=>{let t=base.split('');cands.map((c,i)=>[c.pos,counts[i]]).sort((a,b)=>b[0]-a[0]).forEach(([p,n])=>{t.splice(p+1,0,'ـ'.repeat(n));});return t.join('');};
+    while(span.getBoundingClientRect().width<target-2&&guard++<80){counts[k%cands.length]++;k++;span.textContent=build();}
+    if(span.getBoundingClientRect().width>target+2){counts[(k-1)%cands.length]--;span.textContent=build();}
+  }
+  function run(){document.querySelectorAll('.tbi').forEach(b=>{
+    const spans=[...b.querySelectorAll('.ln .k')];
+    const w=spans.map(sp=>{const box=sp.parentElement;const pad=box.classList.contains('hlbox')?48:0;return sp.getBoundingClientRect().width+pad;});
+    const T=Math.max(...w);
+    spans.forEach((sp,i)=>{const pad=sp.parentElement.classList.contains('hlbox')?48:0;if(w[i]<T-4)stretch(sp,T-pad);});
+  });document.body.dataset.ready=1;}
+  document.fonts.ready.then(run);
+})();
+</script>
 </body>
 </html>
