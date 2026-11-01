@@ -349,7 +349,11 @@ function stormPhase(tau){ // integral of angular speed
   return stormCache[key]=ph;
 }
 
-function render(t){
+// time-warp: video timeline (synced to VO v2) -> original animation timeline
+const WARP_NEW=[0,3.01,5.54,7.01,9.65,11.68,14.42,16.97,21.1,25.66,30.46,35.34,39.81,45.15,47.66,49.13,50.42,51.73,53.26,55.31,58.53,65.3],WARP_OLD=[0,3.0,5.56,7.25,9.86,11.89,14.72,17.35,21.65,26.53,31.38,36.67,41.48,46.7,49.32,50.77,51.97,53.28,54.77,56.77,60.41,67.0];
+function warp(t){if(t<=0)return 0;for(let i=1;i<WARP_NEW.length;i++)if(t<=WARP_NEW[i]){const a=WARP_NEW[i-1],b=WARP_NEW[i];return WARP_OLD[i-1]+(t-a)/(b-a)*(WARP_OLD[i]-WARP_OLD[i-1])}return WARP_OLD[WARP_OLD.length-1]+(t-WARP_NEW[WARP_NEW.length-1])}
+function render(t){return renderCore(warp(t))}
+function renderCore(t){
   /* ---------- layer visibility ---------- */
   const dark=t<21.7;
   $('bgDark').style.display=$('dworld').style.display=dark?'block':'none';
@@ -503,7 +507,7 @@ const ART=[
 let BARY=720;
 const FT=[9.8,11.8,14.6,17.3,18.5,18.8];          // ticket fields <-> VO
 const TS=[21.2,25.9,30.75,36.0,40.85];         // station starts <-> VO
-const VO_OFFSET=3.0;                            // voice-over starts at 3.0s
+const VO_OFFSET=2.65;                           // VO v2 starts at 2.65s (times above are pre-warp)
 window.READY=false;
 document.fonts.ready.then(()=>Promise.all(['Palestine','Lalezar','Tajawal','Amiri Quran'].map(f=>document.fonts.load(`40px "${f}"`)))).then(()=>{
   build();

@@ -9,10 +9,13 @@ import sys, subprocess, numpy as np, soundfile as sf
 from scipy import signal
 
 SR = 48000
-DUR = 67.0
+DUR = 65.3
+# event times below are written on the original timeline and warped to VO v2
+WARP_OLD = [0,3.0,5.56,7.25,9.86,11.89,14.72,17.35,21.65,26.53,31.38,36.67,41.48,46.7,49.32,50.77,51.97,53.28,54.77,56.77,60.41,67.0]
+WARP_NEW = [0,3.01,5.54,7.01,9.65,11.68,14.42,16.97,21.1,25.66,30.46,35.34,39.81,45.15,47.66,49.13,50.42,51.73,53.26,55.31,58.53,65.3]
 N = int(DUR * SR)
 rng = np.random.default_rng(11)
-VO_OFFSET = 3.0
+VO_OFFSET = 2.65
 TS = [21.2, 25.9, 30.75, 36.0, 40.85]          # station starts (index.html)
 FT = [9.8, 11.8, 14.6, 17.3, 18.5, 18.8]        # ticket fields
 
@@ -20,6 +23,7 @@ FT = [9.8, 11.8, 14.6, 17.3, 18.5, 18.8]        # ticket fields
 B = {k: np.zeros((N, 2)) for k in ('dry', 'send', 'bed')}
 def place(x, t, g=1.0, pan=0.0, send=0.25, bus='dry'):
     if x.ndim == 1: x = pan2(x, pan)
+    t = float(np.interp(t, WARP_OLD, WARP_NEW))
     i = int(round(t * SR))
     if i < 0: x, i = x[-i:], 0
     j = min(N, i + len(x))
@@ -269,7 +273,7 @@ def main(vo_path, out):
     vo_g = 10 ** (0 / 20)
     mix = V * vo_g + sfx * .40 * duck_sfx[:, None]
     # tail fade
-    f0 = int(65.6 * SR); mix[f0:] *= np.linspace(1, 0, N - f0)[:, None] ** 1.5
+    f0 = int(63.9 * SR); mix[f0:] *= np.linspace(1, 0, N - f0)[:, None] ** 1.5
     mix = np.tanh(mix * 1.1) / 1.1
     sf.write(f'{out}/mix_raw.wav', mix.astype(np.float32), SR)
     sf.write(f'{out}/stem_sfx.wav', (sfx * .40).astype(np.float32), SR)
