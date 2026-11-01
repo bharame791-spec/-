@@ -117,7 +117,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 .cv-photo{position:absolute;inset:0;z-index:0;background:url(photos/sidon-cine.jpg) 58% 0/auto 1500px no-repeat;filter:contrast(1.05) saturate(1.1)}
 .cv-photo::after{content:"";position:absolute;inset:0;background:
   radial-gradient(120% 80% at 50% 40%,transparent 35%,rgba(3,8,22,.85) 100%),
-  linear-gradient(180deg,rgba(5,13,34,.75) 0%,rgba(5,13,34,.05) 22%,rgba(5,13,34,0) 45%,rgba(5,13,34,.82) 66%,#050D22 88%)}
+  linear-gradient(180deg,rgba(5,13,34,.75) 0%,rgba(5,13,34,.05) 22%,rgba(5,13,34,0) 38%,rgba(5,13,34,.9) 54%,#050D22 72%)}
 .cv-light{position:absolute;inset:0;z-index:0;mix-blend-mode:screen;background:
   radial-gradient(380px 300px at 62% 26%,rgba(255,240,215,.38),transparent 70%),
   conic-gradient(from 200deg at 62% 18%,transparent 0deg,rgba(207,224,255,.10) 12deg,transparent 22deg,rgba(207,224,255,.08) 38deg,transparent 50deg,rgba(207,224,255,.07) 70deg,transparent 85deg)}
@@ -128,7 +128,13 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 .cover .ln .k{text-shadow:none}
 .cover .kick{color:#C9D6EE;text-shadow:0 2px 14px rgba(3,8,22,.95),0 0 4px rgba(3,8,22,.8)}
 .cover .tail{text-shadow:0 2px 14px rgba(3,8,22,.9)}
-.cover .swipe{bottom:132px!important}
+.cover .swipe{bottom:118px!important}
+
+.cover .kick{color:#fff;font-weight:600}
+.tail2{display:flex;align-items:center;gap:22px;margin-top:26px}
+.tail2 .rl{flex:1;height:2px;background:linear-gradient(90deg,rgba(143,169,214,0),rgba(143,169,214,.9))}
+.tail2 .rl:last-child{background:linear-gradient(270deg,rgba(143,169,214,0),rgba(143,169,214,.9))}
+.tail2 .tt{font-family:var(--h);font-weight:600;font-size:46px;color:#C9D6EE;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -178,14 +184,14 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
   <div class="cv-grain"></div>
 
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
-  <div class="tag"><i></i>تقدير موقف</div>
+  <div class="tag"><i></i>المشهد العسكري</div>
 
   <div class="tb" style="top:705px">
     <div class="tbi" style="--ts:70px">
       <div class="kick"><span>التهديد باحتلال مدن لبنانية وحصار الموانئ..</span></div>
       <div class="ln"><span class="k">رسائل الردع الإسرائيلية</span></div>
       <div class="ln hlbox"><span class="k">لمنع انخراط حزب الله</span></div>
-      <div class="tail">في مواجهة إيران</div>
+      <div class="tail2"><span class="rl"></span><span class="tt">في مواجهة إيران</span><span class="rl"></span></div>
     </div>
   </div>
 
@@ -204,7 +210,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 <section class="slide light" id="s2">
   <div class="photo" style="height:520px;background-image:url(photos/port-light.jpg);background-position:center 60%"></div>
   <img class="logo" src="assets/logo-navy-full.png" alt="رام">
-  <div class="tag"><i></i>تقدير موقف</div>
+  <div class="tag"><i></i>المشهد العسكري</div>
   <div class="art">
     <div class="atitle">ماذا كشفت «معاريف»؟</div>
     <div class="jp">كشفت صحيفة «معاريف» العبرية أن جيش الاحتلال أعدّ خططاً لاحتلال مدن لبنانية، من بينها صور وصيدا والنبطية، وفرض حصار بحري على ميناءَي بيروت وطرابلس، ما يعكس مستوى متقدماً من الاستعداد العسكري لسيناريوهات تصعيد واسعة قد تمتد إلى الجبهة اللبنانية.</div>
@@ -220,7 +226,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 <section class="slide light" id="s3">
   <div class="photo" style="height:500px;background-image:url(photos/warroom-light.jpg);background-position:center 30%"></div>
   <img class="logo" src="assets/logo-navy-full.png" alt="رام">
-  <div class="tag"><i></i>تقدير موقف</div>
+  <div class="tag"><i></i>المشهد العسكري</div>
   <div class="art">
     <div class="atitle">الخطة لا تعني قرار الحرب</div>
     <div class="jp">من الضروري التمييز بين إعداد الخطط العسكرية واتخاذ القرار السياسي والعسكري بتنفيذها؛ فهذه التحركات تندرج في إطار الجاهزية العملياتية، وتوظيف التهديد كأداة للردع والتأثير في حسابات حزب الله، في ظل تصاعد الحديث عن مواجهة أميركية إسرائيلية محتملة مع إيران.</div>
@@ -236,7 +242,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 <section class="slide light" id="s4">
   <div class="photo" style="height:480px;background-image:url(photos/dome-light.jpg);background-position:center 40%"></div>
   <img class="logo" src="assets/logo-navy-full.png" alt="رام">
-  <div class="tag"><i></i>تقدير موقف</div>
+  <div class="tag"><i></i>المشهد العسكري</div>
   <div class="art">
     <div class="atitle">المعضلة الإسرائيلية</div>
     <div class="jp">تكمن المعضلة الإسرائيلية في كيفية تجنّب الانزلاق إلى حرب متعددة الجبهات، في الوقت الذي تستعد فيه لاحتمالات اتساع المواجهة، وهو ما يضع قدراتها العسكرية أمام اختبار معقد. ومن هنا يمكن قراءة التهديدات كمحاولة لتحييد حزب الله مسبقاً، برفع كلفة تدخله في أي مواجهة ضد إيران.</div>
@@ -267,7 +273,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
     </g>
   </svg>
   <img class="logo" src="assets/logo-navy-full.png" alt="رام">
-  <div class="tag"><i></i>تقدير موقف</div>
+  <div class="tag"><i></i>المشهد العسكري</div>
   <div class="art">
     <div class="atitle">دلالات الأهداف</div>
     <div class="jp">اختيار صور وصيدا والنبطية يتجاوز سيناريوهات التوغّل المحدود في المناطق الحدودية، ليعكس الاستعداد لتوسيع العمليات البرية نحو عمق لبنان. أما التلويح بحصار ميناءَي بيروت وطرابلس، فيشير إلى توسيع الضغط ليشمل البنية الاقتصادية واللوجستية اللبنانية، لا القدرات العسكرية لحزب الله فقط.</div>
@@ -283,7 +289,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 <section class="slide light" id="s6">
   <div class="photo" style="height:520px;background-image:url(photos/border-light.jpg);background-position:center 40%"></div>
   <img class="logo" src="assets/logo-navy-full.png" alt="رام">
-  <div class="tag"><i></i>تقدير موقف</div>
+  <div class="tag"><i></i>المشهد العسكري</div>
   <div class="art">
     <div class="atitle">معادلة ردع استباقية</div>
     <div class="jp">تتجاوز الرسالة الإسرائيلية التهديد العسكري المباشر إلى محاولة فرض معادلة ردع استباقية، قوامها منع حزب الله من فتح جبهة إسناد لإيران، مع إبقاء خيار الحرب الواسعة على لبنان حاضراً ضمن حسابات الجاهزية الإسرائيلية، تحسباً لفشل الردع واتساع المواجهة إلى أكثر من جبهة.</div>
