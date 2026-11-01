@@ -19,7 +19,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction:column;align-items:center;gap:40px;padding:40px 0}
 
-.slide{width:1080px;height:1350px;position:relative;overflow:hidden;
+.slide{width:1080px;height:1440px;position:relative;overflow:hidden;
   background:radial-gradient(700px 520px at 85% 8%,rgba(47,80,137,.55),transparent 70%),linear-gradient(180deg,#0E2455 0%,#0A1B42 45%,#071530 100%)}
 .slide::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
   background:repeating-linear-gradient(90deg,rgba(147,159,173,.06) 0 1px,transparent 1px 90px),repeating-linear-gradient(0deg,rgba(147,159,173,.06) 0 1px,transparent 1px 90px);
@@ -114,7 +114,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 /* ===== غلاف سينمائي ===== */
 .cover{background:#050D22}
 .cover::before{display:none}
-.cv-photo{position:absolute;inset:0;z-index:0;background:url(photos/sidon-cine.jpg) 58% 0/auto 1500px no-repeat;filter:contrast(1.05) saturate(1.1)}
+.cv-photo{position:absolute;inset:0;z-index:0;background:url(photos/sidon-cine.jpg) 58% 0/auto 1600px no-repeat;filter:contrast(1.05) saturate(1.1)}
 .cv-photo::after{content:"";position:absolute;inset:0;background:
   radial-gradient(120% 80% at 50% 40%,transparent 35%,rgba(3,8,22,.85) 100%),
   linear-gradient(180deg,rgba(5,13,34,.75) 0%,rgba(5,13,34,.05) 22%,rgba(5,13,34,0) 38%,rgba(5,13,34,.9) 54%,#050D22 72%)}
@@ -181,7 +181,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
       <g transform="translate(935,720) scale(2.2)"><path d="M2.5 15.5h19l-2.6 4.2H5.1z M6 15.5v-3.8h11v3.8 M9 11.7V8.6h5v3.1 M11.5 8.6V5.2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></g>
     </g>
     <!-- علامة الاستهداف فوق المدينة -->
-    <g transform="translate(480,445) scale(.86)" filter="url(#glow)">
+    <g transform="translate(480,480) scale(.9)" filter="url(#glow)">
       <circle r="150" fill="url(#rg)"/>
       <circle r="118" fill="none" stroke="#fff" stroke-width="2" opacity=".85"/>
       <circle r="150" fill="none" stroke="#E9EDF3" stroke-width="1.5" stroke-dasharray="4 10" opacity=".7"/>
@@ -191,7 +191,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
       <path d="M-84 -84 l0 26 M-84 -84 l26 0 M84 -84 l0 26 M84 -84 l-26 0 M-84 84 l0 -26 M-84 84 l26 0 M84 84 l0 -26 M84 84 l-26 0" stroke="#AFC3E6" stroke-width="2.5" stroke-linecap="round"/>
     </g>
     <g font-family="Readex" font-weight="400" font-size="22" fill="#E9EDF3" letter-spacing="3" direction="ltr" filter="url(#glow)">
-      <text x="640" y="330">صيدا · صور · النبطية</text>
+      <text x="640" y="355">صيدا · صور · النبطية</text>
     </g>
   </svg>
   <div class="cv-grain"></div>
@@ -199,7 +199,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
   <div class="tag"><i></i>المشهد العسكري</div>
 
-  <div class="tb" style="top:705px">
+  <div class="tb" style="top:775px">
     <div class="tbi" style="--ts:70px">
       <div class="kick"><span>التهديد باحتلال مدن لبنانية وحصار الموانئ..</span></div>
       <div class="ln"><span class="k">رسائل الردع الإسرائيلية</span></div>
@@ -258,17 +258,17 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 
 <!-- ============ 4. ============ -->
 <section class="slide light" id="s4">
-  <div class="photo" style="height:640px;background-image:url(photos/dome-light.jpg);background-position:center 35%;-webkit-mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 82%,transparent 100%);mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 82%,transparent 100%);top:140px;bottom:auto"></div>
+  <div class="photo" style="height:720px;background-image:url(photos/dome-light.jpg);background-position:center 35%;-webkit-mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 82%,transparent 100%);mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 82%,transparent 100%);top:140px;bottom:auto"></div>
   <img class="logo" src="assets/logo-navy-full.png" alt="رام">
   <div class="tag"><i></i>المشهد العسكري</div>
-  <div class="gcard" style="top:575px">
+  <div class="gcard" style="top:640px">
     <div class="atitle">المعضلة الإسرائيلية</div>
     <div class="jp">تكمن المعضلة الإسرائيلية في كيفية تجنّب الانزلاق إلى حرب متعددة الجبهات، في الوقت الذي تستعد فيه لاحتمالات اتساع المواجهة، وهو ما يضع قدراتها العسكرية أمام اختبار معقد. ومن هنا يمكن قراءة التهديدات كمحاولة لتحييد حزب الله مسبقاً، برفع كلفة تدخله في أي مواجهة ضد إيران.</div>
     <div class="hook">فلماذا هذه المدن تحديداً؟</div>
     <div class="gbadge" style="right:48px;top:-50px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15.5 M8 19.5h8 M5 7.5h14 M5 7.5l-2.6 5.5h5.2z M19 7.5l-2.6 5.5h5.2z"/></svg></div>
   </div>
-<svg class="spark2" style="left:820px;top:470px" width="52" height="52" viewBox="0 0 40 40"><path d="M20 2 C21 14 26 19 38 20 C26 21 21 26 20 38 C19 26 14 21 2 20 C14 19 19 14 20 2Z" fill="none" stroke="#5D7FB8" stroke-width="1.9"/></svg>
-<svg class="spark2" style="left:890px;top:515px" width="24" height="24" viewBox="0 0 40 40"><path d="M20 2 C21 14 26 19 38 20 C26 21 21 26 20 38 C19 26 14 21 2 20 C14 19 19 14 20 2Z" fill="none" stroke="#5D7FB8" stroke-width="1.9"/></svg>
+<svg class="spark2" style="left:820px;top:535px" width="52" height="52" viewBox="0 0 40 40"><path d="M20 2 C21 14 26 19 38 20 C26 21 21 26 20 38 C19 26 14 21 2 20 C14 19 19 14 20 2Z" fill="none" stroke="#5D7FB8" stroke-width="1.9"/></svg>
+<svg class="spark2" style="left:890px;top:580px" width="24" height="24" viewBox="0 0 40 40"><path d="M20 2 C21 14 26 19 38 20 C26 21 21 26 20 38 C19 26 14 21 2 20 C14 19 19 14 20 2Z" fill="none" stroke="#5D7FB8" stroke-width="1.9"/></svg>
   <div class="foot">
     <div>تحليل: <b>رامي أبو زبيدة</b></div>
     <div class="pg"><em>04</em> / 06</div>
