@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <title>كاروسيل رسائل الردع</title>
 <style>
-/* خطوط هوية رام: العناوين Readex Pro — النصوص IBM Plex Sans Arabic */
 @font-face{font-family:"Readex";src:url(fonts/ReadexPro-400.ttf);font-weight:400}
 @font-face{font-family:"Readex";src:url(fonts/ReadexPro-600.ttf);font-weight:600}
 @font-face{font-family:"Readex";src:url(fonts/ReadexPro-700.ttf);font-weight:700}
@@ -14,248 +13,185 @@
 @font-face{font-family:"Plex";src:url(fonts/IBMPlexSansArabic-700.ttf);font-weight:700}
 
 :root{
-  --navy:#102A62; --night:#071530; --royal:#2F5089; --sky:#5D7FB8; --steel:#939FAD; --silver:#E9EDF3;
-  --sky-l:#8FA9D6;
+  --navy:#102A62; --night:#071530; --royal:#2F5089; --sky:#5D7FB8; --steel:#939FAD; --silver:#E9EDF3; --sky-l:#8FA9D6;
   --h:"Readex",sans-serif; --b:"Plex",sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction:column;align-items:center;gap:40px;padding:40px 0}
 
-/* ===== الخلفية: ليل عميق + وهج + شبكة إحداثيات ===== */
 .slide{width:1080px;height:1350px;position:relative;overflow:hidden;
-  background:
-    radial-gradient(520px 520px at var(--gx,30%) var(--gy,62%),rgba(93,127,184,.38),transparent 70%),
-    radial-gradient(700px 500px at 100% 0%,rgba(47,80,137,.45),transparent 70%),
-    linear-gradient(170deg,#0B1E48 0%,#071530 100%)}
-.slide::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:
-    repeating-linear-gradient(90deg,rgba(147,159,173,.07) 0 1px,transparent 1px 90px),
-    repeating-linear-gradient(0deg,rgba(147,159,173,.07) 0 1px,transparent 1px 90px);
-  -webkit-mask:radial-gradient(80% 70% at 50% 50%,#000 30%,transparent 100%);mask:radial-gradient(80% 70% at 50% 50%,#000 30%,transparent 100%)}
-.cross{position:absolute;width:28px;height:28px;opacity:.45}
-.cross::before,.cross::after{content:"";position:absolute;background:var(--steel)}
-.cross::before{left:13px;top:0;width:1.5px;height:28px}.cross::after{top:13px;left:0;height:1.5px;width:28px}
+  background:radial-gradient(700px 520px at 85% 8%,rgba(47,80,137,.55),transparent 70%),linear-gradient(180deg,#0E2455 0%,#0A1B42 45%,#071530 100%)}
+.slide::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(90deg,rgba(147,159,173,.06) 0 1px,transparent 1px 90px),repeating-linear-gradient(0deg,rgba(147,159,173,.06) 0 1px,transparent 1px 90px);
+  -webkit-mask:linear-gradient(180deg,#000 0%,transparent 55%);mask:linear-gradient(180deg,#000 0%,transparent 55%)}
+.slide > *{z-index:1}
 
-/* ===== الزجاج (وصفة الهوية) ===== */
-.glass{position:relative;border-radius:36px;
-  background:linear-gradient(150deg,rgba(255,255,255,.21) 0%,rgba(255,255,255,.06) 55%,rgba(255,255,255,.11) 100%);
-  backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
-  box-shadow:0 22px 44px rgba(7,21,48,.4)}
-.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;
-  background:linear-gradient(to bottom left,rgba(255,255,255,.75),rgba(255,255,255,.05) 50%,rgba(255,255,255,.35));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-.solid{background:linear-gradient(150deg,#5D7FB8 0%,#2F5089 55%,#102A62 100%);box-shadow:0 22px 44px rgba(7,21,48,.45)}
+/* الصورة: معالجة ثنائية اللون الكحلي + ذوبان في الخلفية */
+.photo{position:absolute;left:0;right:0;bottom:0;background-size:cover;background-position:center;z-index:0;
+  -webkit-mask:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 28%,#000 58%);mask:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 28%,#000 58%)}
+.photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,21,48,0) 55%,rgba(7,21,48,.92) 100%)}
+.photo.top{top:0;bottom:auto;-webkit-mask:linear-gradient(0deg,transparent 0%,#000 45%);mask:linear-gradient(0deg,transparent 0%,#000 45%)}
+.photo.top::after{background:linear-gradient(180deg,rgba(7,21,48,.35),rgba(7,21,48,0) 40%)}
 
-/* ===== ثوابت ===== */
-.logo{position:absolute;right:72px;top:64px;height:150px}
-.tag{position:absolute;left:72px;top:72px;border-radius:999px;padding:12px 30px 14px;font-family:var(--h);font-weight:600;font-size:26px;display:flex;gap:14px;align-items:center}
-.tag i{width:12px;height:12px;border-radius:50%;background:var(--sky-l);box-shadow:0 0 12px var(--sky)}
-.head{position:absolute;right:72px;left:72px;top:268px;text-align:right}
-.kicker{font-family:var(--h);font-weight:600;font-size:38px;color:var(--sky-l);line-height:1.4}
-.title{font-family:var(--h);font-weight:700;font-size:80px;line-height:1.25;color:#fff}
-.hl{display:inline-block;border-radius:22px;padding:4px 30px 14px;margin-top:14px}
-.foot{position:absolute;left:72px;right:72px;bottom:64px;display:flex;justify-content:space-between;align-items:center;font-size:24px;color:var(--steel)}
-.foot b{color:var(--silver);font-weight:600}
-.pg{font-family:var(--h);font-weight:600;letter-spacing:2px;direction:ltr;color:var(--steel)}
-.pg em{font-style:normal;color:#fff}
-.spark{position:absolute}
+.logo{position:absolute;right:72px;top:60px;height:132px}
+.tag{position:absolute;left:72px;top:72px;border-radius:999px;padding:10px 26px 12px;font-family:var(--h);font-weight:400;font-size:24px;color:var(--silver);
+  border:1.5px solid rgba(233,237,243,.35);background:rgba(255,255,255,.06);display:flex;gap:12px;align-items:center}
+.tag i{width:10px;height:10px;border-radius:50%;background:var(--sky-l)}
 
-.p{font-size:36px;line-height:1.6;font-weight:400;color:rgba(233,237,243,.9)}
-.p b{font-weight:700;color:#fff}
-.lab{font-family:var(--h);font-weight:700;font-size:46px;line-height:1.25;color:#fff}
-.cap{display:inline-block;border-radius:999px;padding:8px 26px 12px;font-family:var(--h);font-weight:600;font-size:30px;margin-left:12px}
-.dia{width:30px;height:30px;transform:rotate(45deg);border-radius:7px;flex:none;
-  background:linear-gradient(150deg,rgba(143,169,214,.9),rgba(47,80,137,.9));box-shadow:0 0 18px rgba(93,127,184,.6),inset 0 0 0 1.5px rgba(255,255,255,.5)}
-.ico{width:140px;height:140px;border-radius:31px;flex:none;display:flex;align-items:center;justify-content:center}
-.ico svg{width:76px;height:76px}
-.line-ico{fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.head{position:absolute;right:72px;left:72px;text-align:right}
+.kicker{font-family:var(--h);font-weight:400;font-size:38px;color:var(--sky-l);line-height:1.45}
+.title{font-family:var(--h);font-weight:700;font-size:82px;line-height:1.28;color:#fff;letter-spacing:-.5px}
+.sub{font-family:var(--h);font-weight:400;font-size:56px;line-height:1.3;color:var(--silver)}
+.hl{display:inline-block;background:linear-gradient(150deg,#5D7FB8,#2F5089 60%,#203f78);border-radius:16px;padding:2px 28px 14px}
+
+.p{font-family:var(--b);font-weight:400;font-size:35px;line-height:1.65;color:rgba(233,237,243,.88)}
+.p b{font-weight:600;color:#fff}
+.lab{font-family:var(--h);font-weight:600;font-size:42px;line-height:1.3;color:#fff}
+.meta{font-family:var(--h);font-weight:400;font-size:28px;color:var(--sky-l)}
+.dia{width:22px;height:22px;transform:rotate(45deg);border-radius:4px;flex:none;background:linear-gradient(150deg,#AFC3E6,#5D7FB8);box-shadow:0 0 0 7px rgba(93,127,184,.18)}
+
+.foot{position:absolute;left:72px;right:72px;bottom:58px;display:flex;justify-content:space-between;align-items:center;font-size:23px;color:var(--steel);z-index:3}
+.foot b{color:var(--silver);font-weight:500}
+.pg{font-family:var(--h);font-weight:400;letter-spacing:2px;direction:ltr}
+.pg em{font-style:normal;color:#fff;font-weight:600}
+.credit{position:absolute;left:72px;bottom:104px;font-size:18px;color:rgba(233,237,243,.55);z-index:3}
+
+/* خط القوس (من الريفرنس) */
+.frame{position:absolute;left:72px;right:72px;border:2px solid var(--sky);border-bottom:none;border-radius:28px 28px 0 0;
+  -webkit-mask:linear-gradient(180deg,#000 40%,transparent 100%);mask:linear-gradient(180deg,#000 40%,transparent 100%)}
+.vs{display:flex}
+.vs > div{flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 20px}
+.vs .sep{flex:none;width:1.5px;background:linear-gradient(180deg,transparent,rgba(233,237,243,.4),transparent);padding:0}
+.list{display:flex;flex-direction:column;gap:38px}
+.li{display:flex;gap:28px;align-items:flex-start}
+.li .dia{margin-top:20px}
+.num{font-family:var(--h);font-weight:700;font-size:30px;color:var(--sky-l);direction:ltr}
 </style>
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <symbol id="spark" viewBox="0 0 40 40"><path d="M20 2 C21 14 26 19 38 20 C26 21 21 26 20 38 C19 26 14 21 2 20 C14 19 19 14 20 2Z" fill="none" stroke="#C9D2DF" stroke-width="1.8" stroke-linejoin="round"/></symbol>
-    <symbol id="i-pin" viewBox="0 0 24 24"><path class="line-ico" d="M12 21.5s-7-6.1-7-11.6a7 7 0 0 1 14 0c0 5.5-7 11.6-7 11.6z"/><circle class="line-ico" cx="12" cy="9.8" r="2.6"/></symbol>
-    <symbol id="i-ship" viewBox="0 0 24 24"><path class="line-ico" d="M2.5 15.5h19l-2.6 4.2H5.1z M6 15.5v-3.8h11v3.8 M9 11.7V8.6h5v3.1 M11.5 8.6V5.2"/><path class="line-ico" d="M2.5 22c1.6 0 1.6-.9 3.2-.9s1.6.9 3.2.9 1.6-.9 3.2-.9 1.6.9 3.2.9 1.6-.9 3.2-.9 1.6.9 3.2.9" opacity=".6"/></symbol>
-    <symbol id="i-shield" viewBox="0 0 24 24"><path class="line-ico" d="M12 2.8l7.5 3v5.4c0 5-3.3 8.7-7.5 10.2C7.8 19.9 4.5 16.2 4.5 11.2V5.8z"/><path class="line-ico" d="M8.7 12l2.3 2.3 4.4-4.6"/></symbol>
-    <symbol id="i-ctx" viewBox="0 0 24 24"><circle class="line-ico" cx="12" cy="12" r="9"/><path class="line-ico" d="M3 12h18 M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></symbol>
-    <symbol id="ship" viewBox="0 0 24 24"><path d="M2.5 15.5h19l-2.6 4.2H5.1z M6 15.5v-3.8h11v3.8 M9 11.7V8.6h5v3.1 M11.5 8.6V5.2" fill="none" stroke="#E9EDF3" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></symbol>
     <path id="lb" d="M231.3,36.0 L273.6,31.5 L318.3,18.0 L348.2,27.0 L385.5,36.0 L380.5,69.0 L353.2,99.0 L348.2,141.0 L330.8,186.0 L310.9,225.0 L286.0,270.0 L256.2,309.0 L226.3,345.0 L216.4,381.0 L191.5,417.0 L161.7,441.0 L136.8,444.0 L116.9,489.0 L82.1,498.0 L42.3,501.0 L14.9,495.0 L29.8,471.0 L34.8,444.0 L49.7,411.0 L67.1,375.0 L77.1,357.0 L92.0,330.0 L102.0,300.0 L106.9,273.0 L104.5,258.0 L116.9,249.0 L136.8,219.0 L146.7,189.0 L151.7,150.0 L169.1,126.0 L186.5,105.0 L189.0,90.0 L201.4,84.0 L226.3,60.0Z"/>
-    <linearGradient id="gfill" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".26"/><stop offset=".55" stop-color="#fff" stop-opacity=".07"/><stop offset="1" stop-color="#fff" stop-opacity=".14"/></linearGradient>
-    <linearGradient id="gstroke" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".5" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity=".45"/></linearGradient>
-    <radialGradient id="pglow"><stop offset="0" stop-color="#8FA9D6" stop-opacity=".8"/><stop offset="1" stop-color="#5D7FB8" stop-opacity="0"/></radialGradient>
+    <symbol id="ship" viewBox="0 0 24 24"><path d="M2.5 15.5h19l-2.6 4.2H5.1z M6 15.5v-3.8h11v3.8 M9 11.7V8.6h5v3.1 M11.5 8.6V5.2" fill="none" stroke="#E9EDF3" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <linearGradient id="gfill" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></linearGradient>
+    <linearGradient id="gstroke" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".5" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".45"/></linearGradient>
+    <radialGradient id="pglow"><stop offset="0" stop-color="#AFC3E6" stop-opacity=".9"/><stop offset="1" stop-color="#5D7FB8" stop-opacity="0"/></radialGradient>
   </defs>
 </svg>
 
-<!-- =============== 1. الغلاف =============== -->
-<section class="slide" id="s1" style="--gx:62%;--gy:72%">
-  <span class="cross" style="left:150px;top:640px"></span><span class="cross" style="right:150px;top:1160px"></span>
+<!-- ============ 1. الغلاف ============ -->
+<section class="slide" id="s1">
+  <div class="photo" style="height:760px;background-image:url(photos/sidon.jpg);background-position:center 40%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
-  <div class="tag glass"><i></i>تقدير موقف</div>
+  <div class="tag"><i></i>تقدير موقف</div>
 
-  <div class="head">
+  <div class="head" style="top:250px">
     <div class="kicker">التهديد باحتلال مدن لبنانية وحصار الموانئ..</div>
-    <div class="title" style="margin-top:10px">رسائل الردع الإسرائيلية</div>
-    <div class="title hl solid" style="font-size:70px">لمنع انخراط حزب الله</div>
-    <div class="title" style="font-size:58px;color:var(--silver);margin-top:12px">في مواجهة إيران</div>
+    <div class="title" style="margin-top:18px">رسائل الردع الإسرائيلية</div>
+    <div class="title hl" style="font-size:70px;margin-top:12px">لمنع انخراط حزب الله</div>
+    <div class="sub" style="margin-top:18px">في مواجهة إيران</div>
   </div>
 
-  <svg style="position:absolute;left:0;top:690px" width="1080" height="520" viewBox="0 0 1080 520">
-    <g transform="translate(560,6) scale(.98)">
-      <ellipse cx="150" cy="300" rx="260" ry="240" fill="url(#pglow)" opacity=".35"/>
-      <use href="#lb" fill="url(#gfill)" stroke="url(#gstroke)" stroke-width="2.5"/>
-      <g fill="none" stroke="#C9D2DF" stroke-width="2.5" stroke-dasharray="10 9" opacity=".8">
-        <path d="M111.9,258 m-150,0 a150,150 0 0 1 150,-150"/>
-        <path d="M111.9,258 m0,150 a150,150 0 0 1 -150,-150"/>
-        <path d="M196.5,93 m-120,0 a120,120 0 0 1 120,-90"/>
-      </g>
-      <use href="#ship" x="-112" y="228" width="58" height="58"/>
-      <use href="#ship" x="-40" y="42" width="48" height="48"/>
-      <use href="#ship" x="-80" y="360" width="48" height="48"/>
-      <g>
-        <circle cx="37.3" cy="444" r="30" fill="url(#pglow)"/><circle cx="79.6" cy="357" r="30" fill="url(#pglow)"/><circle cx="106.9" cy="411" r="30" fill="url(#pglow)"/>
-        <circle cx="37.3" cy="444" r="8" fill="#fff"/><circle cx="79.6" cy="357" r="8" fill="#fff"/><circle cx="106.9" cy="411" r="8" fill="#fff"/>
-        <circle cx="111.9" cy="258" r="6" fill="none" stroke="#fff" stroke-width="2.5"/><circle cx="196.5" cy="93" r="6" fill="none" stroke="#fff" stroke-width="2.5"/>
-      </g>
-    </g>
-  </svg>
-  <svg class="spark" style="left:470px;top:700px" width="56" height="56"><use href="#spark"/></svg>
-  <svg class="spark" style="left:440px;top:752px" width="28" height="28"><use href="#spark"/></svg>
-
+  <div class="credit">صيدا، جنوب لبنان · المصدر: ......</div>
   <div class="foot">
     <div><b>قراءة: رامي أبو زبيدة</b> · محلل للشؤون العسكرية</div>
     <div class="pg">اسحب ←</div>
   </div>
 </section>
 
-<!-- =============== 2. ماذا كشفت معاريف =============== -->
-<section class="slide" id="s2" style="--gx:20%;--gy:55%">
+<!-- ============ 2. ماذا كشفت معاريف ============ -->
+<section class="slide" id="s2">
+  <div class="photo" style="height:640px;background-image:url(photos/port.jpg);background-position:center 60%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
-  <div class="tag glass"><i></i>تقدير موقف</div>
-  <div class="head">
+  <div class="tag"><i></i>تقدير موقف</div>
+
+  <div class="head" style="top:230px">
     <div class="kicker">خطط جيش الاحتلال للجبهة اللبنانية</div>
-    <div class="title">ماذا كشفت «معاريف»؟</div>
+    <div class="title" style="margin-top:10px">ماذا كشفت «معاريف»؟</div>
   </div>
 
-  <div class="glass" style="position:absolute;left:72px;right:72px;top:500px;height:230px;display:flex;align-items:center;gap:36px;padding:0 44px">
-    <div class="ico glass"><svg><use href="#i-pin"/></svg></div>
-    <div>
-      <div class="lab">احتلال مدن لبنانية</div>
-      <div style="margin-top:20px"><span class="cap glass">صور</span><span class="cap glass">صيدا</span><span class="cap glass">النبطية</span></div>
-    </div>
+  <div class="frame" style="top:500px;height:330px"></div>
+  <div style="position:absolute;left:120px;right:120px;top:536px;text-align:center">
+    <div class="p">خطط معدّة لاحتلال مدن في جنوب لبنان،<br>وفرض <b>حصار بحري</b> على أهم موانئه</div>
   </div>
-  <div class="glass" style="position:absolute;left:72px;right:72px;top:762px;height:230px;display:flex;align-items:center;gap:36px;padding:0 44px">
-    <div class="ico glass"><svg><use href="#i-ship"/></svg></div>
-    <div>
-      <div class="lab">حصار بحري على الموانئ</div>
-      <div style="margin-top:20px"><span class="cap glass">ميناء بيروت</span><span class="cap glass">ميناء طرابلس</span></div>
-    </div>
+  <div class="vs" style="position:absolute;left:72px;right:72px;top:710px">
+    <div><div class="dia"></div><div class="lab" style="margin-top:14px">احتلال مدن</div><div class="p" style="font-size:32px">صور · صيدا · النبطية</div></div>
+    <div class="sep"></div>
+    <div><div class="dia"></div><div class="lab" style="margin-top:14px">حصار بحري</div><div class="p" style="font-size:32px">ميناءا بيروت وطرابلس</div></div>
   </div>
 
-  <div class="solid" style="position:absolute;left:72px;right:72px;top:1030px;border-radius:36px;padding:34px 48px;display:flex;gap:30px;align-items:center">
-    <div class="p" style="color:#fff">مستوى متقدم من <b>الاستعداد العسكري</b> لسيناريوهات تصعيد واسعة قد تمتد إلى الجبهة اللبنانية</div>
-  </div>
-
+  <div class="credit">ميناء بيروت · المصدر: ......</div>
   <div class="foot">
     <div>المصدر: <b>صحيفة معاريف العبرية</b></div>
     <div class="pg"><em>02</em> / 06</div>
   </div>
 </section>
 
-<!-- =============== 3. الخطة لا تعني القرار =============== -->
-<section class="slide" id="s3" style="--gx:50%;--gy:60%">
+<!-- ============ 3. الخطة لا تعني القرار ============ -->
+<section class="slide" id="s3">
+  <div class="photo" style="height:520px;background-image:url(photos/warroom.jpg);background-position:center 30%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
-  <div class="tag glass"><i></i>تقدير موقف</div>
-  <div class="head">
+  <div class="tag"><i></i>تقدير موقف</div>
+
+  <div class="head" style="top:230px">
     <div class="kicker">بين التخطيط والتنفيذ</div>
-    <div class="title">الخطة لا تعني قرار الحرب</div>
+    <div class="title" style="margin-top:10px;font-size:74px">الخطة لا تعني قرار الحرب</div>
   </div>
 
-  <div class="glass" style="position:absolute;left:72px;right:72px;top:500px;padding:36px 50px;text-align:center">
-    <div class="p">إعداد الخطط العسكرية شيء، واتخاذ القرار<br><b>السياسي والعسكري بتنفيذها</b> شيء آخر</div>
-  </div>
-  <svg style="position:absolute;left:72px;top:686px" width="936" height="110" viewBox="0 0 936 110" fill="none" stroke="#939FAD" stroke-width="2.5">
-    <path d="M468 0 V50"/><path d="M234 104 V72 q0 -22 22 -22 H680 q22 0 22 22 V104"/>
-  </svg>
-  <div style="position:absolute;left:72px;right:72px;top:790px;display:flex">
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center">
-      <div class="dia"></div>
-      <div class="lab" style="font-size:44px">جاهزية عملياتية</div>
-      <div class="p" style="font-size:33px;line-height:1.5">استعداد مسبق<br>لسيناريوهات المواجهة</div>
-    </div>
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center">
-      <div class="dia"></div>
-      <div class="lab" style="font-size:44px">أداة ردع</div>
-      <div class="p" style="font-size:33px;line-height:1.5">التأثير في<br>حسابات حزب الله</div>
-    </div>
+  <div class="list" style="position:absolute;right:72px;left:110px;top:440px;gap:30px">
+    <div class="li"><div class="dia"></div><div class="p">إعداد الخطط العسكرية <b>لا يعني</b> اتخاذ القرار السياسي والعسكري بتنفيذها</div></div>
+    <div class="li"><div class="dia"></div><div class="p"><b>جاهزية عملياتية</b> واستعداد مسبق لسيناريوهات المواجهة</div></div>
+    <div class="li"><div class="dia"></div><div class="p"><b>أداة ردع</b> للتأثير في حسابات حزب الله، مع تصاعد الحديث عن مواجهة محتملة مع إيران</div></div>
   </div>
 
-  <div class="glass" style="position:absolute;left:72px;right:72px;top:1060px;padding:28px 36px;display:flex;gap:28px;align-items:center;border-radius:32px">
-    <div class="ico solid" style="width:96px;height:96px;border-radius:22px"><svg style="width:54px;height:54px"><use href="#i-ctx"/></svg></div>
-    <div><div style="font-family:var(--h);font-weight:600;font-size:26px;color:var(--sky-l)">السياق</div>
-    <div class="p" style="font-size:31px;line-height:1.45">تصاعد الحديث عن مواجهة أميركية إسرائيلية محتملة مع إيران</div></div>
-  </div>
-
+  <div class="credit">المصدر: ......</div>
   <div class="foot">
     <div>تحليل: <b>رامي أبو زبيدة</b></div>
     <div class="pg"><em>03</em> / 06</div>
   </div>
 </section>
 
-<!-- =============== 4. المعضلة =============== -->
-<section class="slide" id="s4" style="--gx:50%;--gy:52%">
+<!-- ============ 4. المعضلة ============ -->
+<section class="slide" id="s4">
+  <div class="photo top" style="height:660px;background-image:url(photos/dome.jpg);background-position:center 30%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
-  <div class="tag glass"><i></i>تقدير موقف</div>
-  <div class="head">
+  <div class="tag"><i></i>تقدير موقف</div>
+
+  <div class="head" style="top:560px">
     <div class="kicker">بين الاستعداد والتجنّب</div>
-    <div class="title">المعضلة الإسرائيلية</div>
+    <div class="title" style="margin-top:10px">المعضلة الإسرائيلية</div>
   </div>
 
-  <svg style="position:absolute;left:90px;top:500px" width="900" height="290" viewBox="0 0 900 290">
-    <defs><linearGradient id="pan" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient></defs>
-    <g stroke="#E9EDF3" stroke-linecap="round" fill="none">
-      <path d="M450 36 V262" stroke-width="7"/>
-      <path d="M370 266 h160" stroke-width="9"/>
-      <path d="M190 80 H710" stroke-width="6"/>
-      <path d="M190 80 L128 210 M190 80 L252 210 M710 80 L648 210 M710 80 L772 210" stroke-width="2" stroke="#939FAD"/>
-    </g>
-    <circle cx="450" cy="80" r="18" fill="#2F5089" stroke="#E9EDF3" stroke-width="4"/>
-    <path d="M100 210 h180 a90 32 0 0 1 -180 0z" fill="url(#pan)" stroke="url(#gstroke)" stroke-width="2"/>
-    <path d="M620 210 h180 a90 32 0 0 1 -180 0z" fill="url(#pan)" stroke="url(#gstroke)" stroke-width="2"/>
-  </svg>
-  <svg class="spark" style="left:600px;top:470px" width="44" height="44"><use href="#spark"/></svg>
-
-  <div style="position:absolute;right:120px;top:810px;width:380px;text-align:center">
-    <div class="lab" style="font-size:44px">التجنّب</div>
-    <div class="p" style="font-size:33px;margin-top:6px;line-height:1.5">للانزلاق إلى حرب<br>متعددة الجبهات</div>
-  </div>
-  <div style="position:absolute;left:120px;top:810px;width:380px;text-align:center">
-    <div class="lab" style="font-size:44px">الاستعداد</div>
-    <div class="p" style="font-size:33px;margin-top:6px;line-height:1.5">لاحتمالات اتساع<br>المواجهة</div>
+  <div class="vs" style="position:absolute;left:72px;right:72px;top:830px">
+    <div><div class="meta">تستعد</div><div class="lab">لاحتمالات اتساع<br>المواجهة</div></div>
+    <div class="sep"></div>
+    <div><div class="meta">وتحاول تجنّب</div><div class="lab">الانزلاق إلى حرب<br>متعددة الجبهات</div></div>
   </div>
 
-  <div class="glass" style="position:absolute;left:72px;right:72px;top:1050px;padding:30px 40px;text-align:center">
-    <div class="p" style="font-size:36px">معادلة تضع القدرات العسكرية الإسرائيلية أمام</div>
-    <div class="hl solid" style="font-family:var(--h);font-weight:700;font-size:44px;margin-top:10px;padding:4px 30px 12px">اختبار معقد</div>
+  <div style="position:absolute;left:72px;right:72px;top:1080px;text-align:center">
+    <div style="height:1.5px;background:linear-gradient(90deg,transparent,rgba(147,159,173,.5),transparent);margin-bottom:34px"></div>
+    <div class="p">معادلة تضع القدرات العسكرية الإسرائيلية أمام <b style="color:var(--sky-l)">اختبار معقد</b></div>
   </div>
 
+  <div class="credit">اعتراضات فوق تل أبيب · المصدر: ......</div>
   <div class="foot">
     <div>تحليل: <b>رامي أبو زبيدة</b></div>
     <div class="pg"><em>04</em> / 06</div>
   </div>
 </section>
 
-<!-- =============== 5. دلالات الأهداف =============== -->
-<section class="slide" id="s5" style="--gx:22%;--gy:60%">
+<!-- ============ 5. دلالات الأهداف ============ -->
+<section class="slide" id="s5">
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
-  <div class="tag glass"><i></i>تقدير موقف</div>
-  <div class="head">
+  <div class="tag"><i></i>تقدير موقف</div>
+  <div class="head" style="top:230px">
     <div class="kicker">أبعد من التوغّل الحدودي</div>
-    <div class="title">دلالات الأهداف</div>
+    <div class="title" style="margin-top:10px">دلالات الأهداف</div>
   </div>
 
-  <svg style="position:absolute;left:0px;top:470px" width="480" height="680" viewBox="-110 -20 520 600">
+  <svg style="position:absolute;left:0px;top:470px" width="480" height="700" viewBox="-110 -20 520 600">
+    <ellipse cx="150" cy="300" rx="260" ry="260" fill="url(#pglow)" opacity=".25"/>
     <use href="#lb" fill="url(#gfill)" stroke="url(#gstroke)" stroke-width="2.5"/>
     <g fill="none" stroke="#C9D2DF" stroke-width="2.5" stroke-dasharray="9 8" opacity=".85">
       <path d="M111.9,258 m-110,0 a110,110 0 0 1 110,-110 M111.9,258 m0,110 a110,110 0 0 1 -110,-110"/>
@@ -266,7 +202,7 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
     <circle cx="37.3" cy="444" r="26" fill="url(#pglow)"/><circle cx="79.6" cy="357" r="26" fill="url(#pglow)"/><circle cx="106.9" cy="411" r="26" fill="url(#pglow)"/>
     <circle cx="37.3" cy="444" r="7" fill="#fff"/><circle cx="79.6" cy="357" r="7" fill="#fff"/><circle cx="106.9" cy="411" r="7" fill="#fff"/>
     <circle cx="111.9" cy="258" r="6" fill="none" stroke="#fff" stroke-width="2.5"/><circle cx="196.5" cy="93" r="6" fill="none" stroke="#fff" stroke-width="2.5"/>
-    <g font-family="Readex" font-weight="600" font-size="22" fill="#fff" direction="ltr">
+    <g font-family="Readex" font-weight="400" font-size="22" fill="#fff" direction="ltr">
       <text x="22" y="452" text-anchor="end">صور</text>
       <text x="64" y="364" text-anchor="end">صيدا</text>
       <text x="122" y="420" text-anchor="start">النبطية</text>
@@ -275,21 +211,17 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
     </g>
   </svg>
 
-  <div class="glass" style="position:absolute;right:72px;width:540px;top:500px;padding:44px 44px">
-    <div style="display:flex;gap:24px;align-items:flex-start">
-      <div class="dia" style="margin-top:16px"></div>
-      <div>
-        <div class="lab" style="font-size:38px">صور · صيدا · النبطية</div>
-        <div class="p" style="font-size:31px;margin-top:10px;line-height:1.55">توسيع العمليات البرية نحو <b>عمق لبنان</b>، لا مجرد توغّل محدود عند الحدود</div>
-      </div>
+  <div class="list" style="position:absolute;right:72px;width:540px;top:500px;gap:56px">
+    <div>
+      <div class="meta">التوغّل البرّي</div>
+      <div class="lab" style="margin:6px 0 12px">صور · صيدا · النبطية</div>
+      <div class="p" style="font-size:32px">استعداد لتوسيع العمليات نحو <b>عمق لبنان</b>، لا مجرد توغّل محدود عند الحدود</div>
     </div>
-    <div style="height:2px;background:linear-gradient(to left,rgba(255,255,255,.35),transparent);margin:36px 0"></div>
-    <div style="display:flex;gap:24px;align-items:flex-start">
-      <div class="dia" style="margin-top:16px"></div>
-      <div>
-        <div class="lab" style="font-size:38px">حصار بيروت وطرابلس</div>
-        <div class="p" style="font-size:31px;margin-top:10px;line-height:1.55">ضغط على <b>البنية الاقتصادية واللوجستية</b>، لا على قدرات حزب الله العسكرية فقط</div>
-      </div>
+    <div style="height:1.5px;background:linear-gradient(to left,rgba(147,159,173,.55),transparent)"></div>
+    <div>
+      <div class="meta">الحصار البحري</div>
+      <div class="lab" style="margin:6px 0 12px">بيروت وطرابلس</div>
+      <div class="p" style="font-size:32px">ضغط على <b>البنية الاقتصادية واللوجستية</b>، لا على قدرات حزب الله العسكرية فقط</div>
     </div>
   </div>
 
@@ -299,41 +231,24 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
   </div>
 </section>
 
-<!-- =============== 6. الخلاصة =============== -->
-<section class="slide" id="s6" style="--gx:25%;--gy:62%">
-  <span class="cross" style="left:120px;top:1150px"></span>
+<!-- ============ 6. الخلاصة ============ -->
+<section class="slide" id="s6">
+  <div class="photo" style="height:540px;background-image:url(photos/border.jpg);background-position:center 40%"></div>
   <img class="logo" src="assets/logo-white-full.png" alt="رام">
-  <div class="tag glass"><i></i>تقدير موقف</div>
-  <div class="head">
+  <div class="tag"><i></i>تقدير موقف</div>
+
+  <div class="head" style="top:230px">
     <div class="kicker">الخلاصة</div>
-    <div class="title">معادلة ردع استباقية</div>
+    <div class="title" style="margin-top:10px">معادلة ردع استباقية</div>
   </div>
 
-  <div class="solid" style="position:absolute;left:72px;top:520px;width:300px;height:300px;border-radius:66px;display:flex;align-items:center;justify-content:center">
-    <svg style="width:170px;height:170px"><use href="#i-shield"/></svg>
-  </div>
-  <svg class="spark" style="left:340px;top:480px" width="56" height="56"><use href="#spark"/></svg>
-  <svg class="spark" style="left:318px;top:536px" width="26" height="26"><use href="#spark"/></svg>
-  <div style="position:absolute;left:72px;top:860px;width:300px;text-align:center;font-family:var(--h);font-weight:600;font-size:30px;line-height:1.45;color:var(--sky-l)">رفع كلفة التدخّل<br>قبل أن يبدأ</div>
-
-  <div class="glass" style="position:absolute;right:72px;width:570px;top:500px;padding:40px 42px;display:flex;flex-direction:column;gap:34px">
-    <div style="display:flex;gap:24px;align-items:flex-start">
-      <div class="dia" style="margin-top:12px"></div>
-      <div><div style="font-family:var(--h);font-weight:600;font-size:28px;color:var(--sky-l)">الهدف</div>
-      <div class="p" style="font-size:33px;line-height:1.5;color:#fff">منع حزب الله من فتح جبهة إسناد لإيران</div></div>
-    </div>
-    <div style="display:flex;gap:24px;align-items:flex-start">
-      <div class="dia" style="margin-top:12px"></div>
-      <div><div style="font-family:var(--h);font-weight:600;font-size:28px;color:var(--sky-l)">الوسيلة</div>
-      <div class="p" style="font-size:33px;line-height:1.5;color:#fff">التلويح بنقل الحرب إلى عمق الأراضي اللبنانية</div></div>
-    </div>
-    <div style="display:flex;gap:24px;align-items:flex-start">
-      <div class="dia" style="margin-top:12px"></div>
-      <div><div style="font-family:var(--h);font-weight:600;font-size:28px;color:var(--sky-l)">الخيار القائم</div>
-      <div class="p" style="font-size:33px;line-height:1.5;color:#fff">إبقاء الحرب الواسعة على لبنان حاضرة تحسباً لفشل الردع</div></div>
-    </div>
+  <div class="list" style="position:absolute;right:72px;left:110px;top:480px;gap:34px">
+    <div class="li"><div class="num">01</div><div><div class="meta">الهدف</div><div class="p">منع حزب الله من <b>فتح جبهة إسناد</b> لإيران</div></div></div>
+    <div class="li"><div class="num">02</div><div><div class="meta">الوسيلة</div><div class="p">التلويح بنقل الحرب إلى <b>عمق الأراضي اللبنانية</b></div></div></div>
+    <div class="li"><div class="num">03</div><div><div class="meta">الخيار القائم</div><div class="p">إبقاء <b>الحرب الواسعة</b> حاضرة تحسباً لفشل الردع</div></div></div>
   </div>
 
+  <div class="credit">الحدود اللبنانية · المصدر: ......</div>
   <div class="foot">
     <div>تحليل: <b>رامي أبو زبيدة</b></div>
     <div class="pg"><em>06</em> / 06</div>
