@@ -135,6 +135,19 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
 .tail2 .rl{flex:1;height:2px;background:linear-gradient(90deg,rgba(143,169,214,0),rgba(143,169,214,.9))}
 .tail2 .rl:last-child{background:linear-gradient(270deg,rgba(143,169,214,0),rgba(143,169,214,.9))}
 .tail2 .tt{font-family:var(--h);font-weight:600;font-size:46px;color:#C9D6EE;white-space:nowrap}
+
+/* لوح زجاجي فاتح (وصفة الهوية: أبيض 62%→32%، تمويه 26، إطار ضوئي) */
+.gcard{position:absolute;left:64px;right:64px;top:250px;z-index:2;border-radius:36px;padding:46px 50px 52px;
+  background:linear-gradient(150deg,rgba(255,255,255,.66),rgba(255,255,255,.32));
+  backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  box-shadow:0 22px 44px rgba(16,42,98,.18)}
+.gcard::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;
+  background:linear-gradient(to bottom left,rgba(255,255,255,.95),rgba(255,255,255,.15) 50%,rgba(255,255,255,.6));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.gbadge{position:absolute;left:44px;bottom:-48px;width:104px;height:104px;border-radius:24px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#5D7FB8,#2F5089 60%,#203f78);box-shadow:0 18px 36px rgba(16,42,98,.35),inset 0 0 0 1.5px rgba(255,255,255,.35)}
+.gbadge svg{width:56px;height:56px}
+.spark2{position:absolute;z-index:3}
 </style>
 </head>
 <body>
@@ -216,6 +229,27 @@ body{background:#333;font-family:var(--b);color:#fff;display:flex;flex-direction
     <div class="jp">كشفت صحيفة «معاريف» العبرية أن جيش الاحتلال أعدّ خططاً لاحتلال مدن لبنانية، من بينها صور وصيدا والنبطية، وفرض حصار بحري على ميناءَي بيروت وطرابلس، ما يعكس مستوى متقدماً من الاستعداد العسكري لسيناريوهات تصعيد واسعة قد تمتد إلى الجبهة اللبنانية.</div>
     <div class="hook">فهل هي خطط للتنفيذ؟</div>
   </div>
+  <div class="foot">
+    <div>تحليل: <b>رامي أبو زبيدة</b></div>
+    <div class="pg"><em>02</em> / 06</div>
+  </div>
+</section>
+
+<!-- ============ 2-تجربة: لوح زجاجي ============ -->
+<section class="slide light" id="s2t">
+  <div class="photo" style="height:860px;background-image:url(photos/port-light.jpg);background-position:center 60%;-webkit-mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 82%,transparent 100%);mask:linear-gradient(180deg,transparent 0%,#000 30%,#000 82%,transparent 100%)"></div>
+  <img class="logo" src="assets/logo-navy-full.png" alt="رام">
+  <div class="tag"><i></i>المشهد العسكري</div>
+
+  <div class="gcard">
+    <div class="atitle">ماذا كشفت «معاريف»؟</div>
+    <div class="jp">كشفت صحيفة «معاريف» العبرية أن جيش الاحتلال أعدّ خططاً لاحتلال مدن لبنانية، من بينها صور وصيدا والنبطية، وفرض حصار بحري على ميناءَي بيروت وطرابلس، ما يعكس مستوى متقدماً من الاستعداد العسكري لسيناريوهات تصعيد واسعة قد تمتد إلى الجبهة اللبنانية.</div>
+    <div class="hook">فهل هي خطط للتنفيذ؟</div>
+    <div class="gbadge"><svg viewBox="0 0 24 24"><path d="M4 5.5h12.5v13H6a2 2 0 0 1-2-2z M16.5 9H20v7.5a2 2 0 0 1-2 2h-1.5 M7 9h6.5 M7 12h6.5 M7 15h4" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+  <svg class="spark2" style="left:150px;top:196px" width="54" height="54" viewBox="0 0 40 40"><path d="M20 2 C21 14 26 19 38 20 C26 21 21 26 20 38 C19 26 14 21 2 20 C14 19 19 14 20 2Z" fill="none" stroke="#5D7FB8" stroke-width="1.8"/></svg>
+  <svg class="spark2" style="left:118px;top:244px" width="26" height="26" viewBox="0 0 40 40"><path d="M20 2 C21 14 26 19 38 20 C26 21 21 26 20 38 C19 26 14 21 2 20 C14 19 19 14 20 2Z" fill="none" stroke="#5D7FB8" stroke-width="2.2"/></svg>
+
   <div class="foot">
     <div>تحليل: <b>رامي أبو زبيدة</b></div>
     <div class="pg"><em>02</em> / 06</div>
