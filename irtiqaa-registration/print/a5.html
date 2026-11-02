@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ارتقاء — إعلان التسجيل A5</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:wght@400;700&display=block" rel="stylesheet">
+<style>
+@font-face{font-family:'Palestine';src:url('../assets/Palestine-Regular.ttf') format('truetype');font-display:block}
+:root{--em:#1A6A4F;--em2:#2A8466;--emL:#E6F3EC;--iv:#FFF8EC;--iv2:#FFF1DA;--gold:#F2B544;--goldD:#C7811A;--coral:#FF8A65;--tq:#3BB7A8;--ink:#234038;--mut:#5E776C}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#fff}
+.sheet{position:relative;overflow:hidden;background:var(--iv);font-family:'Tajawal',sans-serif;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.trim{position:absolute;width:148mm;height:210mm}
+.abs{position:absolute}
+.disp{font-family:'Palestine',sans-serif;font-weight:400}
+.saw{font-family:'Amiri',serif;font-weight:400}
+
+/* soft background decor (bleeds past trim) */
+.blob{position:absolute;border-radius:50%}
+
+/* header */
+.pill{display:inline-block;background:var(--coral);color:#fff;font-weight:800;font-size:8.6pt;padding:1.3mm 3.6mm 1.6mm;border-radius:10mm}
+.kicker{font-weight:800;font-size:9pt;color:var(--goldD);letter-spacing:.2mm}
+.title{font-size:37pt;color:var(--em);line-height:1.25}
+.lead{font-size:9.6pt;line-height:1.75;color:var(--ink);font-weight:500}
+.lead b{color:var(--em);font-weight:800}
+
+/* stations */
+.st{position:absolute;right:0;width:100%;display:flex;align-items:flex-start;gap:3.2mm}
+.dot{flex:none;width:9.6mm;height:9.6mm;border-radius:50%;background:#fff;box-shadow:0 0 0 .55mm var(--gold),0 1.2mm 2.4mm rgba(150,90,20,.15);display:flex;align-items:center;justify-content:center}
+.dot svg{width:6.4mm;height:6.4mm}
+.st h3{margin:0;font-family:'Palestine';font-weight:400;font-size:12.2pt;color:var(--em);line-height:1.5}
+.st p{margin:1.7mm 0 0;font-size:8.2pt;line-height:1.55;color:var(--mut);font-weight:500}
+
+/* message */
+.msg{background:var(--emL);border-radius:4mm;padding:2.4mm 5mm 2.6mm;text-align:center;font-size:9.4pt;line-height:1.7;font-weight:700;color:var(--em)}
+.msg span{color:var(--goldD)}
+
+/* ticket stub */
+.stub{position:absolute;left:0;right:0;bottom:0;height:37mm;background:#fff;border-top:.5mm dashed rgba(26,106,79,.35)}
+.notch{position:absolute;top:-4mm;width:8mm;height:8mm;border-radius:50%;background:var(--iv)}
+.qr{position:absolute;left:9mm;top:4.5mm;width:28mm;height:28mm;border-radius:2.5mm;background:#fff;box-shadow:0 0 0 .5mm var(--gold);display:flex;align-items:center;justify-content:center}
+.qr img{width:25.8mm;height:25.8mm}
+.info{position:absolute;right:9mm;top:3.6mm;left:43mm;text-align:right}
+.info .cta{font-size:21pt;color:var(--em);line-height:1.45}
+.info .sub{font-size:8.6pt;color:var(--mut);font-weight:700;margin-top:.3mm}
+.row{display:flex;align-items:center;gap:2mm;margin-top:1.6mm;font-size:9pt;font-weight:700;color:var(--ink)}
+.row .ic{flex:none;width:5.2mm;height:5.2mm;border-radius:50%;background:var(--emL);display:flex;align-items:center;justify-content:center}
+.row .ic svg{width:3.2mm;height:3.2mm}
+.phone{direction:ltr;font-weight:800;font-size:10.5pt;letter-spacing:.15mm;color:var(--em)}
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet">
+  <!-- background decor -->
+  <div class="blob" style="width:120mm;height:120mm;right:-48mm;top:-52mm;background:radial-gradient(circle,#E3F2E9 0%,#EAF5EE 55%,rgba(234,245,238,0) 72%)"></div>
+  <div class="blob" style="width:90mm;height:90mm;left:-46mm;top:92mm;background:radial-gradient(circle,#FFE9C2 0%,rgba(255,233,194,0) 70%)"></div>
+  <div class="blob" style="width:5mm;height:5mm;right:20mm;top:61mm;background:var(--coral);opacity:.85"></div>
+  <div class="blob" style="width:3.2mm;height:3.2mm;left:16mm;top:40mm;background:var(--tq);opacity:.85"></div>
+  <div class="blob" style="width:2.4mm;height:2.4mm;left:30mm;top:22mm;background:var(--gold)"></div>
+
+  <div class="trim" id="trim">
+    <!-- header -->
+    <img class="abs" src="../assets/logo180.png" style="left:9mm;top:8mm;width:21mm">
+    <div class="abs" style="right:9mm;top:10mm"><span class="pill">للطلاب والطالبات من 9 إلى 15 عامًا</span></div>
+
+    <!-- hero -->
+    <div class="abs" style="right:9mm;left:9mm;top:26mm;text-align:center">
+      <div class="kicker">✦ إعلان بدء التسجيل ✦</div>
+      <div class="title disp">انطلق التسجيل</div>
+      <div id="wm" style="height:19mm;display:flex;justify-content:center;align-items:center;margin-top:-1mm"></div>
+      <div style="font-size:9.4pt;font-weight:800;color:var(--goldD);margin-top:1.2mm">مبادرة تعليمية وقيمية — رحلة «بناء الإنسان والقيم»</div>
+    </div>
+    <div class="abs lead" style="right:12mm;left:12mm;top:77mm;text-align:center">
+      لأن بناء الإنسان يبدأ من الصغر.. ولأن جيل المستقبل يحمل أمانة الدين والوطن،<br>
+      ندعو أبناءنا وبناتنا إلى <b>منهج متكامل</b> من كتاب الله وسنّة نبيّه <span class="saw">ﷺ</span>، مرتبط بمناهجنا الفلسطينية، ليكون لهم <b>دليل حياة</b>.
+    </div>
+
+    <!-- stations route -->
+    <div class="abs" style="right:11mm;left:11mm;top:97mm;height:62mm" id="route">
+      <svg class="abs" style="right:4.8mm;top:5mm;width:1mm;height:50mm;overflow:visible" viewBox="0 0 1 48" preserveAspectRatio="none">
+        <line x1=".5" y1="0" x2=".5" y2="48" stroke="#F2B544" stroke-width=".45" stroke-dasharray="1.2 1.1" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+
+    <!-- message -->
+    <div class="abs msg" style="right:11mm;left:11mm;top:160.5mm">
+      رسالتنا: أن تكون إنسانًا <span>نافعًا</span>، قويًّا بإيمانه، رفيعًا بأخلاقه، وفيًّا لوطنه وقضيته.
+    </div>
+  </div>
+
+  <!-- ticket stub (bleeds left/right/bottom) -->
+  <div class="stub" id="stub">
+    <div class="notch" id="n1"></div><div class="notch" id="n2"></div>
+    <div class="qr" id="qr"><img src="../assets/qr.png"></div>
+    <div class="info" id="info">
+      <div class="cta disp">سجّل الآن</div>
+      <div class="sub">امسح الرمز وانطلق على بركة الله</div>
+      <div class="row"><span class="ic"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" fill="#1A6A4F"/></svg></span><span class="phone">00970597070041</span></div>
+      <div class="row"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#1A6A4F"/></svg></span><span>مركز 180 درجة للتعليم — مدينة حمد (برج A2)</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+const BLEED=new URLSearchParams(location.search).get('bleed')==='1'?3:0;
+const STATIONS=[
+ ['في رحاب القرآن','تلاوة بخشوع وتدبّر، وشهادات معتمدة بالتعاون مع دور القرآن الكريم.',
+  '<path d="M3 15 L12 9 M13 15 L4 9" stroke="#F2B544" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="M8 6 C10 4.5 13 4.4 15 5.2 L15.5 9 C13.5 8.3 10.5 8.4 8 9.6 C5.5 8.4 2.5 8.3 .5 9 L1 5.2 C3 4.4 6 4.5 8 6 Z" fill="#fff" stroke="#1A6A4F" stroke-width="1.1" stroke-linejoin="round" transform="translate(0 0)"/><path d="M8 6 V9.6" stroke="#1A6A4F" stroke-width="1"/>','0 1 16 16'],
+ ['في واحة العقيدة','توحيدٌ خالص، وفهمٌ لأسرار القدر تطمئن به النفس مهما اشتدت الكروب.',
+  '<path d="M8 2.2 C8.4 6 7.7 10 8 13.8" stroke="#F2B544" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M3 5 l1.6 .8 M12.8 4.6 l-1.5 1 M2.6 11 l1.7-.4 M13.2 11.4 l-1.6-.6" stroke="#1A6A4F" stroke-width="1.2" stroke-linecap="round"/>','0 0 16 16'],
+ ['على خطى المصطفى <span class="saw">ﷺ</span>','من سيرته العطرة وصحابته الأبرار نستلهم معاني الثبات والبطولة.',
+  '<path d="M4.5 3 c1.3 0 1.6 1.4 1.5 2.4 -.1 1.1-.5 2-1.4 2 -.9 0-1.3-.9-1.4-2 -.1-1 .1-2.4 1.3-2.4z M10.5 8 c1.3 0 1.6 1.4 1.5 2.4 -.1 1.1-.5 2-1.4 2 -.9 0-1.3-.9-1.4-2 -.1-1 .1-2.4 1.3-2.4z" fill="#1A6A4F"/><path d="M2 14.5 C6 13 10 14.6 14.5 13.4" stroke="#F2B544" stroke-width="1.2" fill="none" stroke-linecap="round"/>','0 0 16 16'],
+ ['في محراب العبادات','صلاةٌ صحيحة وطهارةٌ متقنة، لتكون صلتك بربك خالصة.',
+  '<path d="M3.5 14 V8.5 C3.5 5.5 6 3.6 8 2.6 C10 3.6 12.5 5.5 12.5 8.5 V14" stroke="#1A6A4F" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M8 6.6 C8.9 8 9.7 8.9 9.7 9.9 A1.7 1.7 0 0 1 6.3 9.9 C6.3 8.9 7.1 8 8 6.6 Z" fill="#3BB7A8"/>','0 0 16 16'],
+ ['في بستان الأخلاق','برّ الوالدين، الصدق، الأمانة، إكرام الضيف، الحِلم عند الغضب، وحسن الجوار.',
+  '<path d="M8 14.5 V6.5" stroke="#F2B544" stroke-width="1.4" stroke-linecap="round"/><path d="M8 9 C5.5 9 3.6 7.6 3.2 5.2 C5.8 5 7.6 6.6 8 9 Z" fill="#2A8466"/><path d="M8 7.6 C10.4 7.6 12.4 6.2 12.8 3.8 C10.2 3.6 8.4 5.2 8 7.6 Z" fill="#FF8A65"/>','0 0 16 16']];
+
+function wordmark(host,fs){
+  const svg=document.createElementNS(NS,'svg');host.appendChild(svg);
+  const tx=document.createElementNS(NS,'text');tx.textContent='ارتقــــاء';
+  tx.setAttribute('font-family','Palestine');tx.setAttribute('font-size',fs);tx.setAttribute('fill','#1A6A4F');tx.setAttribute('direction','rtl');svg.appendChild(tx);
+  let x0=1e9,x1=-1e9;for(let i=4;i<8;i++){const e=tx.getExtentOfChar(i);x0=Math.min(x0,e.x);x1=Math.max(x1,e.x+e.width)}
+  const bb=tx.getBBox(),w=x1-x0,bh=fs*.29,by=-fs*.176;
+  const r=document.createElementNS(NS,'rect');r.setAttribute('x',x0+w*.17);r.setAttribute('y',by-bh/2);r.setAttribute('width',w*.66);r.setAttribute('height',bh);r.setAttribute('fill','#F2B544');svg.appendChild(r);
+  const pad=fs*.08;svg.setAttribute('viewBox',`${bb.x-pad} ${bb.y} ${bb.width+2*pad} ${bb.height}`);
+  svg.style.height='100%';svg.style.width='auto';
+}
+
+function build(){
+  const W=148+2*BLEED,H=210+2*BLEED;
+  const st=document.createElement('style');st.textContent=`@page{size:${W}mm ${H}mm;margin:0}`;document.head.appendChild(st);
+  const sh=document.getElementById('sheet');sh.style.width=W+'mm';sh.style.height=H+'mm';
+  const tr=document.getElementById('trim');tr.style.left=BLEED+'mm';tr.style.top=BLEED+'mm';
+  // stub: bleeds to the sheet edges, content stays inside trim
+  const stub=document.getElementById('stub');stub.style.height=(37+BLEED)+'mm';
+  document.getElementById('qr').style.left=(9+BLEED)+'mm';document.getElementById('info').style.right=(9+BLEED)+'mm';
+  document.getElementById('info').style.left=(43+BLEED)+'mm';
+  document.getElementById('n1').style.left=(-4+BLEED)+'mm';document.getElementById('n2').style.right=(-4+BLEED)+'mm';
+  // stations
+  const route=document.getElementById('route');
+  STATIONS.forEach(([t,d,ic,vb],i)=>{
+    const el=document.createElement('div');el.className='st';el.style.top=(i*12.5)+'mm';
+    el.innerHTML=`<div class="dot"><svg viewBox="${vb}">${ic}</svg></div><div><h3>${t}</h3><p>${d}</p></div>`;
+    route.appendChild(el);
+  });
+  wordmark(document.getElementById('wm'),100);
+}
+window.READY=false;
+document.fonts.ready.then(()=>Promise.all(['Palestine','Tajawal','Amiri'].map(f=>document.fonts.load(`20px "${f}"`,'ﷺ')))).then(()=>{build();
+  Promise.all([...document.images].map(im=>im.complete?1:new Promise(r=>im.onload=r))).then(()=>{window.READY=true});});
+</script>
+</body>
+</html>
