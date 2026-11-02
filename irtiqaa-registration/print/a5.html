@@ -20,6 +20,11 @@ html,body{margin:0;padding:0;background:#fff}
 
 /* header */
 .pill{display:inline-block;background:var(--coral);color:#fff;font-weight:800;font-size:8.6pt;padding:1.3mm 3.6mm 1.6mm;border-radius:10mm}
+.ribbon{position:relative;display:inline-block}
+.rb{position:relative;display:inline-block;background:var(--em);color:#FFF8EC;font-size:27pt;line-height:1.5;padding:.6mm 9mm 1.6mm;border-radius:4mm;box-shadow:0 1.6mm 3mm rgba(26,106,79,.22)}
+.rb::before,.rb::after{content:'';position:absolute;top:50%;width:2.2mm;height:2.2mm;margin-top:-1.1mm;background:var(--gold);transform:rotate(45deg)}
+.rb::before{right:3.6mm}.rb::after{left:3.6mm}
+.rb-back{position:absolute;inset:0;transform:translate(-1.6mm,1.6mm);background:var(--coral);border-radius:4mm}
 .kicker{font-weight:800;font-size:9pt;color:var(--goldD);letter-spacing:.2mm}
 .title{font-size:37pt;color:var(--em);line-height:1.25}
 .lead{font-size:9.6pt;line-height:1.75;color:var(--ink);font-weight:500}
@@ -33,7 +38,7 @@ html,body{margin:0;padding:0;background:#fff}
 .st p{margin:1.7mm 0 0;font-size:8.2pt;line-height:1.55;color:var(--mut);font-weight:500}
 
 /* message */
-.msg{background:var(--emL);border-radius:4mm;padding:2.4mm 5mm 2.6mm;text-align:center;font-size:9.4pt;line-height:1.7;font-weight:700;color:var(--em)}
+.msg{background:var(--emL);border-radius:4mm;padding:2.6mm 5mm 2.8mm;text-align:center;font-size:10.4pt;line-height:1.7;font-weight:700;color:var(--em)}
 .msg span{color:var(--goldD)}
 
 /* ticket stub */
@@ -65,27 +70,23 @@ html,body{margin:0;padding:0;background:#fff}
     <div class="abs" style="right:9mm;top:10mm"><span class="pill">للطلاب والطالبات من 9 إلى 15 عامًا</span></div>
 
     <!-- hero -->
-    <div class="abs" style="right:9mm;left:9mm;top:26mm;text-align:center">
-      <div class="kicker">✦ إعلان بدء التسجيل ✦</div>
-      <div class="title disp">انطلق التسجيل</div>
-      <div id="wm" style="height:19mm;display:flex;justify-content:center;align-items:center;margin-top:-1mm"></div>
-      <div style="font-size:9.4pt;font-weight:800;color:var(--goldD);margin-top:1.2mm">مبادرة تعليمية وقيمية — رحلة «بناء الإنسان والقيم»</div>
-    </div>
-    <div class="abs lead" style="right:12mm;left:12mm;top:77mm;text-align:center">
-      لأن بناء الإنسان يبدأ من الصغر.. ولأن جيل المستقبل يحمل أمانة الدين والوطن،<br>
-      ندعو أبناءنا وبناتنا إلى <b>منهج متكامل</b> من كتاب الله وسنّة نبيّه <span class="saw">ﷺ</span>، مرتبط بمناهجنا الفلسطينية، ليكون لهم <b>دليل حياة</b>.
+    <div class="abs" style="right:9mm;left:9mm;top:27mm;text-align:center">
+      <div class="ribbon"><span class="rb-back"></span><span class="rb disp">إعلان بدء التسجيل</span></div>
+      <div id="wm" style="height:25mm;display:flex;justify-content:center;align-items:center;margin-top:5mm"></div>
+      <div style="font-size:10.4pt;font-weight:800;color:var(--goldD);margin-top:2mm">مبادرة تعليمية وقيمية <span style="color:var(--gold)">•</span> لأن بناء الإنسان يبدأ من الصغر</div>
     </div>
 
     <!-- stations route -->
-    <div class="abs" style="right:11mm;left:11mm;top:97mm;height:62mm" id="route">
-      <svg class="abs" style="right:4.8mm;top:5mm;width:1mm;height:50mm;overflow:visible" viewBox="0 0 1 48" preserveAspectRatio="none">
+    <div class="abs" style="right:11mm;left:11mm;top:88mm;text-align:right;font-size:9.2pt;font-weight:800;color:var(--em)">خمس محطات في رحلة «بناء الإنسان والقيم»</div>
+    <div class="abs" style="right:11mm;left:11mm;top:96mm;height:60mm" id="route">
+      <svg class="abs" style="right:4.8mm;top:5mm;width:1mm;height:48mm;overflow:visible" viewBox="0 0 1 48" preserveAspectRatio="none">
         <line x1=".5" y1="0" x2=".5" y2="48" stroke="#F2B544" stroke-width=".45" stroke-dasharray="1.2 1.1" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
       </svg>
     </div>
 
     <!-- message -->
-    <div class="abs msg" style="right:11mm;left:11mm;top:160.5mm">
-      رسالتنا: أن تكون إنسانًا <span>نافعًا</span>، قويًّا بإيمانه، رفيعًا بأخلاقه، وفيًّا لوطنه وقضيته.
+    <div class="abs msg" style="right:11mm;left:11mm;top:159mm">
+      لنبني معًا إنسانًا <span>نافعًا</span>، قويًّا بإيمانه، رفيعًا بأخلاقه
     </div>
   </div>
 
@@ -105,16 +106,17 @@ html,body{margin:0;padding:0;background:#fff}
 <script>
 const NS='http://www.w3.org/2000/svg';
 const BLEED=new URLSearchParams(location.search).get('bleed')==='1'?3:0;
+const A4=new URLSearchParams(location.search).get('a4')==='1';   // same design scaled ×√2 to A4
 const STATIONS=[
- ['في رحاب القرآن','تلاوة بخشوع وتدبّر، وشهادات معتمدة بالتعاون مع دور القرآن الكريم.',
+ ['في رحاب القرآن','تلاوة وتدبّر، وشهادات معتمدة',
   '<path d="M3 15 L12 9 M13 15 L4 9" stroke="#F2B544" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="M8 6 C10 4.5 13 4.4 15 5.2 L15.5 9 C13.5 8.3 10.5 8.4 8 9.6 C5.5 8.4 2.5 8.3 .5 9 L1 5.2 C3 4.4 6 4.5 8 6 Z" fill="#fff" stroke="#1A6A4F" stroke-width="1.1" stroke-linejoin="round" transform="translate(0 0)"/><path d="M8 6 V9.6" stroke="#1A6A4F" stroke-width="1"/>','0 1 16 16'],
- ['في واحة العقيدة','توحيدٌ خالص، وفهمٌ لأسرار القدر تطمئن به النفس مهما اشتدت الكروب.',
+ ['في واحة العقيدة','توحيدٌ خالص ونفسٌ مطمئنة',
   '<path d="M8 2.2 C8.4 6 7.7 10 8 13.8" stroke="#F2B544" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M3 5 l1.6 .8 M12.8 4.6 l-1.5 1 M2.6 11 l1.7-.4 M13.2 11.4 l-1.6-.6" stroke="#1A6A4F" stroke-width="1.2" stroke-linecap="round"/>','0 0 16 16'],
- ['على خطى المصطفى <span class="saw">ﷺ</span>','من سيرته العطرة وصحابته الأبرار نستلهم معاني الثبات والبطولة.',
+ ['على خطى المصطفى <span class="saw">ﷺ</span>','معاني الثبات والبطولة',
   '<path d="M4.5 3 c1.3 0 1.6 1.4 1.5 2.4 -.1 1.1-.5 2-1.4 2 -.9 0-1.3-.9-1.4-2 -.1-1 .1-2.4 1.3-2.4z M10.5 8 c1.3 0 1.6 1.4 1.5 2.4 -.1 1.1-.5 2-1.4 2 -.9 0-1.3-.9-1.4-2 -.1-1 .1-2.4 1.3-2.4z" fill="#1A6A4F"/><path d="M2 14.5 C6 13 10 14.6 14.5 13.4" stroke="#F2B544" stroke-width="1.2" fill="none" stroke-linecap="round"/>','0 0 16 16'],
- ['في محراب العبادات','صلاةٌ صحيحة وطهارةٌ متقنة، لتكون صلتك بربك خالصة.',
+ ['في محراب العبادات','صلاةٌ صحيحة وطهارةٌ متقنة',
   '<path d="M3.5 14 V8.5 C3.5 5.5 6 3.6 8 2.6 C10 3.6 12.5 5.5 12.5 8.5 V14" stroke="#1A6A4F" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M8 6.6 C8.9 8 9.7 8.9 9.7 9.9 A1.7 1.7 0 0 1 6.3 9.9 C6.3 8.9 7.1 8 8 6.6 Z" fill="#3BB7A8"/>','0 0 16 16'],
- ['في بستان الأخلاق','برّ الوالدين، الصدق، الأمانة، إكرام الضيف، الحِلم عند الغضب، وحسن الجوار.',
+ ['في بستان الأخلاق','برٌّ وصدقٌ وأمانة وحسن جوار',
   '<path d="M8 14.5 V6.5" stroke="#F2B544" stroke-width="1.4" stroke-linecap="round"/><path d="M8 9 C5.5 9 3.6 7.6 3.2 5.2 C5.8 5 7.6 6.6 8 9 Z" fill="#2A8466"/><path d="M8 7.6 C10.4 7.6 12.4 6.2 12.8 3.8 C10.2 3.6 8.4 5.2 8 7.6 Z" fill="#FF8A65"/>','0 0 16 16']];
 
 function wordmark(host,fs){
@@ -130,7 +132,9 @@ function wordmark(host,fs){
 
 function build(){
   const W=148+2*BLEED,H=210+2*BLEED;
-  const st=document.createElement('style');st.textContent=`@page{size:${W}mm ${H}mm;margin:0}`;document.head.appendChild(st);
+  const Z=A4?210/148:1, PW=A4?210:W, PH=A4?297:H;
+  const st=document.createElement('style');st.textContent=`@page{size:${PW}mm ${PH}mm;margin:0}html,body{overflow:hidden}`;document.head.appendChild(st);
+  if(A4)document.getElementById('sheet').style.zoom=Z;
   const sh=document.getElementById('sheet');sh.style.width=W+'mm';sh.style.height=H+'mm';
   const tr=document.getElementById('trim');tr.style.left=BLEED+'mm';tr.style.top=BLEED+'mm';
   // stub: bleeds to the sheet edges, content stays inside trim
@@ -141,7 +145,7 @@ function build(){
   // stations
   const route=document.getElementById('route');
   STATIONS.forEach(([t,d,ic,vb],i)=>{
-    const el=document.createElement('div');el.className='st';el.style.top=(i*12.5)+'mm';
+    const el=document.createElement('div');el.className='st';el.style.top=(i*12.2)+'mm';
     el.innerHTML=`<div class="dot"><svg viewBox="${vb}">${ic}</svg></div><div><h3>${t}</h3><p>${d}</p></div>`;
     route.appendChild(el);
   });
