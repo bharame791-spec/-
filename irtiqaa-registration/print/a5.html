@@ -19,7 +19,7 @@ html,body{margin:0;padding:0;background:#fff}
 .blob{position:absolute;border-radius:50%}
 
 /* header */
-.pill{display:inline-block;background:var(--coral);color:#fff;font-weight:800;font-size:8.6pt;padding:1.3mm 3.6mm 1.6mm;border-radius:10mm}
+.pill{display:inline-block;background:var(--coral);color:#fff;font-weight:800;font-size:9.8pt;padding:1.3mm 3.6mm 1.6mm;border-radius:10mm}
 .ribbon{position:relative;display:inline-block}
 .rb{position:relative;display:inline-block;background:var(--em);color:#FFF8EC;font-size:27pt;line-height:1.5;padding:.6mm 9mm 1.6mm;border-radius:4mm;box-shadow:0 1.6mm 3mm rgba(26,106,79,.22)}
 .rb::before,.rb::after{content:'';position:absolute;top:50%;width:2.2mm;height:2.2mm;margin-top:-1.1mm;background:var(--gold);transform:rotate(45deg)}
@@ -30,15 +30,15 @@ html,body{margin:0;padding:0;background:#fff}
 .lead{font-size:9.6pt;line-height:1.75;color:var(--ink);font-weight:500}
 .lead b{color:var(--em);font-weight:800}
 
-/* stations */
-.st{position:absolute;right:0;width:100%;display:flex;align-items:flex-start;gap:3.2mm}
-.dot{flex:none;width:9.6mm;height:9.6mm;border-radius:50%;background:#fff;box-shadow:0 0 0 .55mm var(--gold),0 1.2mm 2.4mm rgba(150,90,20,.15);display:flex;align-items:center;justify-content:center}
-.dot svg{width:6.4mm;height:6.4mm}
-.st h3{margin:0;font-family:'Palestine';font-weight:400;font-size:12.2pt;color:var(--em);line-height:1.5}
-.st p{margin:1.7mm 0 0;font-size:8.2pt;line-height:1.55;color:var(--mut);font-weight:500}
-
+/* stations — ascending staircase infographic */
+.bar{position:absolute;bottom:0;width:23.2mm;border-radius:3mm 3mm 0 0;text-align:center;padding:8.2mm 1.4mm 0;z-index:1}
+.bar h3{margin:0;font-family:'Palestine';font-weight:400;font-size:11.6pt;line-height:1.55;color:var(--em)}
+.bar p{margin:1.4mm 0 0;font-size:8.1pt;line-height:1.45;font-weight:800;color:#3D5A50}
+.ring{position:absolute;width:12mm;height:12mm;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 1mm 2.2mm rgba(120,80,20,.16)}
+.ring svg{width:7.6mm;height:7.6mm}
+.num{position:absolute;top:-1.2mm;right:-1.2mm;width:4.6mm;height:4.6mm;border-radius:50%;color:#fff;font-weight:800;font-size:7.4pt;line-height:4.8mm;text-align:center}
 /* message */
-.msg{background:var(--emL);border-radius:4mm;padding:2.6mm 5mm 2.8mm;text-align:center;font-size:10.4pt;line-height:1.7;font-weight:700;color:var(--em)}
+.msg{background:var(--emL);border-radius:4mm;padding:2.4mm 5mm 2.6mm;text-align:center;font-size:11.4pt;line-height:1.7;font-weight:800;color:var(--em)}
 .msg span{color:var(--goldD)}
 
 /* ticket stub */
@@ -47,12 +47,12 @@ html,body{margin:0;padding:0;background:#fff}
 .qr{position:absolute;left:9mm;top:4.5mm;width:28mm;height:28mm;border-radius:2.5mm;background:#fff;box-shadow:0 0 0 .5mm var(--gold);display:flex;align-items:center;justify-content:center}
 .qr img{width:25.8mm;height:25.8mm}
 .info{position:absolute;right:9mm;top:3.6mm;left:43mm;text-align:right}
-.info .cta{font-size:21pt;color:var(--em);line-height:1.45}
-.info .sub{font-size:8.6pt;color:var(--mut);font-weight:700;margin-top:.3mm}
-.row{display:flex;align-items:center;gap:2mm;margin-top:1.6mm;font-size:9pt;font-weight:700;color:var(--ink)}
+.info .cta{font-size:23pt;color:var(--em);line-height:1.45}
+.info .sub{font-size:9.8pt;color:#3D5A50;font-weight:800;margin-top:.3mm}
+.row{display:flex;align-items:center;gap:2mm;margin-top:1.5mm;font-size:10pt;font-weight:800;color:var(--ink)}
 .row .ic{flex:none;width:5.2mm;height:5.2mm;border-radius:50%;background:var(--emL);display:flex;align-items:center;justify-content:center}
 .row .ic svg{width:3.2mm;height:3.2mm}
-.phone{direction:ltr;font-weight:800;font-size:10.5pt;letter-spacing:.15mm;color:var(--em)}
+.phone{direction:ltr;font-weight:800;font-size:12pt;letter-spacing:.15mm;color:var(--em)}
 </style>
 </head>
 <body>
@@ -73,16 +73,12 @@ html,body{margin:0;padding:0;background:#fff}
     <div class="abs" style="right:9mm;left:9mm;top:27mm;text-align:center">
       <div class="ribbon"><span class="rb-back"></span><span class="rb disp">إعلان بدء التسجيل</span></div>
       <div id="wm" style="height:25mm;display:flex;justify-content:center;align-items:center;margin-top:5mm"></div>
-      <div style="font-size:10.4pt;font-weight:800;color:var(--goldD);margin-top:2mm">مبادرة تعليمية وقيمية <span style="color:var(--gold)">•</span> لأن بناء الإنسان يبدأ من الصغر</div>
+      <div style="font-size:11.4pt;font-weight:800;color:var(--goldD);margin-top:2mm">مبادرة تعليمية وقيمية <span style="color:var(--gold)">•</span> لأن بناء الإنسان يبدأ من الصغر</div>
     </div>
 
     <!-- stations route -->
-    <div class="abs" style="right:11mm;left:11mm;top:88mm;text-align:right;font-size:9.2pt;font-weight:800;color:var(--em)">خمس محطات في رحلة «بناء الإنسان والقيم»</div>
-    <div class="abs" style="right:11mm;left:11mm;top:96mm;height:60mm" id="route">
-      <svg class="abs" style="right:4.8mm;top:5mm;width:1mm;height:48mm;overflow:visible" viewBox="0 0 1 48" preserveAspectRatio="none">
-        <line x1=".5" y1="0" x2=".5" y2="48" stroke="#F2B544" stroke-width=".45" stroke-dasharray="1.2 1.1" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-      </svg>
-    </div>
+    <div class="abs" style="right:11mm;left:11mm;top:87mm;text-align:center;font-size:11pt;font-weight:800;color:var(--em)">خمس محطات في رحلة «بناء الإنسان والقيم»</div>
+    <div class="abs" style="right:11mm;left:11mm;top:94mm;height:62mm" id="route"></div>
 
     <!-- message -->
     <div class="abs msg" style="right:11mm;left:11mm;top:159mm">
@@ -113,7 +109,7 @@ const STATIONS=[
  ['في واحة العقيدة','توحيدٌ خالص ونفسٌ مطمئنة',
   '<path d="M8 2.2 C8.4 6 7.7 10 8 13.8" stroke="#F2B544" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M3 5 l1.6 .8 M12.8 4.6 l-1.5 1 M2.6 11 l1.7-.4 M13.2 11.4 l-1.6-.6" stroke="#1A6A4F" stroke-width="1.2" stroke-linecap="round"/>','0 0 16 16'],
  ['على خطى المصطفى <span class="saw">ﷺ</span>','معاني الثبات والبطولة',
-  '<path d="M4.5 3 c1.3 0 1.6 1.4 1.5 2.4 -.1 1.1-.5 2-1.4 2 -.9 0-1.3-.9-1.4-2 -.1-1 .1-2.4 1.3-2.4z M10.5 8 c1.3 0 1.6 1.4 1.5 2.4 -.1 1.1-.5 2-1.4 2 -.9 0-1.3-.9-1.4-2 -.1-1 .1-2.4 1.3-2.4z" fill="#1A6A4F"/><path d="M2 14.5 C6 13 10 14.6 14.5 13.4" stroke="#F2B544" stroke-width="1.2" fill="none" stroke-linecap="round"/>','0 0 16 16'],
+  '<path d="M8.4 14.6 C8.2 11.6 8 9 7.6 6.6" stroke="#C7811A" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M7.6 6.6 C6 4.6 3.6 4.4 2 5.6 C3.8 5.6 5.4 6 7.6 6.6 Z M7.6 6.6 C9 4.4 11.6 3.8 13.6 4.8 C11.6 5.2 9.8 5.8 7.6 6.6 Z M7.6 6.6 C6.6 5 6.4 3 7.2 1.6 C7.8 3.2 8 4.8 7.6 6.6 Z M7.6 6.6 C5.6 6.8 3.8 8.4 3.4 10 C5 8.8 6.2 7.8 7.6 6.6 Z M7.6 6.6 C9.8 6.8 11.8 8 12.6 9.8 C10.8 8.8 9.2 7.8 7.6 6.6 Z" fill="#1A6A4F"/><path d="M3 14.8 H13.6" stroke="#F2B544" stroke-width="1.2" stroke-linecap="round"/>','0 0 16 16'],
  ['في محراب العبادات','صلاةٌ صحيحة وطهارةٌ متقنة',
   '<path d="M3.5 14 V8.5 C3.5 5.5 6 3.6 8 2.6 C10 3.6 12.5 5.5 12.5 8.5 V14" stroke="#1A6A4F" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M8 6.6 C8.9 8 9.7 8.9 9.7 9.9 A1.7 1.7 0 0 1 6.3 9.9 C6.3 8.9 7.1 8 8 6.6 Z" fill="#3BB7A8"/>','0 0 16 16'],
  ['في بستان الأخلاق','برٌّ وصدقٌ وأمانة وحسن جوار',
@@ -142,13 +138,27 @@ function build(){
   document.getElementById('qr').style.left=(9+BLEED)+'mm';document.getElementById('info').style.right=(9+BLEED)+'mm';
   document.getElementById('info').style.left=(43+BLEED)+'mm';
   document.getElementById('n1').style.left=(-4+BLEED)+'mm';document.getElementById('n2').style.right=(-4+BLEED)+'mm';
-  // stations
+  // stations: ascending staircase (right → left), gold thread links the rings
   const route=document.getElementById('route');
+  const RW=126,RH=62,BW=23.2,GAP=(RW-5*BW)/4,HS=[39,42,45,48,51];
+  const TINT=['#E3F2EA','#FFF0CC','#FFE6DD','#DDF3F0','#E9F5DC'],ACC=['#2A8466','#F2B544','#FF8A65','#3BB7A8','#6BB04A'];
+  const pts=[];
   STATIONS.forEach(([t,d,ic,vb],i)=>{
-    const el=document.createElement('div');el.className='st';el.style.top=(i*12.2)+'mm';
-    el.innerHTML=`<div class="dot"><svg viewBox="${vb}">${ic}</svg></div><div><h3>${t}</h3><p>${d}</p></div>`;
-    route.appendChild(el);
+    const right=i*(BW+GAP),h=HS[i];
+    const bar=document.createElement('div');bar.className='bar';
+    Object.assign(bar.style,{right:right+'mm',height:h+'mm',background:`linear-gradient(${TINT[i]},${TINT[i]}CC)`,borderTop:`1.1mm solid ${ACC[i]}`});
+    bar.innerHTML=`<h3>${t}</h3><p>${d}</p>`;route.appendChild(bar);
+    const ring=document.createElement('div');ring.className='ring';
+    Object.assign(ring.style,{right:(right+BW/2-6)+'mm',top:(RH-h-6)+'mm',boxShadow:`0 0 0 .7mm ${ACC[i]},0 1mm 2.2mm rgba(120,80,20,.16)`});
+    ring.innerHTML=`<svg viewBox="${vb}">${ic}</svg><span class="num" style="background:${ACC[i]}">${'١٢٣٤٥'[i]}</span>`;route.appendChild(ring);
+    pts.push([RW-right-BW/2,RH-h]);
   });
+  const svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox',`0 0 ${RW} ${RH}`);
+  Object.assign(svg.style,{position:'absolute',left:0,top:0,width:RW+'mm',height:RH+'mm',zIndex:2,overflow:'visible'});
+  let d=`M${pts[0][0]+9} ${pts[0][1]+3}`;pts.forEach(([x,y],i)=>{if(i===0)d+=` L${x} ${y}`;else{const [px,py]=pts[i-1];d+=` C${px-8} ${py-4} ${x+8} ${y+1} ${x} ${y}`}});
+  const [lx,ly]=pts[4];d+=` L${lx-9} ${ly-4}`;
+  svg.innerHTML=`<path d="${d}" fill="none" stroke="#F2B544" stroke-width=".7" stroke-dasharray="1.6 1.2" stroke-linecap="round"/><path d="M${lx-9} ${ly-4} l2.6 -.2 M${lx-9} ${ly-4} l1.6 2" stroke="#F2B544" stroke-width=".8" stroke-linecap="round" fill="none"/>`;
+  route.appendChild(svg);
   wordmark(document.getElementById('wm'),100);
 }
 window.READY=false;
