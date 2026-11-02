@@ -135,7 +135,7 @@ function build(){
   const Z=A4?210/148:1, PW=A4?210:W, PH=A4?297:H;
   const st=document.createElement('style');st.textContent=`@page{size:${PW}mm ${PH}mm;margin:0}html,body{overflow:hidden}`;document.head.appendChild(st);
   if(A4)document.getElementById('sheet').style.zoom=Z;
-  const sh=document.getElementById('sheet');sh.style.width=W+'mm';sh.style.height=H+'mm';
+  const sh=document.getElementById('sheet');sh.style.width=W+'mm';sh.style.height=(A4?297/Z:H)+'mm';if(A4)sh.style.zoom=Z;
   const tr=document.getElementById('trim');tr.style.left=BLEED+'mm';tr.style.top=BLEED+'mm';
   // stub: bleeds to the sheet edges, content stays inside trim
   const stub=document.getElementById('stub');stub.style.height=(37+BLEED)+'mm';
