@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ارتقاء — آخر يوم للتسجيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=block" rel="stylesheet">
+<style>
+@font-face{font-family:'Palestine';src:url('../assets/Palestine-Regular.ttf') format('truetype');font-display:block}
+:root{--em:#1A6A4F;--em2:#2A8466;--emD:#0E4A37;--emL:#E6F3EC;--iv:#FFF8EC;--gold:#F2B544;--goldD:#C7811A;--coral:#FF8A65;--coralD:#E8664A;--tq:#3BB7A8;--ink:#234038}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff}
+.post{position:relative;width:1080px;overflow:hidden;font-family:'Tajawal',sans-serif;color:var(--ink);
+  background:radial-gradient(ellipse at 85% 0%,#E3F2E9 0%,rgba(227,242,233,0) 45%),radial-gradient(ellipse at 0% 75%,#FFE9C4 0%,rgba(255,233,196,0) 45%),var(--iv)}
+.disp{font-family:'Palestine',sans-serif;font-weight:400}
+.col{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:46px 70px 0}
+.dot{position:absolute;border-radius:50%}
+
+/* top row */
+.top{width:100%;display:flex;justify-content:space-between;align-items:center}
+.alert{display:inline-flex;align-items:center;gap:14px;background:var(--coral);color:#fff;font-weight:900;font-size:40px;padding:12px 30px 16px;border-radius:60px;box-shadow:0 10px 22px rgba(232,102,74,.28)}
+.alert i{display:inline-block;width:38px;height:38px;border-radius:50%;background:#fff;color:var(--coralD);font-style:normal;font-size:30px;line-height:40px;text-align:center}
+.logo{height:118px}
+
+/* headline */
+.h1{margin-top:16px;font-size:106px;line-height:1.3;color:var(--em);text-align:center}
+.h1 .hl{position:relative;display:inline-block;color:var(--coralD)}
+.h1 .hl::after{content:'';position:absolute;left:4%;right:4%;bottom:22px;height:22px;background:var(--gold);opacity:.55;border-radius:12px;z-index:-1}
+
+/* middle: calendar + facts */
+.mid{margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:46px}
+.cal{position:relative;width:272px;flex:none;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 22px 40px rgba(26,106,79,.18),0 0 0 4px var(--gold);transform:rotate(-4deg)}
+.cal .hd{background:var(--coral);color:#fff;text-align:center;font-weight:900;font-size:44px;padding:16px 0 20px}
+.cal .rings{position:absolute;top:-14px;left:0;right:0;display:flex;justify-content:space-around;padding:0 60px}
+.cal .rings span{width:20px;height:40px;border-radius:12px;background:var(--emD)}
+.cal .day{text-align:center;font-family:'Palestine';font-size:168px;line-height:1.12;color:var(--em);padding-top:6px}
+.cal .mon{text-align:center;font-weight:900;font-size:40px;color:var(--goldD);padding:14px 0 22px}
+.facts{display:flex;flex-direction:column;gap:22px;align-items:flex-start}
+.fact{display:flex;align-items:center;gap:18px;font-weight:900;font-size:44px;color:var(--ink)}
+.fact .ic{width:70px;height:70px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+.fact .ic svg{width:40px;height:40px}
+.free{background:var(--em);color:#fff;padding:8px 28px 12px;border-radius:20px}
+
+/* wordmark line */
+.brand{margin-top:22px;display:flex;flex-direction:column;align-items:center}
+#wm{height:118px}
+.brand .sub{font-weight:800;font-size:34px;color:var(--goldD);margin-top:6px}
+
+/* CTA strip */
+.cta{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:5px dashed rgba(26,106,79,.3);display:flex;align-items:center;justify-content:space-between;padding:0 80px}
+.notch{position:absolute;top:-30px;width:60px;height:60px;border-radius:50%;background:var(--iv)}
+.cta .txt .a{font-size:84px;color:var(--em);line-height:1.4}
+.cta .txt .b{font-size:38px;font-weight:900;color:var(--coralD);margin-top:2px}
+.cta .txt .c{font-size:32px;font-weight:800;color:#3D5A50;margin-top:10px}
+.qr{width:250px;height:250px;flex:none;background:#fff;border-radius:26px;box-shadow:0 0 0 5px var(--gold),0 14px 26px rgba(26,106,79,.15);display:flex;align-items:center;justify-content:center}
+.qr img{width:228px;height:228px}
+</style>
+</head>
+<body>
+<div class="post" id="post">
+  <div class="dot" style="width:34px;height:34px;left:70px;top:330px;background:var(--tq)"></div>
+  <div class="dot" style="width:26px;height:26px;right:64px;top:300px;background:var(--gold)"></div>
+  <div class="dot" style="width:20px;height:20px;left:130px;top:640px;background:var(--coral)"></div>
+
+  <div class="col">
+    <div class="top">
+      <span class="alert"><i>!</i>تنبيه هام</span>
+      <img class="logo" src="../assets/logo180.png">
+    </div>
+
+    <div class="h1 disp">غدًا <span class="hl">آخر يوم</span><br>للتسجيل</div>
+
+    <div class="mid">
+      <div class="cal">
+                <div class="hd">الخميس</div>
+        <div class="day">5</div>
+        <div class="mon">نوفمبر</div>
+      </div>
+      <div class="facts">
+        <div class="fact"><span class="ic" style="background:var(--emL)"><svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 8-4v6h2V8z M6 12.2V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.8l-6 3z" fill="#1A6A4F"/></svg></span>تعليم التربية الإسلامية</div>
+        <div class="fact"><span class="ic" style="background:#FFE6DD"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" fill="#E8664A"/><circle cx="16.5" cy="9" r="2.6" fill="#FF8A65"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z M14 19c.2-2 1.2-3.6 2.6-4.4 2.6.1 4.4 1.9 4.4 4.4z" fill="#E8664A"/></svg></span>للفئة العمرية 9 – 15 سنة</div>
+        <div class="fact"><span class="ic" style="background:#FFF0CC"><svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.2 6.7.5-5.1 4.4 1.6 6.5L12 16l-5.8 3.6 1.6-6.5L2.7 8.7l6.7-.5z" fill="#F2B544"/></svg></span><span class="free">مجانًا</span></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <div id="wm"></div>
+      <div class="sub">مبادرة تعليمية وقيمية — مركز 180 درجة للتعليم</div>
+    </div>
+  </div>
+
+  <div class="cta" id="cta">
+    <div class="notch" style="left:-30px"></div><div class="notch" style="right:-30px"></div>
+    <div class="txt">
+      <div class="a disp">سجّل الآن</div>
+      <div class="b">قبل إغلاق باب التسجيل</div>
+      <div class="c">امسح الرمز وسجّل خلال دقيقة</div>
+    </div>
+    <div class="qr"><img src="../assets/qr.png"></div>
+  </div>
+</div>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const STORY=new URLSearchParams(location.search).get('story')==='1';
+function wordmark(host,fs){
+  const svg=document.createElementNS(NS,'svg');host.appendChild(svg);
+  const tx=document.createElementNS(NS,'text');tx.textContent='ارتقــــاء';
+  tx.setAttribute('font-family','Palestine');tx.setAttribute('font-size',fs);tx.setAttribute('fill','#1A6A4F');tx.setAttribute('direction','rtl');svg.appendChild(tx);
+  let x0=1e9,x1=-1e9;for(let i=4;i<8;i++){const e=tx.getExtentOfChar(i);x0=Math.min(x0,e.x);x1=Math.max(x1,e.x+e.width)}
+  const bb=tx.getBBox(),w=x1-x0,bh=fs*.29,by=-fs*.176;
+  const r=document.createElementNS(NS,'rect');r.setAttribute('x',x0+w*.17);r.setAttribute('y',by-bh/2);r.setAttribute('width',w*.66);r.setAttribute('height',bh);r.setAttribute('fill','#F2B544');svg.appendChild(r);
+  const pad=fs*.08;svg.setAttribute('viewBox',`${bb.x-pad} ${bb.y} ${bb.width+2*pad} ${bb.height}`);
+  svg.style.height='100%';svg.style.width='auto';
+}
+function build(){
+  const H=STORY?1920:1350, CTA=STORY?420:300;
+  const post=document.getElementById('post');post.style.height=H+'px';
+  document.getElementById('cta').style.height=CTA+'px';
+  if(STORY){
+    const col=document.querySelector('.col');col.style.paddingTop='150px';
+    document.querySelector('.h1').style.marginTop='90px';document.querySelector('.h1').style.fontSize='128px';document.getElementById('wm').style.height='150px';
+    document.querySelector('.mid').style.marginTop='60px';document.querySelector('.brand').style.marginTop='80px';
+    document.querySelector('.qr').style.cssText+='width:320px;height:320px';document.querySelector('.qr img').style.cssText='width:292px;height:292px';
+  }
+  wordmark(document.getElementById('wm'),130);
+}
+window.READY=false;
+document.fonts.ready.then(()=>Promise.all(['Palestine','Tajawal'].map(f=>document.fonts.load(`40px "${f}"`)))).then(()=>{build();
+  Promise.all([...document.images].map(im=>im.complete?1:new Promise(r=>im.onload=r))).then(()=>{window.READY=true})});
+</script>
+</body>
+</html>
