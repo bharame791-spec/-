@@ -22,33 +22,39 @@ html,body{margin:0;background:#fff}
 .logo{height:118px}
 
 /* headline */
-.h1{margin-top:16px;font-size:106px;line-height:1.3;color:var(--em);text-align:center}
+.h1{margin-top:22px;font-size:96px;line-height:1.35;white-space:nowrap;color:var(--em);text-align:center}
 .h1 .hl{position:relative;display:inline-block;color:var(--coralD)}
 .h1 .hl::after{content:'';position:absolute;left:4%;right:4%;bottom:22px;height:22px;background:var(--gold);opacity:.55;border-radius:12px;z-index:-1}
 
 /* middle: calendar + facts */
-.mid{margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:46px}
-.cal{position:relative;width:272px;flex:none;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 22px 40px rgba(26,106,79,.18),0 0 0 4px var(--gold);transform:rotate(-4deg)}
-.cal .hd{background:var(--coral);color:#fff;text-align:center;font-weight:900;font-size:44px;padding:16px 0 20px}
+.mid{margin-top:30px;width:100%;display:flex;align-items:center;justify-content:center;gap:46px}
+.cal{position:relative;width:236px;flex:none;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 22px 40px rgba(26,106,79,.18),0 0 0 4px var(--gold);transform:rotate(-4deg)}
+.cal .hd{background:var(--coral);color:#fff;text-align:center;font-weight:900;font-size:40px;padding:12px 0 16px}
 .cal .rings{position:absolute;top:-14px;left:0;right:0;display:flex;justify-content:space-around;padding:0 60px}
 .cal .rings span{width:20px;height:40px;border-radius:12px;background:var(--emD)}
-.cal .day{text-align:center;font-family:'Palestine';font-size:168px;line-height:1.12;color:var(--em);padding-top:6px}
+.cal .day{text-align:center;font-family:'Palestine';font-size:138px;line-height:1.12;color:var(--em);padding-top:6px}
 .cal .mon{text-align:center;font-weight:900;font-size:40px;color:var(--goldD);padding:14px 0 22px}
 .facts{display:flex;flex-direction:column;gap:22px;align-items:flex-start}
 .fact{display:flex;align-items:center;gap:18px;font-weight:900;font-size:44px;color:var(--ink)}
 .fact .ic{width:70px;height:70px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
 .fact .ic svg{width:40px;height:40px}
-.free{background:var(--em);color:#fff;padding:8px 28px 12px;border-radius:20px}
+.free{background:var(--coral);color:#fff;padding:4px 26px 10px;border-radius:18px;font-size:46px}
 
 /* wordmark line */
 .brand{margin-top:22px;display:flex;flex-direction:column;align-items:center}
-#wm{height:118px}
+#wm{height:120px}
+.line1{margin-top:4px;display:flex;align-items:center;gap:26px}
+.line1 .fi{font-size:64px;color:var(--em);line-height:1.4}
+.line2{margin-top:10px;font-weight:900;font-size:50px;color:var(--ink);display:flex;align-items:center;gap:20px}
+.line3{margin-top:12px;font-weight:800;font-size:36px;color:var(--goldD)}
+.tg-l{font-weight:900;font-size:40px;color:var(--coralD)}
+.tg-v{font-family:'Palestine';font-size:70px;color:var(--em);line-height:1.4;margin-top:6px}
 .brand .sub{font-weight:800;font-size:34px;color:var(--goldD);margin-top:6px}
 
 /* CTA strip */
 .cta{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:5px dashed rgba(26,106,79,.3);display:flex;align-items:center;justify-content:space-between;padding:0 80px}
 .notch{position:absolute;top:-30px;width:60px;height:60px;border-radius:50%;background:var(--iv)}
-.cta .txt .a{font-size:84px;color:var(--em);line-height:1.4}
+.cta .txt .a{font-size:80px;color:var(--em);line-height:1.2;margin-top:-26px;margin-bottom:22px}
 .cta .txt .b{font-size:38px;font-weight:900;color:var(--coralD);margin-top:2px}
 .cta .txt .c{font-size:32px;font-weight:800;color:#3D5A50;margin-top:10px}
 .qr{width:250px;height:250px;flex:none;background:#fff;border-radius:26px;box-shadow:0 0 0 5px var(--gold),0 14px 26px rgba(26,106,79,.15);display:flex;align-items:center;justify-content:center}
@@ -67,24 +73,21 @@ html,body{margin:0;background:#fff}
       <img class="logo" src="../assets/logo180.png">
     </div>
 
-    <div class="h1 disp">غدًا <span class="hl">آخر يوم</span><br>للتسجيل</div>
+    <div class="h1 disp">غدًا <span class="hl">آخر يوم</span> للتسجيل</div>
+    <div class="line1"><span class="disp fi">في مبادرة</span><div id="wm"></div></div>
+    <div class="line2">لتعليم التربية الإسلامية <span class="free">مجانًا</span></div>
+    <div class="line3">مركز 180 درجة للتعليم</div>
 
     <div class="mid">
       <div class="cal">
-                <div class="hd">الخميس</div>
+        <div class="hd">الخميس</div>
         <div class="day">5</div>
         <div class="mon">نوفمبر</div>
       </div>
       <div class="facts">
-        <div class="fact"><span class="ic" style="background:var(--emL)"><svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 8-4v6h2V8z M6 12.2V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.8l-6 3z" fill="#1A6A4F"/></svg></span>تعليم التربية الإسلامية</div>
-        <div class="fact"><span class="ic" style="background:#FFE6DD"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" fill="#E8664A"/><circle cx="16.5" cy="9" r="2.6" fill="#FF8A65"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z M14 19c.2-2 1.2-3.6 2.6-4.4 2.6.1 4.4 1.9 4.4 4.4z" fill="#E8664A"/></svg></span>للفئة العمرية 9 – 15 سنة</div>
-        <div class="fact"><span class="ic" style="background:#FFF0CC"><svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.2 6.7.5-5.1 4.4 1.6 6.5L12 16l-5.8 3.6 1.6-6.5L2.7 8.7l6.7-.5z" fill="#F2B544"/></svg></span><span class="free">مجانًا</span></div>
+        <div class="tg-l">🎯 الفئة المستهدفة</div>
+        <div class="tg-v">من 9 إلى 15 سنة</div>
       </div>
-    </div>
-
-    <div class="brand">
-      <div id="wm"></div>
-      <div class="sub">مبادرة تعليمية وقيمية — مركز 180 درجة للتعليم</div>
     </div>
   </div>
 
@@ -117,8 +120,8 @@ function build(){
   document.getElementById('cta').style.height=CTA+'px';
   if(STORY){
     const col=document.querySelector('.col');col.style.paddingTop='150px';
-    document.querySelector('.h1').style.marginTop='90px';document.querySelector('.h1').style.fontSize='128px';document.getElementById('wm').style.height='150px';
-    document.querySelector('.mid').style.marginTop='60px';document.querySelector('.brand').style.marginTop='80px';
+    document.querySelector('.h1').style.marginTop='90px';document.querySelector('.h1').style.fontSize='108px';document.querySelector('.h1').style.whiteSpace='normal';document.getElementById('wm').style.height='150px';
+    document.querySelector('.mid').style.marginTop='80px';document.querySelector('.cal').style.width='280px';document.querySelector('.cal .day').style.fontSize='170px';
     document.querySelector('.qr').style.cssText+='width:320px;height:320px';document.querySelector('.qr img').style.cssText='width:292px;height:292px';
   }
   wordmark(document.getElementById('wm'),130);
