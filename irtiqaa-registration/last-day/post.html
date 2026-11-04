@@ -22,9 +22,10 @@ html,body{margin:0;background:#fff}
 .line1{display:flex;align-items:center;gap:24px}
 .line1 .fi{font-size:58px;color:var(--em);line-height:1.4}
 #wm{height:112px}
-.line2{font-weight:900;font-size:46px;color:var(--ink)}
+.line2{font-weight:900;font-size:42px;color:var(--ink)}
 .line2 .free{color:var(--coralD)}
 .logo{height:120px}
+.top{width:100%;padding:0 64px;display:flex;justify-content:space-between;align-items:center}
 
 .cards{display:flex;gap:36px}
 .card{width:300px;height:250px;background:#fff;border-radius:30px;box-shadow:0 0 0 3px var(--gold),0 16px 30px rgba(26,106,79,.10);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
@@ -47,11 +48,10 @@ html,body{margin:0;background:#fff}
 <body>
 <div class="post" id="post">
   <div class="col" id="col">
-    <span class="alert" id="e0"><i>!</i>تنبيه هام</span>
+    <div class="top" id="e0"><span class="alert"><i>!</i>تنبيه هام</span><img class="logo" src="../assets/logo180.png"></div>
     <div class="h1 disp" id="e1">غدًا <span class="hl">آخر يوم</span> للتسجيل</div>
     <div class="line1" id="e2"><span class="disp fi">في مبادرة</span><div id="wm"></div></div>
-    <div class="line2" id="e3">لتعليم التربية الإسلامية <span class="free">(مجانًا)</span></div>
-    <img class="logo" id="e4" src="../assets/logo180.png">
+    <div class="line2" id="e3">لتعليم التربية الإسلامية <span class="free">(مجانًا)</span> – مركز 180 درجة</div>
     <div class="cards" id="e5">
       <div class="card cal"><div class="hd">الخميس</div><div class="v">5</div><div class="s">نوفمبر</div></div>
       <div class="card"><div class="k">الفئة المستهدفة</div><div class="v">9 – 15</div><div class="s">سنة</div></div>
@@ -80,12 +80,12 @@ function wordmark(host,fs){
 function build(){
   // vertical rhythm (top offset + gaps between elements), per format
   const H=STORY?1920:1350, CTA=STORY?400:300;
-  const TOP=STORY?150:56, GAPS=STORY?[70,10,24,60,80]:[26,2,10,24,34];
+  const TOP=STORY?110:44, GAPS={1:STORY?90:46,2:STORY?14:8,3:STORY?28:20,5:STORY?110:66};
   document.getElementById('post').style.height=H+'px';
   document.getElementById('cta').style.height=CTA+'px';
   document.getElementById('col').style.paddingTop=TOP+'px';
-  GAPS.forEach((g,i)=>document.getElementById('e'+(i+1)).style.marginTop=g+'px');
-  if(STORY){document.getElementById('e1').style.fontSize='116px';document.getElementById('wm').style.height='140px';document.getElementById('e4').style.height='160px';
+  Object.entries(GAPS).forEach(([i,g])=>document.getElementById('e'+i).style.marginTop=g+'px');
+  if(STORY){document.getElementById('e1').style.fontSize='116px';document.getElementById('wm').style.height='140px';document.querySelector('.logo').style.height='150px';
     document.querySelectorAll('.card').forEach(c=>{c.style.width='360px';c.style.height='300px'});document.querySelector('.cards').style.gap='44px';
     document.querySelectorAll('.card .v').forEach(v=>v.style.fontSize=v.classList.contains('sm')?'74px':'120px');}
   wordmark(document.getElementById('wm'),130);
