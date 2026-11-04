@@ -6,99 +6,62 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=block" rel="stylesheet">
 <style>
 @font-face{font-family:'Palestine';src:url('../assets/Palestine-Regular.ttf') format('truetype');font-display:block}
-:root{--em:#1A6A4F;--em2:#2A8466;--emD:#0E4A37;--emL:#E6F3EC;--iv:#FFF8EC;--gold:#F2B544;--goldD:#C7811A;--coral:#FF8A65;--coralD:#E8664A;--tq:#3BB7A8;--ink:#234038}
+:root{--em:#1A6A4F;--emD:#0E4A37;--emL:#E6F3EC;--iv:#FFF8EC;--gold:#F2B544;--goldD:#C7811A;--coral:#FF8A65;--coralD:#E8664A;--ink:#234038}
 *{box-sizing:border-box}
 html,body{margin:0;background:#fff}
 .post{position:relative;width:1080px;overflow:hidden;font-family:'Tajawal',sans-serif;color:var(--ink);
-  background:radial-gradient(ellipse at 85% 0%,#E3F2E9 0%,rgba(227,242,233,0) 45%),radial-gradient(ellipse at 0% 75%,#FFE9C4 0%,rgba(255,233,196,0) 45%),var(--iv)}
+  background:radial-gradient(ellipse at 90% 0%,#E3F2E9 0%,rgba(227,242,233,0) 40%),radial-gradient(ellipse at 5% 70%,#FFEBC9 0%,rgba(255,235,201,0) 40%),var(--iv)}
 .disp{font-family:'Palestine',sans-serif;font-weight:400}
-.col{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:46px 70px 0}
-.dot{position:absolute;border-radius:50%}
+.col{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;text-align:center}
 
-/* top row */
-.top{width:100%;display:flex;justify-content:space-between;align-items:center}
-.alert{display:inline-flex;align-items:center;gap:14px;background:var(--coral);color:#fff;font-weight:900;font-size:40px;padding:12px 30px 16px;border-radius:60px;box-shadow:0 10px 22px rgba(232,102,74,.28)}
-.alert i{display:inline-block;width:38px;height:38px;border-radius:50%;background:#fff;color:var(--coralD);font-style:normal;font-size:30px;line-height:40px;text-align:center}
-.logo{height:118px}
+.alert{display:inline-flex;align-items:center;gap:14px;background:var(--coral);color:#fff;font-weight:900;font-size:38px;padding:10px 32px 14px;border-radius:60px}
+.alert i{display:inline-block;width:36px;height:36px;border-radius:50%;background:#fff;color:var(--coralD);font-style:normal;font-size:28px;line-height:38px}
 
-/* headline */
-.h1{margin-top:22px;font-size:96px;line-height:1.35;white-space:nowrap;color:var(--em);text-align:center}
-.h1 .hl{position:relative;display:inline-block;color:var(--coralD)}
-.h1 .hl::after{content:'';position:absolute;left:4%;right:4%;bottom:22px;height:22px;background:var(--gold);opacity:.55;border-radius:12px;z-index:-1}
+.h1{font-size:100px;line-height:1.35;color:var(--em);white-space:nowrap}
+.h1 .hl{color:var(--coralD)}
+.line1{display:flex;align-items:center;gap:24px}
+.line1 .fi{font-size:58px;color:var(--em);line-height:1.4}
+#wm{height:112px}
+.line2{font-weight:900;font-size:46px;color:var(--ink)}
+.line2 .free{color:var(--coralD)}
+.logo{height:120px}
 
-/* middle: calendar + facts */
-.mid{margin-top:30px;width:100%;display:flex;align-items:center;justify-content:center;gap:46px}
-.cal{position:relative;width:236px;flex:none;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 22px 40px rgba(26,106,79,.18),0 0 0 4px var(--gold);transform:rotate(-4deg)}
-.cal .hd{background:var(--coral);color:#fff;text-align:center;font-weight:900;font-size:40px;padding:12px 0 16px}
-.cal .rings{position:absolute;top:-14px;left:0;right:0;display:flex;justify-content:space-around;padding:0 60px}
-.cal .rings span{width:20px;height:40px;border-radius:12px;background:var(--emD)}
-.cal .day{text-align:center;font-family:'Palestine';font-size:138px;line-height:1.12;color:var(--em);padding-top:6px}
-.cal .mon{text-align:center;font-weight:900;font-size:40px;color:var(--goldD);padding:14px 0 22px}
-.facts{display:flex;flex-direction:column;gap:22px;align-items:flex-start}
-.fact{display:flex;align-items:center;gap:18px;font-weight:900;font-size:44px;color:var(--ink)}
-.fact .ic{width:70px;height:70px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
-.fact .ic svg{width:40px;height:40px}
-.free{background:var(--coral);color:#fff;padding:4px 26px 10px;border-radius:18px;font-size:46px}
+.cards{display:flex;gap:36px}
+.card{width:300px;height:250px;background:#fff;border-radius:30px;box-shadow:0 0 0 3px var(--gold),0 16px 30px rgba(26,106,79,.10);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.card .k{font-weight:900;font-size:34px;color:var(--goldD)}
+.card .v{font-family:'Palestine';font-size:96px;line-height:1.25;color:var(--em)}
+.card .v.sm{font-size:64px;line-height:1.5}
+.card .s{font-weight:900;font-size:34px;color:var(--ink)}
+.card.cal{justify-content:flex-start}
+.card.cal .hd{width:100%;background:var(--coral);color:#fff;font-weight:900;font-size:36px;padding:10px 0 14px}
+.card.cal .v{margin-top:4px}
 
-/* wordmark line */
-.brand{margin-top:22px;display:flex;flex-direction:column;align-items:center}
-#wm{height:120px}
-.line1{margin-top:4px;display:flex;align-items:center;gap:26px}
-.line1 .fi{font-size:64px;color:var(--em);line-height:1.4}
-.line2{margin-top:10px;font-weight:900;font-size:50px;color:var(--ink);display:flex;align-items:center;gap:20px}
-.line3{margin-top:12px;font-weight:800;font-size:36px;color:var(--goldD)}
-.tg-l{font-weight:900;font-size:40px;color:var(--coralD)}
-.tg-v{font-family:'Palestine';font-size:70px;color:var(--em);line-height:1.4;margin-top:6px}
-.brand .sub{font-weight:800;font-size:34px;color:var(--goldD);margin-top:6px}
-
-/* CTA strip */
-.cta{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:5px dashed rgba(26,106,79,.3);display:flex;align-items:center;justify-content:space-between;padding:0 80px}
+.cta{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:5px dashed rgba(26,106,79,.28);display:flex;align-items:center;justify-content:center;gap:70px}
 .notch{position:absolute;top:-30px;width:60px;height:60px;border-radius:50%;background:var(--iv)}
-.cta .txt .a{font-size:80px;color:var(--em);line-height:1.2;margin-top:-26px;margin-bottom:22px}
-.cta .txt .b{font-size:38px;font-weight:900;color:var(--coralD);margin-top:2px}
-.cta .txt .c{font-size:32px;font-weight:800;color:#3D5A50;margin-top:10px}
-.qr{width:250px;height:250px;flex:none;background:#fff;border-radius:26px;box-shadow:0 0 0 5px var(--gold),0 14px 26px rgba(26,106,79,.15);display:flex;align-items:center;justify-content:center}
-.qr img{width:228px;height:228px}
+.cta .a{font-size:84px;color:var(--em);line-height:1.15}
+.cta .b{font-size:40px;font-weight:900;color:var(--coralD);margin-top:24px}
+.qr{width:240px;height:240px;flex:none;background:#fff;border-radius:24px;box-shadow:0 0 0 5px var(--gold);display:flex;align-items:center;justify-content:center}
+.qr img{width:218px;height:218px}
 </style>
 </head>
 <body>
 <div class="post" id="post">
-  <div class="dot" style="width:34px;height:34px;left:70px;top:330px;background:var(--tq)"></div>
-  <div class="dot" style="width:26px;height:26px;right:64px;top:300px;background:var(--gold)"></div>
-  <div class="dot" style="width:20px;height:20px;left:130px;top:640px;background:var(--coral)"></div>
-
-  <div class="col">
-    <div class="top">
-      <span class="alert"><i>!</i>تنبيه هام</span>
-      <img class="logo" src="../assets/logo180.png">
-    </div>
-
-    <div class="h1 disp">غدًا <span class="hl">آخر يوم</span> للتسجيل</div>
-    <div class="line1"><span class="disp fi">في مبادرة</span><div id="wm"></div></div>
-    <div class="line2">لتعليم التربية الإسلامية <span class="free">مجانًا</span></div>
-    <div class="line3">مركز 180 درجة للتعليم</div>
-
-    <div class="mid">
-      <div class="cal">
-        <div class="hd">الخميس</div>
-        <div class="day">5</div>
-        <div class="mon">نوفمبر</div>
-      </div>
-      <div class="facts">
-        <div class="tg-l">🎯 الفئة المستهدفة</div>
-        <div class="tg-v">من 9 إلى 15 سنة</div>
-      </div>
+  <div class="col" id="col">
+    <span class="alert" id="e0"><i>!</i>تنبيه هام</span>
+    <div class="h1 disp" id="e1">غدًا <span class="hl">آخر يوم</span> للتسجيل</div>
+    <div class="line1" id="e2"><span class="disp fi">في مبادرة</span><div id="wm"></div></div>
+    <div class="line2" id="e3">لتعليم التربية الإسلامية <span class="free">(مجانًا)</span></div>
+    <img class="logo" id="e4" src="../assets/logo180.png">
+    <div class="cards" id="e5">
+      <div class="card cal"><div class="hd">الخميس</div><div class="v">5</div><div class="s">نوفمبر</div></div>
+      <div class="card"><div class="k">الفئة المستهدفة</div><div class="v">9 – 15</div><div class="s">سنة</div></div>
     </div>
   </div>
 
   <div class="cta" id="cta">
     <div class="notch" style="left:-30px"></div><div class="notch" style="right:-30px"></div>
-    <div class="txt">
-      <div class="a disp">سجّل الآن</div>
-      <div class="b">قبل إغلاق باب التسجيل</div>
-      <div class="c">امسح الرمز وسجّل خلال دقيقة</div>
-    </div>
-    <div class="qr"><img src="../assets/qr.png"></div>
+    <div id="ctatxt"><div class="a disp">سجّل الآن</div><div class="b">قبل إغلاق باب التسجيل</div></div>
+    <div class="qr" id="qrbox"><img src="../assets/qr.png"></div>
   </div>
 </div>
 <script>
@@ -115,15 +78,16 @@ function wordmark(host,fs){
   svg.style.height='100%';svg.style.width='auto';
 }
 function build(){
-  const H=STORY?1920:1350, CTA=STORY?420:300;
-  const post=document.getElementById('post');post.style.height=H+'px';
+  // vertical rhythm (top offset + gaps between elements), per format
+  const H=STORY?1920:1350, CTA=STORY?400:300;
+  const TOP=STORY?150:56, GAPS=STORY?[70,10,24,60,80]:[26,2,10,24,34];
+  document.getElementById('post').style.height=H+'px';
   document.getElementById('cta').style.height=CTA+'px';
-  if(STORY){
-    const col=document.querySelector('.col');col.style.paddingTop='150px';
-    document.querySelector('.h1').style.marginTop='90px';document.querySelector('.h1').style.fontSize='108px';document.querySelector('.h1').style.whiteSpace='normal';document.getElementById('wm').style.height='150px';
-    document.querySelector('.mid').style.marginTop='80px';document.querySelector('.cal').style.width='280px';document.querySelector('.cal .day').style.fontSize='170px';
-    document.querySelector('.qr').style.cssText+='width:320px;height:320px';document.querySelector('.qr img').style.cssText='width:292px;height:292px';
-  }
+  document.getElementById('col').style.paddingTop=TOP+'px';
+  GAPS.forEach((g,i)=>document.getElementById('e'+(i+1)).style.marginTop=g+'px');
+  if(STORY){document.getElementById('e1').style.fontSize='116px';document.getElementById('wm').style.height='140px';document.getElementById('e4').style.height='160px';
+    document.querySelectorAll('.card').forEach(c=>{c.style.width='360px';c.style.height='300px'});document.querySelector('.cards').style.gap='44px';
+    document.querySelectorAll('.card .v').forEach(v=>v.style.fontSize=v.classList.contains('sm')?'74px':'120px');}
   wordmark(document.getElementById('wm'),130);
 }
 window.READY=false;
